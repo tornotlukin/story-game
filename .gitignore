@@ -1,0 +1,50 @@
+# Ren'Py compiled files
+*.rpyc
+*.rpymc
+*.rpyb
+
+# Ren'Py cache
+cache/
+tmp/
+
+# Save files
+saves/
+log.txt
+
+# Ren'Py bytecode
+*.pyo
+*.pyc
+__pycache__/
+
+# OS files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Build artifacts
+build/
+dist/
+
+# Ren'Py error logs
+errors.txt
+traceback.txt
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Documentation (reference only, not part of game)
+docs/
