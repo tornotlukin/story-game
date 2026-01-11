@@ -21,41 +21,61 @@ This is a Ren'Py 8.5.2 interactive fiction project focused on **technical implem
 ## Directory Structure
 
 ```
-project-folder-name/
-├── systems/              # Game mechanics & logic
-│   ├── state_manager.rpy       # Core state/variable management
-│   ├── dice_system.rpy         # Dice rolling mechanics
-│   ├── inventory_system.rpy    # Inventory management
-│   ├── character_stats.rpy     # Character attributes/progression
-│   └── relationship_tracker.rpy # NPC relationships
+story-game/                         # Project root
+├── .gitignore
+├── claude.md                       # Development guide (this file)
+├── README.md                       # User-facing documentation
+├── docs/                           # Reference documentation
+│   ├── live2d/                     # Live2D integration docs
+│   └── renpy/                      # Ren'Py 8.x HTML documentation
 │
-├── ui/                   # Visual styling & chrome
-│   ├── gui.rpy                 # Main GUI configuration
-│   ├── fonts.rpy               # Font definitions
-│   ├── colors.rpy              # Color scheme
-│   ├── styles.rpy              # Style definitions
-│   ├── touch_config.rpy        # Touch/mobile settings
-│   └── chrome.rpy              # Dialogue boxes, name boxes
-│
-├── screens/              # Interactive UI screens
-│   ├── dice_display.rpy        # Dice roll visualization
-│   ├── character_sheet.rpy     # Stats display
-│   ├── inventory_screen.rpy    # Inventory UI
-│   └── custom_menus.rpy        # Custom choice menus
-│
-├── transitions/          # Scene transition effects
-│   ├── basic_transitions.rpy   # Dissolve, fade, etc.
-│   ├── special_fx.rpy          # Flashes, shakes
-│   └── custom_transitions.rpy  # Project-specific effects
-│
-├── content/              # Story scripts (user creates)
-│   ├── script.rpy              # Main story entry point
-│   ├── chapter_01.rpy          # Story content
-│   └── characters.rpy          # Character definitions
-│
-├── img/                  # images for project
-├── options.rpy           # Ren'Py configuration
-└── README.md            # User-facing documentation
+└── game/                           # Ren'Py game folder (all game code)
+    │
+    ├── options.rpy                 # Game configuration (resolution, etc.)
+    ├── gui.rpy                     # Ren'Py default GUI config
+    ├── screens.rpy                 # Ren'Py default screens
+    ├── script.rpy                  # Ren'Py default script (unused)
+    │
+    ├── systems/                    # Game mechanics & logic
+    │   ├── state_manager.rpy       # Core state/variable management
+    │   └── dice_system.rpy         # Dice rolling mechanics
+    │
+    ├── ui/                         # Visual styling & chrome
+    │   ├── gui.rpy                 # Main GUI configuration
+    │   ├── fonts.rpy               # Font definitions
+    │   ├── colors.rpy              # Color scheme
+    │   ├── styles.rpy              # Style definitions
+    │   └── touch_config.rpy        # Touch/mobile settings
+    │
+    ├── screens/                    # Interactive UI screens
+    │   └── screens_base.rpy        # Core screens (say, choice, menu)
+    │
+    ├── transitions/                # Scene & character transitions
+    │   ├── transitions.json        # JSON config for all transitions
+    │   ├── transition_loader.rpy   # JSON loader & defaults
+    │   ├── character_animations.rpy # Character entrance/exit factory
+    │   ├── basic_transitions.rpy   # Dissolve, fade, wipe, etc.
+    │   └── special_fx.rpy          # Flashes, shakes, effects
+    │
+    ├── content/                    # Story scripts (user creates)
+    │   ├── script.rpy              # Main story entry point
+    │   └── characters.rpy          # Character & image definitions
+    │
+    ├── audio/                      # Sound effects & music
+    │
+    ├── images/                     # Ren'Py auto-detected images
+    │
+    ├── gui/                        # GUI assets (Ren'Py generated)
+    │   ├── bar/                    # Progress bar images
+    │   ├── button/                 # Button backgrounds
+    │   ├── overlay/                # Screen overlays
+    │   ├── scrollbar/              # Scrollbar images
+    │   ├── slider/                 # Slider images
+    │   └── phone/                  # Mobile-specific variants
+    │
+    ├── libs/                       # External libraries
+    │
+    └── tl/                         # Translations
 ```
 
 ## File Organization Rules
@@ -800,16 +820,65 @@ screen touch_button():
 - Gestures - For mobile touch input
 - Platform detection - `renpy.mobile`, `renpy.android`, `renpy.ios`
 
-### Documentation References:
-- Main docs: https://www.renpy.org/doc/html/
-- GUI customization: https://www.renpy.org/doc/html/gui.html
-- Screens: https://www.renpy.org/doc/html/screens.html
-- Python statements: https://www.renpy.org/doc/html/python.html
-- Transitions: https://www.renpy.org/doc/html/transitions.html
-- Styles: https://www.renpy.org/doc/html/style.html
-- Gestures: https://www.renpy.org/doc/html/gesture.html
-- Android: https://www.renpy.org/doc/html/android.html
-- iOS: https://www.renpy.org/doc/html/ios.html
+### Documentation References (Local):
+
+The complete Ren'Py 8.5.2 documentation is available locally at `docs/renpy/`.
+
+**LLM Quick-Access Files** (read these first):
+- `docs/renpy/LLM_QUICKREF.md` - Fast topic-to-file lookup, common patterns
+- `docs/renpy/LLM_INDEX.json` - Machine-readable index with keywords and file mappings
+- `docs/CLAUDE.md` - HTML navigation strategies for efficient doc reading
+
+**Index Files** (for targeted lookups):
+| File | Use For |
+|------|---------|
+| `index.html` | Main table of contents |
+| `py-function-class-index.html` | Function/class name → file lookup |
+| `std-var-index.html` | Variable name → file lookup |
+| `std-style-property-index.html` | Style properties reference |
+| `std-transform-property-index.html` | Transform properties reference |
+| `genindex.html` | Alphabetical general index |
+
+**Topic Quick Map**:
+| Topic | File |
+|-------|------|
+| Character, dialogue | `dialogue.html` |
+| show, hide, scene | `displaying_images.html` |
+| Screens, vbox, hbox | `screens.html` |
+| Screen actions | `screen_actions.html` |
+| Styles | `style.html` + `style_properties.html` |
+| Transforms, ATL | `transforms.html` |
+| Transitions | `transitions.html` |
+| Touch/gestures | `gesture.html` |
+| Mobile/Android/iOS | `android.html`, `ios.html` |
+| config.* variables | `config.html` |
+| renpy.* functions | `statement_equivalents.html`, `other.html` |
+
+**Navigation Strategy**:
+1. Check `LLM_QUICKREF.md` for common patterns
+2. Use index files for specific lookups
+3. Read only the relevant section of HTML files (they can be large)
+4. See `docs/CLAUDE.md` for detailed HTML navigation patterns
+
+### Live2D Documentation:
+
+**For Ren'Py Live2D integration** (primary reference):
+- `docs/renpy/live2d.html` - Full local documentation for Live2D in Ren'Py
+
+**For Cubism Editor topics** (model creation):
+- `docs/live2d/LLM_QUICKREF.md` - Quick reference for Live2D workflows
+- `docs/live2d/LLM_INDEX.json` - Index with external doc links
+
+**Live2D Quick Reference**:
+```python
+# Define Live2D character
+image hiyori = Live2D("Resources/Hiyori", base=1.0)
+
+# Show with motion and expression
+show hiyori m1 e1
+```
+
+**Note**: Most Cubism Editor docs link externally to docs.live2d.com. The Ren'Py integration docs at `docs/renpy/live2d.html` are fully available locally.
 
 ## LLM Development Notes
 
