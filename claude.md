@@ -18,6 +18,10 @@ This is a Ren'Py 8.5.2 interactive fiction project focused on **technical implem
 - **Clear boundaries** - minimal cross-file dependencies
 - **Easy scanning** - humans and LLMs should quickly understand any file
 
+### Documentation Reference
+- **/doc/renpy** - folder location for renpy documentation
+- check out the claude.md file in the /docs folder for doc search methodology
+
 ## Directory Structure
 
 ```
@@ -26,7 +30,6 @@ story-game/                         # Project root
 ├── claude.md                       # Development guide (this file)
 ├── README.md                       # User-facing documentation
 ├── docs/                           # Reference documentation
-│   ├── live2d/                     # Live2D integration docs
 │   └── renpy/                      # Ren'Py 8.x HTML documentation
 │
 └── game/                           # Ren'Py game folder (all game code)
@@ -73,7 +76,9 @@ story-game/                         # Project root
     │   ├── slider/                 # Slider images
     │   └── phone/                  # Mobile-specific variants
     │
-    ├── libs/                       # External libraries
+    ├── libs/                       # External libraries\
+    │
+    ├── fonts/                      # custom font location
     │
     └── tl/                         # Translations
 ```
@@ -885,15 +890,20 @@ show hiyori m1 e1
 When working with this codebase:
 
 1. **Always check CLAUDE.MD first** - Understand structure before coding
-2. **Identify the right directory** - Where does this code belong?
-3. **Check for existing files** - Don't duplicate functionality
-4. **Follow patterns** - Consistency matters more than cleverness
-5. **Keep files small** - Split when approaching 300 lines
-6. **Document as you go** - Comments and docstrings required
-7. **Think modular** - Systems should work independently
-8. **Minimize coupling** - Clear interfaces between systems
-9. **Ask before major changes** - Discuss structure changes with user
-10. **Test on multiple inputs** - Touch, mouse, and keyboard support required
+2. **For Ren'Py documentation lookups**:
+   - **FIRST**: Check `docs/renpy/LLM_QUICKREF.md` - Has topic-to-file mappings, common patterns
+   - **SECOND**: Check `docs/renpy/LLM_INDEX.json` - Keyword search, function lookups
+   - **LAST**: Read specific HTML file sections only when needed
+   - This order saves tokens and speeds up lookups
+3. **Identify the right directory** - Where does this code belong?
+4. **Check for existing files** - Don't duplicate functionality
+5. **Follow patterns** - Consistency matters more than cleverness
+6. **Keep files small** - Split when approaching 300 lines
+7. **Document as you go** - Comments and docstrings required
+8. **Think modular** - Systems should work independently
+9. **Minimize coupling** - Clear interfaces between systems
+10. **Ask before major changes** - Discuss structure changes with user
+11. **Test on multiple inputs** - Touch, mouse, and keyboard support required
 
 ## User Customization Areas
 

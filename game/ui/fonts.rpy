@@ -3,26 +3,33 @@
 ## Central font configuration for consistent typography.
 ## All font paths and sizes defined here.
 ##
+## Font files should be placed in the game/ directory:
+##   - CalSans-Regular.ttf (for character names and UI)
+##   - Jua-Regular.ttf (for dialogue text)
+##
 ## Related files: gui.rpy, styles.rpy
 
 ################################################################################
 ## Font Files
 ################################################################################
 
-## Main text font
-define gui.text_font = "DejaVuSans.ttf"
+## Main dialogue text font
+define gui.text_font = "Jua-Regular.ttf"
 
 ## Character name font
-define gui.name_text_font = "DejaVuSans.ttf"
+define gui.name_text_font = "CalSans-Regular.ttf"
 
 ## Interface/button font
-define gui.interface_text_font = "DejaVuSans.ttf"
+define gui.interface_text_font = "CalSans-Regular.ttf"
 
 ## System font (for notifications, etc.)
-define gui.system_font = "DejaVuSans.ttf"
+define gui.system_font = "CalSans-Regular.ttf"
 
 ## Glyph font (for special characters/icons)
 define gui.glyph_font = "DejaVuSans.ttf"
+
+## Monospace font (for typewriter preset)
+define gui.mono_font = "DejaVuSansMono.ttf"
 
 
 ################################################################################

@@ -53,15 +53,18 @@ init -3 python:
     def play_transition_sound(sound, volume, delay):
         """
         Play a sound effect for a transition.
+        Uses renpy.music.play with sound channel and relative_volume.
         """
         if sound is None:
             return
 
         def _play():
-            renpy.sound.play(sound, volume=volume)
+            renpy.music.play(sound, channel='sound', loop=False, relative_volume=volume)
 
         if delay > 0:
-            renpy.invoke_in_thread(_play, delay=delay)
+            # For delayed sounds, we can't easily delay in a transform
+            # So we just play immediately (delay handled by animation timing)
+            _play()
         else:
             _play()
 

@@ -1,0 +1,312 @@
+{
+  "settings": {
+    "default_preset": "standard",
+    "fonts": {
+      "name": "CalSans-Regular.ttf",
+      "text": "Jua-Regular.ttf",
+      "interface": "CalSans-Regular.ttf"
+    },
+    "typing_channel": "typing",
+    "typing_channel_mixer": "sfx"
+  },
+
+  "presets": {
+
+    "standard": {
+      "description": "Default dialogue box style",
+      "background": {
+        "image": "gui/textbox.png",
+        "borders": [30, 25, 30, 35],
+        "tile": false
+      },
+      "namebox": {
+        "image": "gui/namebox.png",
+        "borders": [5, 5, 5, 5],
+        "tile": false
+      },
+      "name_style": {
+        "font": null,
+        "size": 38,
+        "color": "#FFD700",
+        "outlines": [[2, "#000000", 0, 0]],
+        "xalign": 0.0
+      },
+      "text_style": {
+        "font": null,
+        "size": 30,
+        "color": "#FFFFFF",
+        "outlines": [[1, "#000000", 0, 0]],
+        "line_spacing": 6,
+        "textshader": null
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 1.0,
+        "xoffset": 0,
+        "yoffset": -30
+      },
+      "transitions": {
+        "enter": null,
+        "exit": null
+      },
+      "sounds": {
+        "appear": null,
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": null
+      },
+      "box_effect": null
+    },
+
+    "dramatic": {
+      "description": "Bold dramatic dialogue for important moments",
+      "background": {
+        "image": "gui/textbox_dramatic.png",
+        "borders": [35, 30, 35, 40],
+        "tile": false
+      },
+      "namebox": {
+        "image": "gui/namebox_dramatic.png",
+        "borders": [8, 8, 8, 8],
+        "tile": false
+      },
+      "name_style": {
+        "font": null,
+        "size": 44,
+        "color": "#FF4444",
+        "outlines": [[3, "#000000", 0, 0]],
+        "xalign": 0.0
+      },
+      "text_style": {
+        "font": null,
+        "size": 34,
+        "color": "#FFFFFF",
+        "outlines": [[2, "#000000", 0, 0]],
+        "line_spacing": 8,
+        "textshader": "dissolve:15"
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 1.0,
+        "xoffset": 0,
+        "yoffset": -20
+      },
+      "transitions": {
+        "enter": "dramatic_emerge_enter",
+        "exit": "dramatic_shrink_exit"
+      },
+      "sounds": {
+        "appear": "audio/Fantozzi-StoneL3.ogg",
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": null
+      },
+      "box_effect": null
+    },
+
+    "whisper": {
+      "description": "Soft whispered dialogue",
+      "background": {
+        "image": "gui/textbox_whisper.png",
+        "borders": [25, 20, 25, 25],
+        "tile": false
+      },
+      "namebox": {
+        "image": "gui/namebox_whisper.png",
+        "borders": [5, 5, 5, 5],
+        "tile": false
+      },
+      "name_style": {
+        "font": null,
+        "size": 32,
+        "color": "#AAAAAA",
+        "outlines": [[1, "#333333", 0, 0]],
+        "xalign": 0.0
+      },
+      "text_style": {
+        "font": null,
+        "size": 26,
+        "color": "#CCCCCC",
+        "outlines": [[1, "#222222", 0, 0]],
+        "line_spacing": 4,
+        "textshader": "dissolve:20"
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 1.0,
+        "xoffset": 0,
+        "yoffset": -40
+      },
+      "transitions": {
+        "enter": "pop_in_enter",
+        "exit": "vanish_quick_exit"
+      },
+      "sounds": {
+        "appear": null,
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": null
+      },
+      "box_effect": null
+    },
+
+    "frightened": {
+      "description": "Shaky dialogue for scared or nervous moments",
+      "background": {
+        "image": "gui/textbox_frightened.png",
+        "borders": [30, 25, 30, 35],
+        "tile": false
+      },
+      "namebox": {
+        "image": "gui/namebox.png",
+        "borders": [5, 5, 5, 5],
+        "tile": false
+      },
+      "name_style": {
+        "font": null,
+        "size": 36,
+        "color": "#FFCC00",
+        "outlines": [[2, "#000000", 0, 0]],
+        "xalign": 0.0
+      },
+      "text_style": {
+        "font": null,
+        "size": 28,
+        "color": "#FFFFFF",
+        "outlines": [[1, "#000000", 0, 0]],
+        "line_spacing": 6,
+        "textshader": "jitter:2,2|dissolve:10"
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 1.0,
+        "xoffset": 0,
+        "yoffset": -30
+      },
+      "transitions": {
+        "enter": "pop_in_enter",
+        "exit": "vanish_quick_exit"
+      },
+      "sounds": {
+        "appear": "audio/Fantozzi-SandL3.ogg",
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": null
+      },
+      "box_effect": "shake"
+    },
+
+    "typewriter": {
+      "description": "Retro typewriter style with typing sounds",
+      "background": {
+        "image": "gui/textbox_paper.png",
+        "borders": [25, 20, 25, 25],
+        "tile": false
+      },
+      "namebox": {
+        "image": "gui/namebox_paper.png",
+        "borders": [5, 5, 5, 5],
+        "tile": false
+      },
+      "name_style": {
+        "font": "DejaVuSansMono.ttf",
+        "size": 32,
+        "color": "#333333",
+        "outlines": [],
+        "xalign": 0.0
+      },
+      "text_style": {
+        "font": "DejaVuSansMono.ttf",
+        "size": 26,
+        "color": "#222222",
+        "outlines": [],
+        "line_spacing": 4,
+        "textshader": "typewriter"
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 1.0,
+        "xoffset": 0,
+        "yoffset": -30
+      },
+      "transitions": {
+        "enter": "slide_left_enter",
+        "exit": "fade_left_exit"
+      },
+      "sounds": {
+        "appear": "audio/Fantozzi-SandL1.ogg",
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": "audio/Fantozzi-StoneL1.ogg"
+      },
+      "box_effect": null
+    },
+
+    "announcement": {
+      "description": "Center-screen announcement style",
+      "background": {
+        "image": "gui/textbox_announcement.png",
+        "borders": [40, 30, 40, 30],
+        "tile": false
+      },
+      "namebox": {
+        "image": null,
+        "borders": [0, 0, 0, 0],
+        "tile": false
+      },
+      "name_style": {
+        "font": null,
+        "size": 0,
+        "color": "#FFFFFF",
+        "outlines": [],
+        "xalign": 0.5
+      },
+      "text_style": {
+        "font": null,
+        "size": 36,
+        "color": "#FFFFFF",
+        "outlines": [[2, "#000000", 0, 0]],
+        "line_spacing": 10,
+        "textshader": "dissolve:25"
+      },
+      "position": {
+        "xalign": 0.5,
+        "yalign": 0.5,
+        "xoffset": 0,
+        "yoffset": 0
+      },
+      "transitions": {
+        "enter": "rise_up_enter",
+        "exit": "float_up_exit"
+      },
+      "sounds": {
+        "appear": "audio/Fantozzi-StoneR2.ogg",
+        "dismiss": null,
+        "text_blip": null,
+        "typing_loop": null
+      },
+      "box_effect": null
+    }
+
+  },
+
+  "box_effects": {
+    "shake": {
+      "description": "Box shakes/jiggles continuously",
+      "intensity": 3,
+      "speed": 15
+    },
+    "pulse": {
+      "description": "Box pulses in scale",
+      "min_scale": 0.98,
+      "max_scale": 1.02,
+      "speed": 2.0
+    },
+    "glow": {
+      "description": "Box has a pulsing glow effect",
+      "intensity": 0.2,
+      "speed": 1.5,
+      "color": "#FFFFFF"
+    }
+  }
+}

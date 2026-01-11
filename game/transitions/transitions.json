@@ -23,8 +23,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneL1.ogg",
+      "sound_volume": 0.7,
       "sound_delay": 0
     },
 
@@ -42,8 +42,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneR1.ogg",
+      "sound_volume": 0.7,
       "sound_delay": 0
     },
 
@@ -61,8 +61,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneL2.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -80,8 +80,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneR2.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -99,8 +99,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": -5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL1.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -118,8 +118,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR1.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -137,8 +137,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": -5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL2.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -156,8 +156,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR2.ogg",
+      "sound_volume": 0.6,
       "sound_delay": 0
     },
 
@@ -175,9 +175,9 @@
       "start_scale": 0.85,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
+      "sound": "audio/Fantozzi-StoneL3.ogg",
       "sound_volume": 0.8,
-      "sound_delay": 0
+      "sound_delay": 0.1
     },
 
     "dramatic_left_enter": {
@@ -194,7 +194,7 @@
       "start_scale": 0.9,
       "end_scale": 1.0,
       "rotate": -3,
-      "sound": null,
+      "sound": "audio/Fantozzi-StoneL1.ogg",
       "sound_volume": 0.8,
       "sound_delay": 0
     },
@@ -213,7 +213,7 @@
       "start_scale": 0.9,
       "end_scale": 1.0,
       "rotate": 3,
-      "sound": null,
+      "sound": "audio/Fantozzi-StoneR1.ogg",
       "sound_volume": 0.8,
       "sound_delay": 0
     },
@@ -232,8 +232,8 @@
       "start_scale": 0.8,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL3.ogg",
+      "sound_volume": 0.5,
       "sound_delay": 0
     },
 
@@ -251,8 +251,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL1.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -270,8 +270,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR1.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -289,8 +289,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL2.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -308,8 +308,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR2.ogg",
+      "sound_volume": 0.3,
       "sound_delay": 0
     },
 
@@ -327,8 +327,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": -5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL3.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -346,8 +346,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR3.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -365,8 +365,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": -5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandL1.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -384,8 +384,8 @@
       "start_scale": 1.0,
       "end_scale": 1.0,
       "rotate": 5,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR1.ogg",
+      "sound_volume": 0.4,
       "sound_delay": 0
     },
 
@@ -403,8 +403,8 @@
       "start_scale": 1.0,
       "end_scale": 0.9,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-SandR3.ogg",
+      "sound_volume": 0.3,
       "sound_delay": 0
     },
 
@@ -422,8 +422,8 @@
       "start_scale": 1.0,
       "end_scale": 0.7,
       "rotate": 0,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneL2.ogg",
+      "sound_volume": 0.5,
       "sound_delay": 0
     },
 
@@ -441,8 +441,8 @@
       "start_scale": 1.0,
       "end_scale": 0.8,
       "rotate": 15,
-      "sound": null,
-      "sound_volume": 0.8,
+      "sound": "audio/Fantozzi-StoneR3.ogg",
+      "sound_volume": 0.5,
       "sound_delay": 0
     }
 

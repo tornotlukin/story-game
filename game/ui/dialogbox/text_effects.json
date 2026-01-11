@@ -1,0 +1,65 @@
+{
+  "description": "Custom text tag effect parameters",
+  "note": "These complement Ren'Py's built-in textshaders (wave, jitter, dissolve, etc.)",
+
+  "effects": {
+
+    "rainbow": {
+      "description": "Cycles text through rainbow colors",
+      "speed": 1.0,
+      "saturation": 1.0,
+      "lightness": 0.5
+    },
+
+    "bounce": {
+      "description": "Letters bounce up and down individually",
+      "height": 5,
+      "speed": 3.0,
+      "offset_per_char": 0.15
+    },
+
+    "fade": {
+      "description": "Text fades in and out",
+      "min_alpha": 0.3,
+      "max_alpha": 1.0,
+      "speed": 1.5
+    },
+
+    "grow": {
+      "description": "Text slowly grows larger",
+      "start_size": 1.0,
+      "end_size": 1.3,
+      "duration": 2.0
+    },
+
+    "shrink": {
+      "description": "Text slowly shrinks smaller",
+      "start_size": 1.0,
+      "end_size": 0.7,
+      "duration": 2.0
+    },
+
+    "scramble": {
+      "description": "Characters scramble before revealing",
+      "chars": "!@#$%^&*?",
+      "duration": 0.5,
+      "reveal_speed": 0.05
+    },
+
+    "glitch": {
+      "description": "Text glitches with random offsets",
+      "intensity": 3,
+      "frequency": 0.1,
+      "color_shift": true
+    },
+
+    "outline_pulse": {
+      "description": "Text outline pulses",
+      "min_size": 1,
+      "max_size": 4,
+      "speed": 2.0,
+      "color": "#FFFFFF"
+    }
+
+  }
+}
