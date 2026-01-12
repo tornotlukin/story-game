@@ -51,6 +51,11 @@ init python:
                 tile=tile
             )
 
+        # Inject window padding
+        if bg and bg.get("padding") and "window_padding" not in kwargs:
+            padding = bg["padding"]
+            kwargs["window_padding"] = (padding[0], padding[1], padding[2], padding[3])
+
         # Get and inject text style (applied to id "what")
         text_style = dialogbox_manager.get_text_style()
         if text_style:
@@ -62,6 +67,20 @@ init python:
                 kwargs["what_font"] = text_style["font"]
             if text_style.get("outlines") and "what_outlines" not in kwargs:
                 kwargs["what_outlines"] = text_style["outlines"]
+            # Inject textshader for text effects
+            if text_style.get("textshader") and "what_textshader" not in kwargs:
+                kwargs["what_textshader"] = text_style["textshader"]
+            # Inject line spacing
+            if text_style.get("line_spacing") is not None and "what_line_spacing" not in kwargs:
+                kwargs["what_line_spacing"] = text_style["line_spacing"]
+            # Inject text alignment (0.0=left, 0.5=center, 1.0=right)
+            if text_style.get("text_align") is not None and "what_text_align" not in kwargs:
+                kwargs["what_text_align"] = text_style["text_align"]
+            # Inject text position within the window
+            if text_style.get("xpos") is not None and "what_xpos" not in kwargs:
+                kwargs["what_xpos"] = text_style["xpos"]
+            if text_style.get("ypos") is not None and "what_ypos" not in kwargs:
+                kwargs["what_ypos"] = text_style["ypos"]
 
         # Get and inject name style (applied to id "who")
         name_style = dialogbox_manager.get_name_style()
@@ -74,6 +93,26 @@ init python:
                 kwargs["who_font"] = name_style["font"]
             if name_style.get("outlines") and "who_outlines" not in kwargs:
                 kwargs["who_outlines"] = name_style["outlines"]
+
+        # Get and inject namebox position (applied to id "namebox" container)
+        # Note: screens.rpy registers 'namebox' as a character_id_prefix
+        # Namebox is now outside the window in a fixed container
+        namebox = dialogbox_manager.get_namebox()
+        if namebox:
+            # Position properties for the namebox container
+            if namebox.get("xpos") is not None and "namebox_xpos" not in kwargs:
+                kwargs["namebox_xpos"] = namebox["xpos"]
+            if namebox.get("ypos") is not None and "namebox_ypos" not in kwargs:
+                kwargs["namebox_ypos"] = namebox["ypos"]
+            if namebox.get("xoffset") is not None and "namebox_xoffset" not in kwargs:
+                kwargs["namebox_xoffset"] = namebox["xoffset"]
+            if namebox.get("yoffset") is not None and "namebox_yoffset" not in kwargs:
+                kwargs["namebox_yoffset"] = namebox["yoffset"]
+            # Alignment properties
+            if namebox.get("xalign") is not None and "namebox_xalign" not in kwargs:
+                kwargs["namebox_xalign"] = namebox["xalign"]
+            if namebox.get("yalign") is not None and "namebox_yalign" not in kwargs:
+                kwargs["namebox_yalign"] = namebox["yalign"]
 
         # Return tuple of (args, kwargs) as required
         return args, kwargs

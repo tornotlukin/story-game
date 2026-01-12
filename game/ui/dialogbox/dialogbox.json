@@ -17,12 +17,18 @@
       "background": {
         "image": "images/dialog_test_white.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [30, 20, 30, 20]
       },
       "namebox": {
         "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 1.0
       },
       "name_style": {
         "font": null,
@@ -37,6 +43,9 @@
         "color": "#222222",
         "outlines": [],
         "line_spacing": 6,
+        "text_align": 0.0,
+        "xpos": 268,
+        "ypos": 50,
         "textshader": null
       },
       "position": {
@@ -59,16 +68,22 @@
     },
 
     "dramatic": {
-      "description": "Bold dramatic dialogue - red",
+      "description": "Bold dramatic dialogue - red with jitter",
       "background": {
         "image": "images/dialog_test_red.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [30, 20, 30, 20]
       },
       "namebox": {
         "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 1.0
       },
       "name_style": {
         "font": null,
@@ -83,7 +98,10 @@
         "color": "#FFFFFF",
         "outlines": [[2, "#000000", 0, 0]],
         "line_spacing": 8,
-        "textshader": null
+        "text_align": 0.0,
+        "xpos": 268,
+        "ypos": 50,
+        "textshader": "jitter"
       },
       "position": {
         "xalign": 0.5,
@@ -105,16 +123,22 @@
     },
 
     "whisper": {
-      "description": "Soft whispered dialogue - blue",
+      "description": "Soft whispered dialogue - blue with wave",
       "background": {
         "image": "images/dialog_test_blue.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [30, 20, 30, 20]
       },
       "namebox": {
         "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 1.0
       },
       "name_style": {
         "font": null,
@@ -129,7 +153,10 @@
         "color": "#EEEEFF",
         "outlines": [[1, "#222222", 0, 0]],
         "line_spacing": 4,
-        "textshader": null
+        "text_align": 0.0,
+        "xpos": 268,
+        "ypos": 50,
+        "textshader": "wave"
       },
       "position": {
         "xalign": 0.5,
@@ -151,16 +178,22 @@
     },
 
     "frightened": {
-      "description": "Shaky dialogue - red",
+      "description": "Shaky dialogue - red with shake effect",
       "background": {
         "image": "images/dialog_test_red.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [30, 20, 30, 20]
       },
       "namebox": {
         "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 1.0
       },
       "name_style": {
         "font": null,
@@ -175,7 +208,10 @@
         "color": "#FFFFFF",
         "outlines": [[1, "#000000", 0, 0]],
         "line_spacing": 6,
-        "textshader": null
+        "text_align": 0.0,
+        "xpos": 268,
+        "ypos": 50,
+        "textshader": "jitter"
       },
       "position": {
         "xalign": 0.5,
@@ -197,16 +233,22 @@
     },
 
     "typewriter": {
-      "description": "Retro typewriter style - white",
+      "description": "Retro typewriter style with typing sound",
       "background": {
         "image": "images/dialog_test_white.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [30, 20, 30, 20]
       },
       "namebox": {
         "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 1.0
       },
       "name_style": {
         "font": "DejaVuSansMono.ttf",
@@ -221,7 +263,10 @@
         "color": "#222222",
         "outlines": [],
         "line_spacing": 4,
-        "textshader": null
+        "text_align": 0.0,
+        "xpos": 268,
+        "ypos": 50,
+        "textshader": "typewriter"
       },
       "position": {
         "xalign": 0.5,
@@ -243,16 +288,22 @@
     },
 
     "announcement": {
-      "description": "Center-screen announcement - green",
+      "description": "Center-screen announcement - green, centered text",
       "background": {
         "image": "images/dialog_test_green.png",
         "borders": [216, 216, 216, 216],
-        "tile": false
+        "tile": false,
+        "padding": [40, 30, 40, 30]
       },
       "namebox": {
         "image": null,
         "borders": [0, 0, 0, 0],
-        "tile": false
+        "tile": false,
+        "xpos": 350,
+        "ypos": null,
+        "xoffset": 0,
+        "yoffset": -340,
+        "yalign": 0.5
       },
       "name_style": {
         "font": null,
@@ -267,6 +318,9 @@
         "color": "#FFFFFF",
         "outlines": [[2, "#000000", 0, 0]],
         "line_spacing": 10,
+        "text_align": 0.5,
+        "xpos": null,
+        "ypos": null,
         "textshader": null
       },
       "position": {
