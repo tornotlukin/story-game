@@ -464,12 +464,14 @@ transform flashback_full:
     shader "shader.color_sepia"
     u_amount 1.0
 
-# Dream sequence (blur + wave + desaturate)
+# Dream sequence (blur + wave + desaturate) - animated, needs pause 0 + repeat
 transform dream:
     shader "shader.distort_wave"
     u_amplitude 0.008
     u_frequency 5.0
     u_speed 1.0
+    pause 0
+    repeat
 
 # Horror effect (desaturate + vignette + chromatic)
 transform horror:
@@ -579,7 +581,7 @@ transform bokeh_custom(radius=4.0, amount=1.5, contrast=0.2):
     u_amount amount
     u_contrast contrast
 
-# Light rays effect
+# Light rays effect - u_samples is float for GPU compatibility
 transform light_rays:
     shader "shader.light_rays"
     u_light_position (0.5, 0.0)
@@ -587,7 +589,7 @@ transform light_rays:
     u_decay 0.95
     u_power 0.3
     u_intensity 0.5
-    u_samples 8
+    u_samples 8.0
 
 transform light_rays_strong:
     shader "shader.light_rays"
@@ -596,7 +598,7 @@ transform light_rays_strong:
     u_decay 0.9
     u_power 0.5
     u_intensity 0.8
-    u_samples 12
+    u_samples 12.0
 
 transform light_rays_custom(pos=(0.5, 0.0), color=(1.0, 0.95, 0.8, 1.0), intensity=0.5):
     shader "shader.light_rays"
@@ -605,7 +607,7 @@ transform light_rays_custom(pos=(0.5, 0.0), color=(1.0, 0.95, 0.8, 1.0), intensi
     u_decay 0.95
     u_power 0.3
     u_intensity intensity
-    u_samples 8
+    u_samples 8.0
 
 # Threshold effect (posterize/contrast)
 transform threshold_high:

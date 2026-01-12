@@ -468,7 +468,7 @@ init python:
 
 init python:
 
-    # Grayscale
+    # Grayscale - preserves transparency
     renpy.register_shader("shader.color_grayscale", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -480,10 +480,13 @@ init python:
         vec4 color = texture2D(tex0, v_tex_coord);
         float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
         vec3 grayColor = vec3(gray);
-        gl_FragColor = vec4(mix(color.rgb, grayColor, u_amount), color.a);
+        vec3 result = mix(color.rgb, grayColor, u_amount);
+        // Preserve original RGB for transparent pixels
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
-    # Sepia Tone
+    # Sepia Tone - preserves transparency
     renpy.register_shader("shader.color_sepia", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -497,10 +500,13 @@ init python:
         sepia.r = dot(color.rgb, vec3(0.393, 0.769, 0.189));
         sepia.g = dot(color.rgb, vec3(0.349, 0.686, 0.168));
         sepia.b = dot(color.rgb, vec3(0.272, 0.534, 0.131));
-        gl_FragColor = vec4(mix(color.rgb, sepia, u_amount), color.a);
+        vec3 result = mix(color.rgb, sepia, u_amount);
+        // Preserve original RGB for transparent pixels
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
-    # Invert Colors
+    # Invert Colors - preserves transparency by not inverting transparent pixels
     renpy.register_shader("shader.color_invert", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -510,11 +516,15 @@ init python:
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
         vec4 color = texture2D(tex0, v_tex_coord);
+        // Only invert RGB where there's actual alpha, prevents white fringing on transparency
         vec3 inverted = 1.0 - color.rgb;
-        gl_FragColor = vec4(mix(color.rgb, inverted, u_amount), color.a);
+        vec3 result = mix(color.rgb, inverted, u_amount);
+        // Preserve original RGB for fully transparent pixels to avoid white edges
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
-    # Brightness/Contrast/Saturation
+    # Brightness/Contrast/Saturation - preserves transparency
     renpy.register_shader("shader.color_adjust", variables="""
         uniform float u_brightness;
         uniform float u_contrast;
@@ -537,10 +547,13 @@ init python:
         float gray = dot(result, vec3(0.299, 0.587, 0.114));
         result = mix(vec3(gray), result, u_saturation);
 
-        gl_FragColor = vec4(clamp(result, 0.0, 1.0), color.a);
+        // Preserve original RGB for transparent pixels to avoid colored edges
+        result = clamp(result, 0.0, 1.0);
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
-    # Hue Shift
+    # Hue Shift - preserves transparency
     renpy.register_shader("shader.color_hue", variables="""
         uniform float u_shift;
         uniform sampler2D tex0;
@@ -586,10 +599,13 @@ init python:
         else if (h < 5.0/6.0) rgb = vec3(x, 0.0, c);
         else rgb = vec3(c, 0.0, x);
 
-        gl_FragColor = vec4(rgb + m, color.a);
+        vec3 result = rgb + m;
+        // Preserve original RGB for transparent pixels
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
-    # Color Tint/Overlay
+    # Color Tint/Overlay - preserves transparency
     renpy.register_shader("shader.color_tint", variables="""
         uniform vec4 u_tint_color;
         uniform float u_amount;
@@ -601,7 +617,10 @@ init python:
     """, fragment_300="""
         vec4 color = texture2D(tex0, v_tex_coord);
         vec3 tinted = color.rgb * u_tint_color.rgb;
-        gl_FragColor = vec4(mix(color.rgb, tinted, u_amount), color.a);
+        vec3 result = mix(color.rgb, tinted, u_amount);
+        // Preserve original RGB for transparent pixels
+        result = mix(color.rgb, result, color.a);
+        gl_FragColor = vec4(result, color.a);
     """)
 
 
@@ -643,7 +662,7 @@ init python:
         gl_FragColor = mix(base, result, u_amount);
     """)
 
-    # Overlay Blend
+    # Overlay Blend - inline expressions for GPU compatibility
     renpy.register_shader("shader.blend_overlay", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_blend_texture;
@@ -653,25 +672,23 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser overlay blend
-        float overlayChannel(float base, float blend) {
-            return base < 0.5 ? 2.0 * base * blend : 1.0 - 2.0 * (1.0 - base) * (1.0 - blend);
-        }
+        // Ported from Phaser overlay blend - inlined for compatibility
+        #define OVERLAY(b, l) ((b) < 0.5 ? 2.0 * (b) * (l) : 1.0 - 2.0 * (1.0 - (b)) * (1.0 - (l)))
 
         vec4 base = texture2D(tex0, v_tex_coord);
         vec4 blend = texture2D(u_blend_texture, v_tex_coord);
 
         vec4 result = vec4(
-            overlayChannel(base.r, blend.r),
-            overlayChannel(base.g, blend.g),
-            overlayChannel(base.b, blend.b),
-            overlayChannel(base.a, blend.a)
+            OVERLAY(base.r, blend.r),
+            OVERLAY(base.g, blend.g),
+            OVERLAY(base.b, blend.b),
+            OVERLAY(base.a, blend.a)
         );
 
         gl_FragColor = mix(base, result, u_amount);
     """)
 
-    # Soft Light Blend
+    # Soft Light Blend - inline expressions for GPU compatibility
     renpy.register_shader("shader.blend_soft_light", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_blend_texture;
@@ -681,27 +698,23 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser soft light blend
-        float softLightChannel(float base, float blend) {
-            return blend < 0.5
-                ? (2.0 * base * blend + base * base * (1.0 - 2.0 * blend))
-                : (sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend));
-        }
+        // Ported from Phaser soft light blend - inlined for compatibility
+        #define SOFTLIGHT(b, l) ((l) < 0.5 ? (2.0 * (b) * (l) + (b) * (b) * (1.0 - 2.0 * (l))) : (sqrt(b) * (2.0 * (l) - 1.0) + 2.0 * (b) * (1.0 - (l))))
 
         vec4 base = texture2D(tex0, v_tex_coord);
         vec4 blend = texture2D(u_blend_texture, v_tex_coord);
 
         vec4 result = vec4(
-            softLightChannel(base.r, blend.r),
-            softLightChannel(base.g, blend.g),
-            softLightChannel(base.b, blend.b),
-            softLightChannel(base.a, blend.a)
+            SOFTLIGHT(base.r, blend.r),
+            SOFTLIGHT(base.g, blend.g),
+            SOFTLIGHT(base.b, blend.b),
+            SOFTLIGHT(base.a, blend.a)
         );
 
         gl_FragColor = mix(base, result, u_amount);
     """)
 
-    # Hard Light Blend
+    # Hard Light Blend - inline expressions for GPU compatibility
     renpy.register_shader("shader.blend_hard_light", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_blend_texture;
@@ -711,25 +724,23 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser hard light blend
-        float hardLightChannel(float base, float blend) {
-            return blend < 0.5 ? 2.0 * base * blend : 1.0 - 2.0 * (1.0 - base) * (1.0 - blend);
-        }
+        // Ported from Phaser hard light blend - inlined for compatibility
+        #define HARDLIGHT(b, l) ((l) < 0.5 ? 2.0 * (b) * (l) : 1.0 - 2.0 * (1.0 - (b)) * (1.0 - (l)))
 
         vec4 base = texture2D(tex0, v_tex_coord);
         vec4 blend = texture2D(u_blend_texture, v_tex_coord);
 
         vec4 result = vec4(
-            hardLightChannel(base.r, blend.r),
-            hardLightChannel(base.g, blend.g),
-            hardLightChannel(base.b, blend.b),
-            hardLightChannel(base.a, blend.a)
+            HARDLIGHT(base.r, blend.r),
+            HARDLIGHT(base.g, blend.g),
+            HARDLIGHT(base.b, blend.b),
+            HARDLIGHT(base.a, blend.a)
         );
 
         gl_FragColor = mix(base, result, u_amount);
     """)
 
-    # Color Dodge Blend
+    # Color Dodge Blend - inline expressions for GPU compatibility
     renpy.register_shader("shader.blend_color_dodge", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_blend_texture;
@@ -739,25 +750,23 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser color dodge blend
-        float dodgeChannel(float base, float blend) {
-            return blend == 1.0 ? blend : min(1.0, base / (1.0 - blend));
-        }
+        // Ported from Phaser color dodge blend - inlined for compatibility
+        #define DODGE(b, l) ((l) >= 1.0 ? (l) : min(1.0, (b) / (1.0 - (l))))
 
         vec4 base = texture2D(tex0, v_tex_coord);
         vec4 blend = texture2D(u_blend_texture, v_tex_coord);
 
         vec4 result = vec4(
-            dodgeChannel(base.r, blend.r),
-            dodgeChannel(base.g, blend.g),
-            dodgeChannel(base.b, blend.b),
-            dodgeChannel(base.a, blend.a)
+            DODGE(base.r, blend.r),
+            DODGE(base.g, blend.g),
+            DODGE(base.b, blend.b),
+            DODGE(base.a, blend.a)
         );
 
         gl_FragColor = mix(base, result, u_amount);
     """)
 
-    # Color Burn Blend
+    # Color Burn Blend - inline expressions for GPU compatibility
     renpy.register_shader("shader.blend_color_burn", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_blend_texture;
@@ -767,19 +776,17 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser color burn blend
-        float burnChannel(float base, float blend) {
-            return blend == 0.0 ? blend : 1.0 - min(1.0, (1.0 - base) / blend);
-        }
+        // Ported from Phaser color burn blend - inlined for compatibility
+        #define BURN(b, l) ((l) <= 0.0 ? (l) : 1.0 - min(1.0, (1.0 - (b)) / (l)))
 
         vec4 base = texture2D(tex0, v_tex_coord);
         vec4 blend = texture2D(u_blend_texture, v_tex_coord);
 
         vec4 result = vec4(
-            burnChannel(base.r, blend.r),
-            burnChannel(base.g, blend.g),
-            burnChannel(base.b, blend.b),
-            burnChannel(base.a, blend.a)
+            BURN(base.r, blend.r),
+            BURN(base.g, blend.g),
+            BURN(base.b, blend.b),
+            BURN(base.a, blend.a)
         );
 
         gl_FragColor = mix(base, result, u_amount);
@@ -951,13 +958,14 @@ init python:
 
 init python:
 
+    # Light rays - use float instead of int for better GPU compatibility
     renpy.register_shader("shader.light_rays", variables="""
         uniform vec2 u_light_position;
         uniform vec4 u_color;
         uniform float u_decay;
         uniform float u_power;
         uniform float u_intensity;
-        uniform int u_samples;
+        uniform float u_samples;
         uniform sampler2D tex0;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
@@ -970,10 +978,11 @@ init python:
         vec4 texColor = texture2D(tex0, clamp(v_tex_coord, 0.0, 1.0));
         vec2 pc = (u_light_position - v_tex_coord) * u_intensity;
         float shadow = 0.0;
-        float limit = max(float(MAX), float(u_samples));
+        int sampleCount = int(clamp(u_samples, 1.0, float(MAX)));
+        float limit = max(float(MAX), u_samples);
 
         for (int i = 0; i < MAX; ++i) {
-            if (i >= u_samples) {
+            if (i >= sampleCount) {
                 break;
             }
             vec2 sampleCoord = clamp(v_tex_coord + float(i) * u_decay / limit * pc, 0.0, 1.0);
@@ -1015,10 +1024,12 @@ init python:
 
 init python:
 
+    # Alpha mask - use float instead of bool for better GPU compatibility
+    # u_invert: 0.0 = normal mask, 1.0 = inverted mask
     renpy.register_shader("shader.alpha_mask", variables="""
         uniform sampler2D tex0;
         uniform sampler2D u_mask_texture;
-        uniform bool u_invert;
+        uniform float u_invert;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
@@ -1028,7 +1039,9 @@ init python:
         vec4 color = texture2D(tex0, v_tex_coord);
         vec4 mask = texture2D(u_mask_texture, v_tex_coord);
         float a = mask.a;
-        color *= u_invert ? (1.0 - a) : a;
+        // u_invert >= 0.5 means inverted
+        float maskValue = u_invert >= 0.5 ? (1.0 - a) : a;
+        color *= maskValue;
         gl_FragColor = color;
     """)
 
