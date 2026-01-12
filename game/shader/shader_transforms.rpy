@@ -12,10 +12,12 @@
 
 ################################################################################
 ## Glow Transforms
+## mesh_pad allows glow to extend beyond image bounds
 ################################################################################
 
 # Basic glow colors
 transform glow_white:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.6
     u_inner_strength 0.0
@@ -23,6 +25,7 @@ transform glow_white:
     u_scale 1.0
 
 transform glow_gold:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.8
     u_inner_strength 0.2
@@ -30,6 +33,7 @@ transform glow_gold:
     u_scale 1.0
 
 transform glow_red:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.7
     u_inner_strength 0.1
@@ -37,6 +41,7 @@ transform glow_red:
     u_scale 1.0
 
 transform glow_blue:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.7
     u_inner_strength 0.1
@@ -44,6 +49,7 @@ transform glow_blue:
     u_scale 1.0
 
 transform glow_green:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.7
     u_inner_strength 0.1
@@ -51,6 +57,7 @@ transform glow_green:
     u_scale 1.0
 
 transform glow_purple:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.7
     u_inner_strength 0.1
@@ -58,6 +65,7 @@ transform glow_purple:
     u_scale 1.0
 
 transform glow_pink:
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.7
     u_inner_strength 0.1
@@ -66,6 +74,7 @@ transform glow_pink:
 
 # Pulsing glow (animated) - pause 0 + repeat forces continuous redraw
 transform glow_pulse_white:
+    mesh_pad 60
     shader "shader.glow_pulse"
     u_strength 0.8
     u_speed 2.0
@@ -74,6 +83,7 @@ transform glow_pulse_white:
     repeat
 
 transform glow_pulse_gold:
+    mesh_pad 60
     shader "shader.glow_pulse"
     u_strength 1.0
     u_speed 1.5
@@ -82,6 +92,7 @@ transform glow_pulse_gold:
     repeat
 
 transform glow_pulse_red:
+    mesh_pad 60
     shader "shader.glow_pulse"
     u_strength 1.0
     u_speed 3.0
@@ -90,7 +101,8 @@ transform glow_pulse_red:
     repeat
 
 # Parameterized glow (use with At)
-transform glow_custom(color=(1.0, 1.0, 1.0, 1.0), outer=0.6, inner=0.0, scale=1.0):
+transform glow_custom(color=(1.0, 1.0, 1.0, 1.0), outer=0.6, inner=0.0, scale=1.0, pad=50):
+    mesh_pad pad
     shader "shader.glow"
     u_outer_strength outer
     u_inner_strength inner
@@ -100,57 +112,69 @@ transform glow_custom(color=(1.0, 1.0, 1.0, 1.0), outer=0.6, inner=0.0, scale=1.
 
 ################################################################################
 ## Blur Transforms
+## mesh_pad allows blur to bleed beyond image bounds
 ################################################################################
 
 # Preset blur levels
 transform blur_light:
+    mesh_pad 10
     shader "shader.blur_box"
     u_radius 1.0
 
 transform blur_medium:
+    mesh_pad 20
     shader "shader.blur_box"
     u_radius 2.0
 
 transform blur_heavy:
+    mesh_pad 40
     shader "shader.blur_box"
     u_radius 4.0
 
 # Radial blur (motion from center)
 transform blur_radial_light:
+    mesh_pad 20
     shader "shader.blur_radial"
     u_strength 0.02
     u_center (0.5, 0.5)
 
 transform blur_radial_heavy:
+    mesh_pad 50
     shader "shader.blur_radial"
     u_strength 0.08
     u_center (0.5, 0.5)
 
 # Parameterized blur
-transform blur_custom(radius=2.0):
+transform blur_custom(radius=2.0, pad=20):
+    mesh_pad pad
     shader "shader.blur_box"
     u_radius radius
 
 
 ################################################################################
 ## Distortion Transforms
+## mesh_pad allows distorted pixels to extend beyond image bounds
 ################################################################################
 
 # Barrel/Fisheye
 transform fisheye_light:
+    mesh_pad 20
     shader "shader.distort_barrel"
     u_amount 1.2
 
 transform fisheye_heavy:
+    mesh_pad 40
     shader "shader.distort_barrel"
     u_amount 1.8
 
 transform pincushion:
+    mesh_pad 20
     shader "shader.distort_barrel"
     u_amount 0.7
 
 # Wave distortion (animated) - pause 0 + repeat forces continuous redraw
 transform wave_gentle:
+    mesh_pad 30
     shader "shader.distort_wave"
     u_amplitude 0.01
     u_frequency 10.0
@@ -159,6 +183,7 @@ transform wave_gentle:
     repeat
 
 transform wave_strong:
+    mesh_pad 50
     shader "shader.distort_wave"
     u_amplitude 0.03
     u_frequency 8.0
@@ -167,6 +192,7 @@ transform wave_strong:
     repeat
 
 transform wave_dreamy:
+    mesh_pad 40
     shader "shader.distort_wave"
     u_amplitude 0.015
     u_frequency 5.0
@@ -176,6 +202,7 @@ transform wave_dreamy:
 
 # Ripple (animated, from center) - pause 0 + repeat forces continuous redraw
 transform ripple_calm:
+    mesh_pad 30
     shader "shader.distort_ripple"
     u_amplitude 0.01
     u_frequency 20.0
@@ -185,6 +212,7 @@ transform ripple_calm:
     repeat
 
 transform ripple_intense:
+    mesh_pad 50
     shader "shader.distort_ripple"
     u_amplitude 0.03
     u_frequency 30.0
@@ -195,6 +223,7 @@ transform ripple_intense:
 
 # Shake/Jitter (animated) - pause 0 + repeat forces continuous redraw
 transform shake_light:
+    mesh_pad 10
     shader "shader.distort_shake"
     u_intensity 2.0
     u_speed 20.0
@@ -202,6 +231,7 @@ transform shake_light:
     repeat
 
 transform shake_heavy:
+    mesh_pad 20
     shader "shader.distort_shake"
     u_intensity 8.0
     u_speed 30.0
@@ -209,6 +239,7 @@ transform shake_heavy:
     repeat
 
 transform shake_panic:
+    mesh_pad 30
     shader "shader.distort_shake"
     u_intensity 15.0
     u_speed 50.0
@@ -428,24 +459,29 @@ transform pixelate_custom(size=8.0):
 
 ################################################################################
 ## Outline Transforms
+## mesh_pad allows outline to extend beyond image bounds
 ################################################################################
 
 transform outline_black:
+    mesh_pad 10
     shader "shader.outline"
     u_width 2.0
     u_outline_color (0.0, 0.0, 0.0, 1.0)
 
 transform outline_white:
+    mesh_pad 10
     shader "shader.outline"
     u_width 2.0
     u_outline_color (1.0, 1.0, 1.0, 1.0)
 
 transform outline_gold:
+    mesh_pad 15
     shader "shader.outline"
     u_width 3.0
     u_outline_color (1.0, 0.85, 0.3, 1.0)
 
-transform outline_custom(width=2.0, color=(0.0, 0.0, 0.0, 1.0)):
+transform outline_custom(width=2.0, color=(0.0, 0.0, 0.0, 1.0), pad=10):
+    mesh_pad pad
     shader "shader.outline"
     u_width width
     u_outline_color color
@@ -466,6 +502,7 @@ transform flashback_full:
 
 # Dream sequence (blur + wave + desaturate) - animated, needs pause 0 + repeat
 transform dream:
+    mesh_pad 30
     shader "shader.distort_wave"
     u_amplitude 0.008
     u_frequency 5.0
@@ -488,6 +525,7 @@ transform hurt:
 
 # Power up effect (glow + saturate) - animated
 transform power_up:
+    mesh_pad 60
     shader "shader.glow_pulse"
     u_strength 1.2
     u_speed 4.0
@@ -520,6 +558,7 @@ transform old_tv:
 
 # Fade in glow
 transform glow_fade_in(color=(1.0, 1.0, 1.0, 1.0), duration=0.5):
+    mesh_pad 50
     shader "shader.glow"
     u_outer_strength 0.0
     u_inner_strength 0.0
@@ -541,12 +580,14 @@ transform pixelate_out(duration=0.5):
 
 # Blur in
 transform blur_in(duration=0.5):
+    mesh_pad 50
     shader "shader.blur_box"
     u_radius 0.0
     linear duration u_radius 5.0
 
 # Blur out
 transform blur_out(duration=0.5):
+    mesh_pad 50
     shader "shader.blur_box"
     u_radius 5.0
     linear duration u_radius 0.0
@@ -558,31 +599,37 @@ transform blur_out(duration=0.5):
 
 # Bokeh blur (depth-of-field style)
 transform bokeh_light:
+    mesh_pad 20
     shader "shader.blur_bokeh"
     u_radius 2.0
     u_amount 1.0
     u_contrast 0.0
 
 transform bokeh_medium:
+    mesh_pad 30
     shader "shader.blur_bokeh"
     u_radius 4.0
     u_amount 1.5
     u_contrast 0.2
 
 transform bokeh_heavy:
+    mesh_pad 50
     shader "shader.blur_bokeh"
     u_radius 8.0
     u_amount 2.0
     u_contrast 0.5
 
-transform bokeh_custom(radius=4.0, amount=1.5, contrast=0.2):
+transform bokeh_custom(radius=4.0, amount=1.5, contrast=0.2, pad=30):
+    mesh_pad pad
     shader "shader.blur_bokeh"
     u_radius radius
     u_amount amount
     u_contrast contrast
 
 # Light rays effect - u_samples is float for GPU compatibility
+# mesh_pad adds padding so rays can extend beyond image bounds
 transform light_rays:
+    mesh_pad (100, 150, 100, 50)  # left, top, right, bottom padding
     shader "shader.light_rays"
     u_light_position (0.5, 0.0)
     u_color (1.0, 0.95, 0.8, 1.0)
@@ -592,6 +639,7 @@ transform light_rays:
     u_samples 8.0
 
 transform light_rays_strong:
+    mesh_pad (150, 200, 150, 50)  # more padding for stronger effect
     shader "shader.light_rays"
     u_light_position (0.5, 0.0)
     u_color (1.0, 0.9, 0.7, 1.0)
@@ -600,7 +648,8 @@ transform light_rays_strong:
     u_intensity 0.8
     u_samples 12.0
 
-transform light_rays_custom(pos=(0.5, 0.0), color=(1.0, 0.95, 0.8, 1.0), intensity=0.5):
+transform light_rays_custom(pos=(0.5, 0.0), color=(1.0, 0.95, 0.8, 1.0), intensity=0.5, pad=100):
+    mesh_pad (pad, pad * 1.5, pad, pad * 0.5)
     shader "shader.light_rays"
     u_light_position pos
     u_color color
@@ -630,27 +679,32 @@ transform threshold_inverted:
 
 # Gaussian blur (higher quality)
 transform blur_gaussian_light:
+    mesh_pad 15
     shader "shader.blur_gaussian"
     u_offset (1.0, 1.0)
     u_strength 1.0
 
 transform blur_gaussian_medium:
+    mesh_pad 25
     shader "shader.blur_gaussian"
     u_offset (1.0, 1.0)
     u_strength 2.0
 
 transform blur_gaussian_heavy:
+    mesh_pad 40
     shader "shader.blur_gaussian"
     u_offset (1.0, 1.0)
     u_strength 4.0
 
-transform blur_gaussian_custom(strength=2.0, direction=(1.0, 1.0)):
+transform blur_gaussian_custom(strength=2.0, direction=(1.0, 1.0), pad=25):
+    mesh_pad pad
     shader "shader.blur_gaussian"
     u_offset direction
     u_strength strength
 
 # High quality Gaussian blur (13-tap)
 transform blur_gaussian_hq:
+    mesh_pad 30
     shader "shader.blur_gaussian_high"
     u_offset (1.0, 1.0)
     u_strength 2.0

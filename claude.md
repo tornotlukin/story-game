@@ -60,6 +60,20 @@ story-game/                         # Project root
     │   ├── basic_transitions.rpy   # Dissolve, fade, wipe, etc.
     │   └── special_fx.rpy          # Flashes, shakes, effects
     │
+    ├── presets/                    # JSON preset configurations
+    │   ├── shader_presets.json     # Elemental shader configurations
+    │   └── presets.json            # Scene choreography presets
+    │
+    ├── shader/                     # GLSL shader effects
+    │   ├── shader_glow.rpy         # Glow/pulse shaders
+    │   ├── shader_blur.rpy         # Blur effect shaders
+    │   ├── shader_distort.rpy      # Distortion/wave shaders
+    │   ├── shader_color.rpy        # Color adjustment shaders
+    │   ├── shader_retro.rpy        # Retro effect shaders
+    │   ├── shader_fx.rpy           # Special FX shaders
+    │   ├── shader_blend.rpy        # Blend mode shaders
+    │   └── shader_transforms.rpy   # Transform presets for shaders
+    │
     ├── content/                    # Story scripts (user creates)
     │   ├── script.rpy              # Main story entry point
     │   └── characters.rpy          # Character & image definitions
@@ -236,6 +250,74 @@ define special_transition = ComposeTransition(
 - Group related transitions together
 - Include usage examples in comments
 - Keep files under 200 lines
+
+### Preset Files (`presets/`)
+**Purpose**: JSON configuration for visual effects and scene choreography
+**Contains**:
+- Shader preset definitions
+- Scene preset definitions with inheritance
+- Character movement choreography
+- Dialog box and background configurations
+
+**Two-Tier System**:
+```
+shader_presets.json (elemental)
+└─ Simple, single-purpose shader configurations
+└─ No inheritance - create new presets for variations
+└─ Referenced by presets.json
+
+presets.json (composite)
+└─ Full scene choreography
+└─ Supports inheritance via "extends"
+└─ References shader presets
+└─ Defines character lead_in/lead_out
+└─ Configures dialog box, background, transitions
+```
+
+**Rules**:
+- Shader presets are elemental - no inheritance
+- Scene presets use CSS-like inheritance
+- All colors in 6-digit hex format (`"#FF5500"`)
+- See `docs/PRESET_SYSTEM.md` for complete documentation
+
+### Shader Files (`shader/`)
+**Purpose**: GLSL shader definitions for visual effects
+**Contains**:
+- `renpy.register_shader()` calls
+- Transform definitions for shader application
+- Ported from Phaser.js color filters
+
+**Example Structure**:
+```python
+## shader_effect.rpy - Effect description
+
+init python:
+    renpy.register_shader("shader.effect_name", variables="""
+        uniform sampler2D tex0;
+        uniform float u_amount;
+        attribute vec2 a_tex_coord;
+        varying vec2 v_tex_coord;
+    """, vertex_300="""
+        v_tex_coord = a_tex_coord;
+    """, fragment_300="""
+        vec4 color = texture2D(tex0, v_tex_coord);
+        // Effect implementation
+        gl_FragColor = color;
+    """)
+
+# Transform to apply shader
+transform effect_name:
+    shader "shader.effect_name"
+    u_amount 1.0
+    mesh_pad 50  # For effects extending beyond bounds
+```
+
+**Rules**:
+- One category per file (glow, blur, distort, etc.)
+- Preserve transparency in all shaders
+- Use `mesh_pad` for effects that extend beyond image bounds
+- Mark animated shaders in documentation
+- Keep files under 300 lines
 
 ### Content Files (`content/`)
 **Purpose**: Story script - user creates this
@@ -885,10 +967,35 @@ show hiyori m1 e1
 
 **Note**: Most Cubism Editor docs link externally to docs.live2d.com. The Ren'Py integration docs at `docs/renpy/live2d.html` are fully available locally.
 
+### Preset System Documentation:
+
+**Full Documentation**:
+- `docs/PRESET_SYSTEM.md` - Complete preset system reference
+
+**Quick Reference**:
+| File | Purpose |
+|------|---------|
+| `game/presets/shader_presets.json` | Elemental shader configurations |
+| `game/presets/presets.json` | Scene choreography presets |
+| `game/systems/preset_manager.rpy` | Preset loading and application |
+
+**Usage in Scripts**:
+```python
+# Set scene mood
+$ mood.set("dream_sequence")
+
+# Run character choreography chain
+$ mood.chain("dream_sequence", "dramatic_entrance")
+
+# Character entry with preset
+$ mood.character_enter("novy", "dream_sequence")
+```
+
 ### Shader Documentation:
 
 **Custom GLSL Shaders**:
 - `docs/SHADER_PORTING_GUIDE.md` - Phaser→Ren'Py shader porting guide with examples
+- `docs/PRESET_SYSTEM.md` - Shader preset parameter reference
 - `docs/renpy/model.html` - Ren'Py shader registration and built-in uniforms
 - `docs/renpy/textshaders.html` - Text-specific shader effects
 
