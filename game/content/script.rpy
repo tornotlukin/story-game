@@ -28,6 +28,9 @@ label start:
         "Test sounds":
             jump test_sounds
 
+        "Test shader effects":
+            jump test_shaders
+
         "Exit to Main Menu":
             return
 
@@ -293,3 +296,433 @@ label test_sounds:
     "Sound test complete!"
 
     jump start
+
+
+################################################################################
+## Shader Effects Test
+################################################################################
+
+label test_shaders:
+
+    scene bg_street with dissolve
+
+    "Welcome to the Shader Effects Demo!"
+    "I'll showcase various shader effects using Novy-chan."
+
+    show novy front at center with dissolve
+    novy "Hi! I'm going to be your shader demo model today!"
+
+    jump shader_menu
+
+label shader_menu:
+
+    menu:
+        "Which shader category would you like to see?"
+
+        "Glow Effects":
+            jump shader_glow
+
+        "Color Adjustments":
+            jump shader_color
+
+        "Distortion Effects":
+            jump shader_distort
+
+        "Retro/Stylized Effects":
+            jump shader_retro
+
+        "Outline Effects":
+            jump shader_outline
+
+        "Blur Effects":
+            jump shader_blur
+
+        "Mood/Combined Effects":
+            jump shader_mood
+
+        "Animated Effects":
+            jump shader_animated
+
+        "Return to Main Menu":
+            hide novy front with dissolve
+            scene black with fade
+            jump start
+
+
+################################################################################
+## Glow Effects
+################################################################################
+
+label shader_glow:
+
+    "=== GLOW EFFECTS ==="
+
+    show novy front at center
+    novy "Here I am without any effects."
+
+    show novy front at glow_white
+    novy "White glow - clean and bright!"
+
+    show novy front at glow_gold
+    novy "Gold glow - magical and warm!"
+
+    show novy front at glow_red
+    novy "Red glow - intense and fiery!"
+
+    show novy front at glow_blue
+    novy "Blue glow - cool and mystical!"
+
+    show novy front at glow_green
+    novy "Green glow - nature magic!"
+
+    show novy front at glow_purple
+    novy "Purple glow - mysterious power!"
+
+    show novy front at glow_pink
+    novy "Pink glow - kawaii energy!"
+
+    show novy front at center
+    "Glow effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Color Adjustments
+################################################################################
+
+label shader_color:
+
+    "=== COLOR ADJUSTMENT EFFECTS ==="
+
+    show novy front at center
+    novy "Normal colors first."
+
+    show novy front at grayscale
+    novy "Grayscale - classic black and white."
+
+    show novy front at grayscale_partial
+    novy "Partial grayscale - slightly desaturated."
+
+    show novy front at sepia
+    novy "Sepia - vintage photograph look."
+
+    show novy front at sepia_light
+    novy "Light sepia - subtle vintage tone."
+
+    show novy front at invert
+    novy "Inverted colors - negative effect!"
+
+    show novy front at brighten
+    novy "Brightened - more light!"
+
+    show novy front at darken
+    novy "Darkened - shadowy."
+
+    show novy front at high_contrast
+    novy "High contrast - bold and punchy!"
+
+    show novy front at saturate
+    novy "Saturated - vivid colors!"
+
+    show novy front at desaturate
+    novy "Desaturated - muted tones."
+
+    show novy front at tint_red
+    novy "Red tint - warm and alert."
+
+    show novy front at tint_blue
+    novy "Blue tint - cold and calm."
+
+    show novy front at tint_warm
+    novy "Warm tint - cozy feeling."
+
+    show novy front at tint_cool
+    novy "Cool tint - fresh and clean."
+
+    show novy front at hue_shift_small
+    novy "Small hue shift - subtle color change."
+
+    show novy front at hue_shift_opposite
+    novy "Opposite hue - completely different palette!"
+
+    show novy front at center
+    "Color adjustment effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Distortion Effects
+################################################################################
+
+label shader_distort:
+
+    "=== DISTORTION EFFECTS ==="
+
+    show novy front at center
+    novy "Starting with no distortion."
+
+    show novy front at fisheye_light
+    novy "Light fisheye - subtle bulge."
+
+    show novy front at fisheye_heavy
+    novy "Heavy fisheye - big bubble effect!"
+
+    show novy front at pincushion
+    novy "Pincushion - inward curve."
+
+    show novy front at wave_gentle
+    novy "Gentle wave - soft underwater feel."
+
+    show novy front at wave_strong
+    novy "Strong wave - really wavy!"
+
+    show novy front at wave_dreamy
+    novy "Dreamy wave - slow and hypnotic."
+
+    show novy front at ripple_calm
+    novy "Calm ripple - like a pond."
+
+    show novy front at ripple_intense
+    novy "Intense ripple - splashy!"
+
+    show novy front at shake_light
+    novy "Light shake - a bit nervous."
+
+    show novy front at shake_heavy
+    novy "Heavy shake - very unstable!"
+
+    show novy front at shake_panic
+    novy "Panic shake - AAAHHH!"
+
+    show novy front at center
+    "Distortion effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Retro/Stylized Effects
+################################################################################
+
+label shader_retro:
+
+    "=== RETRO/STYLIZED EFFECTS ==="
+
+    show novy front at center
+    novy "Normal appearance first."
+
+    show novy front at pixelate_light
+    novy "Light pixelate - subtle retro."
+
+    show novy front at pixelate_medium
+    novy "Medium pixelate - 8-bit style!"
+
+    show novy front at pixelate_heavy
+    novy "Heavy pixelate - very blocky!"
+
+    show novy front at pixelate_extreme
+    novy "Extreme pixelate - can you even see me?"
+
+    show novy front at scanlines_subtle
+    novy "Subtle scanlines - hint of CRT."
+
+    show novy front at scanlines_crt
+    novy "CRT scanlines - old TV feel."
+
+    show novy front at scanlines_heavy
+    novy "Heavy scanlines - very retro!"
+
+    show novy front at vignette_light
+    novy "Light vignette - subtle frame."
+
+    show novy front at vignette_medium
+    novy "Medium vignette - cinematic!"
+
+    show novy front at vignette_heavy
+    novy "Heavy vignette - dramatic spotlight!"
+
+    show novy front at vignette_dramatic
+    novy "Dramatic vignette - intense focus!"
+
+    show novy front at chromatic_subtle
+    novy "Subtle chromatic aberration - slight RGB split."
+
+    show novy front at chromatic_medium
+    novy "Medium chromatic - more noticeable."
+
+    show novy front at chromatic_heavy
+    novy "Heavy chromatic - trippy!"
+
+    show novy front at glitch_light
+    novy "Light glitch - minor corruption."
+
+    show novy front at glitch_medium
+    novy "Medium glitch - getting unstable!"
+
+    show novy front at glitch_heavy
+    novy "Heavy glitch - SYSTEM ERROR!"
+
+    show novy front at center
+    "Retro effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Outline Effects
+################################################################################
+
+label shader_outline:
+
+    "=== OUTLINE EFFECTS ==="
+
+    show novy front at center
+    novy "No outline to start."
+
+    show novy front at outline_black
+    novy "Black outline - classic comic style!"
+
+    show novy front at outline_white
+    novy "White outline - glowing edge!"
+
+    show novy front at outline_gold
+    novy "Gold outline - premium feel!"
+
+    show novy front at center
+    "Outline effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Blur Effects
+################################################################################
+
+label shader_blur:
+
+    "=== BLUR EFFECTS ==="
+
+    show novy front at center
+    novy "Sharp and clear."
+
+    show novy front at blur_light
+    novy "Light blur - slightly soft."
+
+    show novy front at blur_medium
+    novy "Medium blur - out of focus."
+
+    show novy front at blur_heavy
+    novy "Heavy blur - very fuzzy!"
+
+    show novy front at blur_radial_light
+    novy "Light radial blur - subtle motion."
+
+    show novy front at blur_radial_heavy
+    novy "Heavy radial blur - zooming effect!"
+
+    show novy front at blur_gaussian_light
+    novy "Light gaussian blur - smooth."
+
+    show novy front at blur_gaussian_heavy
+    novy "Heavy gaussian blur - very soft!"
+
+    show novy front at bokeh_light
+    novy "Light bokeh - photography style."
+
+    show novy front at bokeh_medium
+    novy "Medium bokeh - dreamy depth of field."
+
+    show novy front at bokeh_heavy
+    novy "Heavy bokeh - artistic blur!"
+
+    show novy front at center
+    "Blur effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Mood/Combined Effects
+################################################################################
+
+label shader_mood:
+
+    "=== MOOD/COMBINED EFFECTS ==="
+    "These are preset combinations for common scenarios."
+
+    show novy front at center
+    novy "Normal mood first."
+
+    show novy front at flashback
+    novy "Flashback - remembering the past..."
+
+    show novy front at dream
+    novy "Dream - floating in imagination..."
+
+    show novy front at horror
+    novy "Horror - something isn't right..."
+
+    show novy front at hurt
+    novy "Hurt - ouch, that stings!"
+
+    show novy front at frozen
+    novy "Frozen - so... c-cold..."
+
+    show novy front at poisoned
+    novy "Poisoned - feeling sick..."
+
+    show novy front at old_tv
+    novy "Old TV - broadcast from the past."
+
+    show novy front at center
+    "Mood effects complete!"
+
+    jump shader_menu
+
+
+################################################################################
+## Animated Effects
+################################################################################
+
+label shader_animated:
+
+    "=== ANIMATED EFFECTS ==="
+    "These effects animate over time!"
+
+    show novy front at center
+    novy "Watch the animations..."
+
+    show novy front at glow_pulse_white
+    "Pulsing white glow..."
+    $ renpy.pause(3.0)
+
+    show novy front at glow_pulse_gold
+    "Pulsing gold glow..."
+    $ renpy.pause(3.0)
+
+    show novy front at glow_pulse_red
+    "Pulsing red glow - heartbeat style!"
+    $ renpy.pause(3.0)
+
+    show novy front at power_up
+    "Power up effect!"
+    $ renpy.pause(3.0)
+
+    show novy front at wave_gentle
+    "Gentle wave animation..."
+    $ renpy.pause(3.0)
+
+    show novy front at ripple_calm
+    "Ripple animation..."
+    $ renpy.pause(3.0)
+
+    show novy front at glitch_medium
+    "Glitch animation..."
+    $ renpy.pause(3.0)
+
+    show novy front at center
+    "Animated effects complete!"
+
+    jump shader_menu

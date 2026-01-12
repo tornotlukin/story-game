@@ -23,90 +23,81 @@
 
 init python:
 
-    # Outer/Inner Glow Effect - Ported from Phaser glow.js
+    # Outer/Inner Glow Effect - Simple 8-sample version for compatibility
     renpy.register_shader("shader.glow", variables="""
         uniform float u_outer_strength;
         uniform float u_inner_strength;
         uniform vec4 u_glow_color;
         uniform float u_scale;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser glow filter
-        #define DISTANCE 10.0
-        #define QUALITY 10.0
-        const float PI = 3.14159265358979323846264;
-        const float MAX_ALPHA = DISTANCE * (DISTANCE + 1.0) * QUALITY / 2.0;
+        vec2 px = (1.0 / u_model_size) * u_scale * 9.0;
 
-        vec2 px = vec2(1.0 / u_model_size.x, 1.0 / u_model_size.y) * u_scale;
         float totalAlpha = 0.0;
-        float curAngle = 0.0;
-        vec2 direction;
-        vec2 displaced;
-        vec4 color;
 
-        for (float curDistance = 0.0; curDistance < DISTANCE; curDistance++) {
-            curAngle += fract(sin(dot(vec2(curDistance, v_tex_coord.x + v_tex_coord.y), vec2(12.9898, 78.233))) * 43758.5453);
-            for (float i = 0.0; i < QUALITY; i++) {
-                curAngle += PI * 2.0 / QUALITY;
-                direction = vec2(cos(curAngle), sin(curAngle)) * px;
-                displaced = clamp(v_tex_coord + direction * (curDistance + 1.0), 0.0, 1.0);
-                color = texture2D(tex0, displaced);
-                totalAlpha += (DISTANCE - curDistance) * color.a;
-            }
-        }
+        // 8 samples in cardinal + diagonal directions (unrolled for compatibility)
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(0.0, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(0.0, -px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, 0.0), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, 0.0), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, -px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, -px.y), 0.0, 1.0)).a;
 
-        color = texture2D(tex0, v_tex_coord);
-        float alphaRatio = totalAlpha / MAX_ALPHA;
+        vec4 color = texture2D(tex0, v_tex_coord);
+        float alphaRatio = totalAlpha / 8.0;
 
-        float innerGlowAlpha = (1.0 - alphaRatio) * u_inner_strength * color.a;
-        float innerGlowStrength = min(1.0, innerGlowAlpha);
+        // Inner glow
+        float innerGlowStrength = min(1.0, (1.0 - alphaRatio) * u_inner_strength * color.a);
         vec4 innerColor = mix(color, u_glow_color, innerGlowStrength);
 
+        // Outer glow
         float outerGlowAlpha = alphaRatio * u_outer_strength * (1.0 - color.a);
-        float outerGlowStrength = min(1.0 - innerColor.a, outerGlowAlpha);
-        vec4 outerGlowColor = outerGlowStrength * u_glow_color;
+        vec4 outerGlowColor = u_glow_color * min(1.0 - innerColor.a, outerGlowAlpha);
 
         gl_FragColor = innerColor + outerGlowColor;
     """)
 
-    # Pulsing glow (animated) - Custom extension of Phaser glow
+    # Pulsing glow (animated) - Simple 8-sample version for compatibility
     renpy.register_shader("shader.glow_pulse", variables="""
         uniform float u_strength;
         uniform float u_speed;
         uniform vec4 u_glow_color;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
+        uniform float u_time;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        #define DISTANCE 8.0
-        #define QUALITY 8.0
-        const float PI = 3.14159265;
-        const float MAX_ALPHA = DISTANCE * (DISTANCE + 1.0) * QUALITY / 2.0;
-
-        float pulse = (sin(u_time * u_speed) + 1.0) * 0.5;
+        // Wrap time to avoid float precision issues with large values
+        float wrapped_time = mod(u_time, 628.318); // ~100 cycles of 2*PI
+        float pulse = (sin(wrapped_time * u_speed) + 1.0) * 0.5;
         float strength = u_strength * (0.5 + pulse * 0.5);
 
-        vec2 px = 1.0 / u_model_size * (1.0 + pulse * 0.3);
-        float totalAlpha = 0.0;
-        float curAngle = 0.0;
+        vec2 px = (1.0 / u_model_size) * (6.0 + pulse * 6.0);
 
-        for (float d = 1.0; d <= DISTANCE; d++) {
-            for (float i = 0.0; i < QUALITY; i++) {
-                curAngle += PI * 2.0 / QUALITY;
-                vec2 offset = vec2(cos(curAngle), sin(curAngle)) * px * d;
-                vec2 sampleCoord = clamp(v_tex_coord + offset, 0.0, 1.0);
-                totalAlpha += (DISTANCE - d) * texture2D(tex0, sampleCoord).a;
-            }
-        }
+        float totalAlpha = 0.0;
+
+        // 8 samples unrolled for compatibility
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(0.0, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(0.0, -px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, 0.0), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, 0.0), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(px.x, -px.y), 0.0, 1.0)).a;
+        totalAlpha += texture2D(tex0, clamp(v_tex_coord + vec2(-px.x, -px.y), 0.0, 1.0)).a;
 
         vec4 color = texture2D(tex0, v_tex_coord);
-        float alphaRatio = totalAlpha / MAX_ALPHA;
+        float alphaRatio = totalAlpha / 8.0;
 
         float outerGlowAlpha = alphaRatio * strength * (1.0 - color.a);
         vec4 glowColor = u_glow_color * outerGlowAlpha;
@@ -126,6 +117,7 @@ init python:
         uniform vec2 u_offset;
         uniform float u_strength;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
@@ -151,6 +143,7 @@ init python:
         uniform vec2 u_offset;
         uniform float u_strength;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
@@ -178,6 +171,7 @@ init python:
     renpy.register_shader("shader.blur_box", variables="""
         uniform float u_radius;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
@@ -198,19 +192,19 @@ init python:
         gl_FragColor = col / count;
     """)
 
-    # Bokeh Blur - Ported from Phaser bokeh.js
+    # Bokeh Blur - Simplified for performance (22 samples instead of 100)
     renpy.register_shader("shader.blur_bokeh", variables="""
         uniform float u_radius;
         uniform float u_amount;
         uniform float u_contrast;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser Bokeh blur
-        #define ITERATIONS 100.0
+        // Simplified Bokeh blur - 22 samples in golden angle spiral
         #define GOLDEN_ANGLE 2.39996323
 
         vec2 resolution = u_model_size;
@@ -220,9 +214,11 @@ init python:
         vec3 div = vec3(0.0);
         float r = 1.0;
 
-        for (float j = 0.0; j < GOLDEN_ANGLE * ITERATIONS; j += GOLDEN_ANGLE) {
+        // 22 iterations instead of 100
+        for (int i = 0; i < 22; i++) {
+            float angle = float(i) * GOLDEN_ANGLE;
             r += 1.0 / r;
-            vec2 sampleOffset = (r - 1.0) * vec2(cos(j), sin(j)) * 0.06;
+            vec2 sampleOffset = (r - 1.0) * vec2(cos(angle), sin(angle)) * 0.06;
             vec2 sampleCoord = clamp(v_tex_coord + pixel * sampleOffset, 0.0, 1.0);
             vec3 col = texture2D(tex0, sampleCoord).xyz;
             col = u_contrast > 0.0 ? col * col * (1.0 + u_contrast) : col;
@@ -307,12 +303,15 @@ init python:
         uniform float u_frequency;
         uniform float u_speed;
         uniform sampler2D tex0;
+        uniform float u_time;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        float wave = sin(v_tex_coord.y * u_frequency + u_time * u_speed) * u_amplitude;
+        // Wrap time to avoid float precision issues
+        float wrapped_time = mod(u_time, 628.318);
+        float wave = sin(v_tex_coord.y * u_frequency + wrapped_time * u_speed) * u_amplitude;
         vec2 texCoord = clamp(v_tex_coord + vec2(wave, 0.0), 0.0, 1.0);
         gl_FragColor = texture2D(tex0, texCoord);
     """)
@@ -324,14 +323,17 @@ init python:
         uniform float u_speed;
         uniform vec2 u_center;
         uniform sampler2D tex0;
+        uniform float u_time;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
+        // Wrap time to avoid float precision issues
+        float wrapped_time = mod(u_time, 628.318);
         vec2 delta = v_tex_coord - u_center;
         float dist = length(delta);
-        float wave = sin(dist * u_frequency - u_time * u_speed) * u_amplitude;
+        float wave = sin(dist * u_frequency - wrapped_time * u_speed) * u_amplitude;
         vec2 dir = normalize(delta + 0.0001);
         vec2 texCoord = clamp(v_tex_coord + dir * wave, 0.0, 1.0);
         gl_FragColor = texture2D(tex0, texCoord);
@@ -342,12 +344,15 @@ init python:
         uniform float u_intensity;
         uniform float u_speed;
         uniform sampler2D tex0;
+        uniform float u_time;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        float t = u_time * u_speed;
+        // Wrap time to avoid float precision issues
+        float t = mod(u_time * u_speed, 628.318);
         vec2 offset = vec2(
             sin(t * 17.0) * cos(t * 23.0),
             sin(t * 19.0) * cos(t * 29.0)
@@ -764,6 +769,7 @@ init python:
     renpy.register_shader("shader.retro_pixelate", variables="""
         uniform float u_pixel_size;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
@@ -848,12 +854,14 @@ init python:
         uniform float u_intensity;
         uniform float u_speed;
         uniform sampler2D tex0;
+        uniform float u_time;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        float t = u_time * u_speed;
+        // Wrap time to avoid float precision issues
+        float t = mod(u_time * u_speed, 628.318);
 
         // Random-ish function
         float rand = fract(sin(dot(vec2(floor(v_tex_coord.y * 20.0), floor(t * 10.0)), vec2(12.9898, 78.233))) * 43758.5453);
@@ -977,6 +985,7 @@ init python:
         uniform float u_width;
         uniform vec4 u_outline_color;
         uniform sampler2D tex0;
+        uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
         varying vec2 v_tex_coord;
     """, vertex_300="""

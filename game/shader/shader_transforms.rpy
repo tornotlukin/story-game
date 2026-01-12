@@ -64,24 +64,30 @@ transform glow_pink:
     u_glow_color (1.0, 0.4, 0.7, 1.0)
     u_scale 1.0
 
-# Pulsing glow (animated)
+# Pulsing glow (animated) - pause 0 + repeat forces continuous redraw
 transform glow_pulse_white:
     shader "shader.glow_pulse"
     u_strength 0.8
     u_speed 2.0
     u_glow_color (1.0, 1.0, 1.0, 1.0)
+    pause 0
+    repeat
 
 transform glow_pulse_gold:
     shader "shader.glow_pulse"
     u_strength 1.0
     u_speed 1.5
     u_glow_color (1.0, 0.85, 0.3, 1.0)
+    pause 0
+    repeat
 
 transform glow_pulse_red:
     shader "shader.glow_pulse"
     u_strength 1.0
     u_speed 3.0
     u_glow_color (1.0, 0.2, 0.2, 1.0)
+    pause 0
+    repeat
 
 # Parameterized glow (use with At)
 transform glow_custom(color=(1.0, 1.0, 1.0, 1.0), outer=0.6, inner=0.0, scale=1.0):
@@ -143,32 +149,40 @@ transform pincushion:
     shader "shader.distort_barrel"
     u_amount 0.7
 
-# Wave distortion (animated)
+# Wave distortion (animated) - pause 0 + repeat forces continuous redraw
 transform wave_gentle:
     shader "shader.distort_wave"
     u_amplitude 0.01
     u_frequency 10.0
     u_speed 2.0
+    pause 0
+    repeat
 
 transform wave_strong:
     shader "shader.distort_wave"
     u_amplitude 0.03
     u_frequency 8.0
     u_speed 3.0
+    pause 0
+    repeat
 
 transform wave_dreamy:
     shader "shader.distort_wave"
     u_amplitude 0.015
     u_frequency 5.0
     u_speed 1.0
+    pause 0
+    repeat
 
-# Ripple (animated, from center)
+# Ripple (animated, from center) - pause 0 + repeat forces continuous redraw
 transform ripple_calm:
     shader "shader.distort_ripple"
     u_amplitude 0.01
     u_frequency 20.0
     u_speed 3.0
     u_center (0.5, 0.5)
+    pause 0
+    repeat
 
 transform ripple_intense:
     shader "shader.distort_ripple"
@@ -176,22 +190,30 @@ transform ripple_intense:
     u_frequency 30.0
     u_speed 5.0
     u_center (0.5, 0.5)
+    pause 0
+    repeat
 
-# Shake/Jitter (animated)
+# Shake/Jitter (animated) - pause 0 + repeat forces continuous redraw
 transform shake_light:
     shader "shader.distort_shake"
     u_intensity 2.0
     u_speed 20.0
+    pause 0
+    repeat
 
 transform shake_heavy:
     shader "shader.distort_shake"
     u_intensity 8.0
     u_speed 30.0
+    pause 0
+    repeat
 
 transform shake_panic:
     shader "shader.distort_shake"
     u_intensity 15.0
     u_speed 50.0
+    pause 0
+    repeat
 
 
 ################################################################################
@@ -376,21 +398,27 @@ transform chromatic_heavy:
     shader "shader.retro_chromatic"
     u_amount 0.03
 
-# Glitch
+# Glitch (animated) - pause 0 + repeat forces continuous redraw
 transform glitch_light:
     shader "shader.retro_glitch"
     u_intensity 0.3
     u_speed 1.0
+    pause 0
+    repeat
 
 transform glitch_medium:
     shader "shader.retro_glitch"
     u_intensity 0.6
     u_speed 2.0
+    pause 0
+    repeat
 
 transform glitch_heavy:
     shader "shader.retro_glitch"
     u_intensity 1.0
     u_speed 3.0
+    pause 0
+    repeat
 
 # Parameterized pixelate
 transform pixelate_custom(size=8.0):
@@ -456,12 +484,14 @@ transform hurt:
     u_tint_color (1.0, 0.3, 0.3, 1.0)
     u_amount 0.4
 
-# Power up effect (glow + saturate)
+# Power up effect (glow + saturate) - animated
 transform power_up:
     shader "shader.glow_pulse"
     u_strength 1.2
     u_speed 4.0
     u_glow_color (1.0, 1.0, 0.5, 1.0)
+    pause 0
+    repeat
 
 # Freeze/Ice effect (blue tint + slight desaturate)
 transform frozen:
