@@ -32,7 +32,7 @@ define narrator = Character(None, kind=adv)
 ################################################################################
 
 ## Novy-chan - main character
-define novy = Character("Novy-chan", who_color="#ff6699", image="novy")
+define novy = Character("Novy-chan", image="novy")
 
 
 ################################################################################

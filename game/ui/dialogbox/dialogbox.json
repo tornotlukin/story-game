@@ -13,10 +13,10 @@
   "presets": {
 
     "standard": {
-      "description": "Default dialogue box style",
+      "description": "Default dialogue box style - white",
       "background": {
-        "image": "gui/textbox.png",
-        "borders": [30, 25, 30, 35],
+        "image": "images/dialog_test_white.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
@@ -27,15 +27,15 @@
       "name_style": {
         "font": null,
         "size": 38,
-        "color": "#FFD700",
-        "outlines": [[2, "#000000", 0, 0]],
+        "color": "#333333",
+        "outlines": [],
         "xalign": 0.0
       },
       "text_style": {
         "font": null,
         "size": 30,
-        "color": "#FFFFFF",
-        "outlines": [[1, "#000000", 0, 0]],
+        "color": "#222222",
+        "outlines": [],
         "line_spacing": 6,
         "textshader": null
       },
@@ -59,21 +59,21 @@
     },
 
     "dramatic": {
-      "description": "Bold dramatic dialogue for important moments",
+      "description": "Bold dramatic dialogue - red",
       "background": {
-        "image": "gui/textbox_dramatic.png",
-        "borders": [35, 30, 35, 40],
+        "image": "images/dialog_test_red.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
-        "image": "gui/namebox_dramatic.png",
-        "borders": [8, 8, 8, 8],
+        "image": "gui/namebox.png",
+        "borders": [5, 5, 5, 5],
         "tile": false
       },
       "name_style": {
         "font": null,
         "size": 44,
-        "color": "#FF4444",
+        "color": "#FFDDDD",
         "outlines": [[3, "#000000", 0, 0]],
         "xalign": 0.0
       },
@@ -83,7 +83,7 @@
         "color": "#FFFFFF",
         "outlines": [[2, "#000000", 0, 0]],
         "line_spacing": 8,
-        "textshader": "dissolve:15"
+        "textshader": null
       },
       "position": {
         "xalign": 0.5,
@@ -92,8 +92,8 @@
         "yoffset": -20
       },
       "transitions": {
-        "enter": "dramatic_emerge_enter",
-        "exit": "dramatic_shrink_exit"
+        "enter": null,
+        "exit": null
       },
       "sounds": {
         "appear": "audio/Fantozzi-StoneL3.ogg",
@@ -105,31 +105,31 @@
     },
 
     "whisper": {
-      "description": "Soft whispered dialogue",
+      "description": "Soft whispered dialogue - blue",
       "background": {
-        "image": "gui/textbox_whisper.png",
-        "borders": [25, 20, 25, 25],
+        "image": "images/dialog_test_blue.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
-        "image": "gui/namebox_whisper.png",
+        "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
         "tile": false
       },
       "name_style": {
         "font": null,
         "size": 32,
-        "color": "#AAAAAA",
+        "color": "#CCDDFF",
         "outlines": [[1, "#333333", 0, 0]],
         "xalign": 0.0
       },
       "text_style": {
         "font": null,
         "size": 26,
-        "color": "#CCCCCC",
+        "color": "#EEEEFF",
         "outlines": [[1, "#222222", 0, 0]],
         "line_spacing": 4,
-        "textshader": "dissolve:20"
+        "textshader": null
       },
       "position": {
         "xalign": 0.5,
@@ -138,8 +138,8 @@
         "yoffset": -40
       },
       "transitions": {
-        "enter": "pop_in_enter",
-        "exit": "vanish_quick_exit"
+        "enter": null,
+        "exit": null
       },
       "sounds": {
         "appear": null,
@@ -151,10 +151,10 @@
     },
 
     "frightened": {
-      "description": "Shaky dialogue for scared or nervous moments",
+      "description": "Shaky dialogue - red",
       "background": {
-        "image": "gui/textbox_frightened.png",
-        "borders": [30, 25, 30, 35],
+        "image": "images/dialog_test_red.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
@@ -175,7 +175,7 @@
         "color": "#FFFFFF",
         "outlines": [[1, "#000000", 0, 0]],
         "line_spacing": 6,
-        "textshader": "jitter:2,2|dissolve:10"
+        "textshader": null
       },
       "position": {
         "xalign": 0.5,
@@ -184,8 +184,8 @@
         "yoffset": -30
       },
       "transitions": {
-        "enter": "pop_in_enter",
-        "exit": "vanish_quick_exit"
+        "enter": null,
+        "exit": null
       },
       "sounds": {
         "appear": "audio/Fantozzi-SandL3.ogg",
@@ -197,14 +197,14 @@
     },
 
     "typewriter": {
-      "description": "Retro typewriter style with typing sounds",
+      "description": "Retro typewriter style - white",
       "background": {
-        "image": "gui/textbox_paper.png",
-        "borders": [25, 20, 25, 25],
+        "image": "images/dialog_test_white.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
-        "image": "gui/namebox_paper.png",
+        "image": "gui/namebox.png",
         "borders": [5, 5, 5, 5],
         "tile": false
       },
@@ -221,7 +221,7 @@
         "color": "#222222",
         "outlines": [],
         "line_spacing": 4,
-        "textshader": "typewriter"
+        "textshader": null
       },
       "position": {
         "xalign": 0.5,
@@ -230,8 +230,8 @@
         "yoffset": -30
       },
       "transitions": {
-        "enter": "slide_left_enter",
-        "exit": "fade_left_exit"
+        "enter": null,
+        "exit": null
       },
       "sounds": {
         "appear": "audio/Fantozzi-SandL1.ogg",
@@ -243,10 +243,10 @@
     },
 
     "announcement": {
-      "description": "Center-screen announcement style",
+      "description": "Center-screen announcement - green",
       "background": {
-        "image": "gui/textbox_announcement.png",
-        "borders": [40, 30, 40, 30],
+        "image": "images/dialog_test_green.png",
+        "borders": [216, 216, 216, 216],
         "tile": false
       },
       "namebox": {
@@ -267,7 +267,7 @@
         "color": "#FFFFFF",
         "outlines": [[2, "#000000", 0, 0]],
         "line_spacing": 10,
-        "textshader": "dissolve:25"
+        "textshader": null
       },
       "position": {
         "xalign": 0.5,
@@ -276,8 +276,8 @@
         "yoffset": 0
       },
       "transitions": {
-        "enter": "rise_up_enter",
-        "exit": "float_up_exit"
+        "enter": null,
+        "exit": null
       },
       "sounds": {
         "appear": "audio/Fantozzi-StoneR2.ogg",

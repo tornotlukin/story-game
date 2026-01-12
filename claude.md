@@ -885,6 +885,45 @@ show hiyori m1 e1
 
 **Note**: Most Cubism Editor docs link externally to docs.live2d.com. The Ren'Py integration docs at `docs/renpy/live2d.html` are fully available locally.
 
+### Shader Documentation:
+
+**Custom GLSL Shaders**:
+- `docs/SHADER_PORTING_GUIDE.md` - Phaser→Ren'Py shader porting guide with examples
+- `docs/renpy/model.html` - Ren'Py shader registration and built-in uniforms
+- `docs/renpy/textshaders.html` - Text-specific shader effects
+
+**Ren'Py Built-in Uniforms**:
+| Uniform | Type | Description |
+|---------|------|-------------|
+| `tex0`, `tex1`, `tex2` | sampler2D | Textures |
+| `u_model_size` | vec2 | Width/height of model |
+| `u_time` | float | Frame time (resets daily) |
+| `u_random` | vec4 | 4 random numbers per frame |
+| `u_viewport` | vec4 | Current viewport |
+| `u_virtual_size` | vec2 | Game virtual size |
+| `u_transform` | mat4 | Transform matrix |
+
+**Quick Shader Example**:
+```python
+init python:
+    renpy.register_shader("my_effect", variables="""
+        uniform sampler2D tex0;
+        uniform float u_amount;
+        attribute vec2 a_tex_coord;
+        varying vec2 v_tex_coord;
+    """, vertex_300="""
+        v_tex_coord = a_tex_coord;
+    """, fragment_300="""
+        vec4 color = texture2D(tex0, v_tex_coord);
+        // Apply effect here
+        gl_FragColor = color;
+    """)
+
+transform apply_effect:
+    shader "my_effect"
+    u_amount 1.0
+```
+
 ## LLM Development Notes
 
 When working with this codebase:
