@@ -1,0 +1,7 @@
+{
+    "transition_presets": "../../game/presets/transition_presets.json",
+    "shader_presets": "../../game/presets/shader_presets.json",
+    "shader_folder": "../../game/shader",
+    "game_folder": "../../game",
+    "renpy_exe": ""
+}

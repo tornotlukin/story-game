@@ -8,11 +8,18 @@
 ##   - shader.glow_pulse - Animated pulsing glow
 ##
 ## Related files: shader_transforms.rpy
+##
+## @tool-category: Glow
+## @tool-description: Glow and pulse effects for characters
 
 init python:
 
-    # Glow effect - follows exact same pattern as working color_sepia shader
-    # Adds glow color tint and brightness boost
+    # @shader: shader.glow
+    # @description: Static glow with color tint and brightness boost
+    # @param u_glow_color: color, default=#FFFFFF, description=Glow color
+    # @param u_outer_strength: float, range=0.0-2.0, default=0.6, description=Outer glow intensity
+    # @param u_inner_strength: float, range=0.0-1.0, default=0.0, description=Inner glow intensity
+    # @param u_scale: float, range=0.5-2.0, default=1.0, description=Glow size multiplier
     renpy.register_shader("shader.glow", variables="""
         uniform float u_outer_strength;
         uniform float u_inner_strength;
@@ -44,8 +51,12 @@ init python:
         gl_FragColor = vec4(result, color.a);
     """)
 
-    # Pulsing glow (animated) - Simple color tint that pulses
-    # Uses same pattern as working color shaders
+    # @shader: shader.glow_pulse
+    # @description: Animated pulsing glow effect
+    # @param u_glow_color: color, default=#FFFFFF, description=Glow color
+    # @param u_strength: float, range=0.0-2.0, default=0.8, description=Glow intensity
+    # @param u_speed: float, range=0.5-5.0, default=2.0, description=Pulse speed
+    # @animated
     renpy.register_shader("shader.glow_pulse", variables="""
         uniform float u_strength;
         uniform float u_speed;

@@ -14,11 +14,15 @@
 ##   - shader.color_tint - Color tinting/overlay
 ##
 ## Related files: shader_transforms.rpy
+##
+## @tool-category: Color
+## @tool-description: Color adjustment effects (grayscale, sepia, tint, etc.)
 
 init python:
 
-    # Color Matrix - Ported from Phaser colormatrix.js
-    # Use a 20-element array for full color matrix transformation
+    # @shader: shader.color_matrix
+    # @description: Full 4x5 color matrix transformation
+    # @param u_alpha: float, range=0.0-1.0, default=1.0, description=Effect intensity
     renpy.register_shader("shader.color_matrix", variables="""
         uniform float u_matrix[20];
         uniform float u_alpha;
@@ -52,7 +56,9 @@ init python:
         gl_FragColor = vec4(rgb, result.a);
     """)
 
-    # Grayscale - preserves transparency
+    # @shader: shader.color_grayscale
+    # @description: Desaturation to grayscale
+    # @param u_amount: float, range=0.0-1.0, default=1.0, description=Grayscale amount
     renpy.register_shader("shader.color_grayscale", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -70,7 +76,9 @@ init python:
         gl_FragColor = vec4(result, color.a);
     """)
 
-    # Sepia Tone - preserves transparency
+    # @shader: shader.color_sepia
+    # @description: Sepia tone vintage effect
+    # @param u_amount: float, range=0.0-1.0, default=1.0, description=Sepia intensity
     renpy.register_shader("shader.color_sepia", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -201,7 +209,10 @@ init python:
         gl_FragColor = vec4(result, color.a);
     """)
 
-    # Color Tint/Overlay - preserves transparency
+    # @shader: shader.color_tint
+    # @description: Color tint overlay effect
+    # @param u_tint_color: color, default=#FFFFFF, description=Tint color
+    # @param u_amount: float, range=0.0-1.0, default=0.5, description=Tint intensity
     renpy.register_shader("shader.color_tint", variables="""
         uniform vec4 u_tint_color;
         uniform float u_amount;
