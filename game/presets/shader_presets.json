@@ -13,8 +13,7 @@
                 "u_outer_strength": 0.6,
                 "u_inner_strength": 0.0,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_gold": {
@@ -24,8 +23,7 @@
                 "u_outer_strength": 0.8,
                 "u_inner_strength": 0.2,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_red": {
@@ -35,8 +33,7 @@
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_blue": {
@@ -46,8 +43,7 @@
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_green": {
@@ -57,8 +53,7 @@
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_purple": {
@@ -68,8 +63,7 @@
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_pink": {
@@ -79,8 +73,7 @@
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_holy": {
@@ -90,8 +83,7 @@
                 "u_outer_strength": 0.9,
                 "u_inner_strength": 0.2,
                 "u_scale": 1.2
-            },
-            "mesh_pad": 60
+            }
         },
 
         "glow_evil": {
@@ -101,8 +93,7 @@
                 "u_outer_strength": 0.8,
                 "u_inner_strength": 0.3,
                 "u_scale": 1.0
-            },
-            "mesh_pad": 50
+            }
         },
 
         "glow_pulse_white": {
@@ -112,7 +103,6 @@
                 "u_strength": 0.8,
                 "u_speed": 2.0
             },
-            "mesh_pad": 60,
             "animated": true
         },
 
@@ -123,7 +113,6 @@
                 "u_strength": 1.0,
                 "u_speed": 1.5
             },
-            "mesh_pad": 60,
             "animated": true
         },
 
@@ -134,7 +123,6 @@
                 "u_strength": 1.0,
                 "u_speed": 3.0
             },
-            "mesh_pad": 60,
             "animated": true
         },
 

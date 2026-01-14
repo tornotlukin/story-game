@@ -70,7 +70,12 @@ init -10 python:
                 print(f"TransitionLoader: Transition '{name}' not found")
                 return None
 
-            config = self.transitions[name].copy()
+            # Skip comment keys and non-dict values
+            value = self.transitions[name]
+            if name.startswith("_") or not isinstance(value, dict):
+                return None
+
+            config = value.copy()
 
             # Apply defaults for missing keys
             defaults = {
@@ -98,12 +103,13 @@ init -10 python:
 
         def get_all_transitions(self):
             """
-            Get all transition names.
+            Get all transition names (excludes comment keys starting with _).
 
             Returns:
                 List of transition names
             """
-            return list(self.transitions.keys())
+            return [name for name in self.transitions.keys()
+                    if not name.startswith("_") and isinstance(self.transitions[name], dict)]
 
         def get_transitions_by_type(self, transition_type):
             """
@@ -118,7 +124,9 @@ init -10 python:
             return {
                 name: config
                 for name, config in self.transitions.items()
-                if config.get("type") == transition_type
+                if not name.startswith("_")
+                and isinstance(config, dict)
+                and config.get("type") == transition_type
             }
 
         def is_loaded(self):

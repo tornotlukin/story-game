@@ -57,12 +57,17 @@ init -10 python:
             self._loaded = True
 
         def _parse_shader_presets(self, data):
-            """Parse shader presets from JSON, flattening categories."""
-            for category, presets in data.items():
-                if category.startswith("_"):
+            """Parse shader presets from JSON (flat structure with _comment keys)."""
+            count = 0
+            for name, config in data.items():
+                # Skip comment keys and non-dict values
+                if name.startswith("_"):
                     continue
-                for name, config in presets.items():
-                    self.shader_presets[name] = config
+                if not isinstance(config, dict):
+                    continue
+                self.shader_presets[name] = config
+                count += 1
+            print(f"PresetManager: Loaded {count} shader presets")
 
         def _parse_scene_presets(self, data):
             """Parse scene presets, resolving inheritance."""
@@ -139,9 +144,9 @@ init -10 python:
             return (1.0, 1.0, 1.0, 1.0)
 
         def hex_to_vec4(self, hex_str):
-            """Convert hex color string to vec4 list for shaders."""
+            """Convert hex color string to vec4 tuple for shaders."""
             color = self.hex_to_color(hex_str)
-            return list(color)
+            return color  # Return tuple, not list - Ren'Py requires tuples for vec4
 
         def build_shader_transform(self, preset_name, params_override=None):
             """
@@ -202,6 +207,9 @@ init -10 python:
         def _create_transform(self, shader_name, params, mesh_pad):
             """Create a Ren'Py transform with shader and params."""
             def transform_func(trans, st, at):
+                # CRITICAL: mesh=True is required for shaders to work
+                # It renders the child to a texture that the shader can sample
+                trans.mesh = True
                 trans.shader = shader_name
                 for key, value in params.items():
                     setattr(trans, key, value)

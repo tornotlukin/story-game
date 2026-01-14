@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python:*)",
+      "Bash(dir /s /b \"C:\\\\Work\\\\story-game\\\\*.txt\")",
+      "Bash(findstr:*)"
     ]
   }
 }

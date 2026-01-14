@@ -1,7 +1,8 @@
 ## mood_controller.rpy - High-level mood/preset controller
 ##
 ## Provides the main API for applying presets to scenes, characters,
-## dialog boxes, and backgrounds.
+## dialog boxes, and backgrounds. Combines transitions from
+## character_animations.rpy with shader effects from preset_manager.
 ##
 ## Usage:
 ##   $ mood.set("dream_sequence")
@@ -9,7 +10,8 @@
 ##   hide novy at mood_exit("novy")
 ##   $ mood.reset()
 ##
-## Related files: preset_manager.rpy, presets/presets.json
+## Related files: preset_manager.rpy, presets/presets.json,
+##                character_animations.rpy, transitions/transitions.json
 
 init python:
 
@@ -18,7 +20,7 @@ init python:
         High-level controller for applying scene presets.
 
         Manages the current mood state and provides methods for
-        character choreography, transitions, and effects.
+        character choreography by combining transitions with shaders.
         """
 
         def __init__(self):
@@ -42,7 +44,7 @@ init python:
             self.current = preset
             self.current_name = preset_name
 
-            # Apply ambient audio
+            # Apply ambient audio if specified
             self._apply_ambient(preset.get("active", {}).get("ambient"))
 
             return True
@@ -106,182 +108,261 @@ init python:
             config = self.get_character_config(character_name)
             return config.get("lead_out", {})
 
-        def build_enter_transform(self, character_name, override=None):
+        def build_enter_transform(self, character_name, xalign=0.5, yalign=1.0):
             """
-            Build transform for character entrance with shader and sound.
+            Build transform for character entrance.
+
+            Combines transition from character_animations with shader effects.
 
             Args:
                 character_name: Character identifier
-                override: Optional dict to override lead_in properties
+                xalign: Final horizontal position (0.0=left, 1.0=right)
+                yalign: Final vertical position (0.0=top, 1.0=bottom)
 
             Returns:
-                ATL transform for entrance animation
+                Transform for entrance animation with shader
             """
-            lead_in = dict(self.get_lead_in(character_name))
-            if override:
-                lead_in.update(override)
+            lead_in = self.get_lead_in(character_name)
 
-            start = lead_in.get("start", [-0.3, 1.0])
-            end = lead_in.get("end", [0.5, 1.0])
-            speed = lead_in.get("speed", 0.5)
-            delay = lead_in.get("delay", 0.0)
-            easing = lead_in.get("easing", "ease_out")
-            alpha_config = lead_in.get("alpha", {"start": 0.0, "end": 1.0})
-            sound = lead_in.get("sound")
+            # Get transition name and shader config
+            transition_name = lead_in.get("transition", "slide_left_enter")
             shader_config = lead_in.get("shader")
 
-            # Store final position
-            self._character_positions[character_name] = end
+            # Get the base transition function from char_anim_factory
+            base_transform_func = char_anim_factory.get_transform(transition_name)
+            if not base_transform_func:
+                renpy.log("Mood: Transition '{}' not found".format(transition_name))
+                # Fallback to default
+                base_transform_func = char_anim_factory.get_transform("slide_left_enter")
 
-            # Get shader transform if specified
-            shader_preset = None
-            shader_fade = 0.0
-            if shader_config:
-                shader_preset = shader_config.get("preset")
-                shader_fade = shader_config.get("fade_duration", speed)
+            # Store position for exit
+            self._character_positions[character_name] = (xalign, yalign)
 
-            return self._build_full_transform(
-                start, end, speed, delay, easing,
-                alpha_config.get("start", 0.0),
-                alpha_config.get("end", 1.0),
-                sound,
-                shader_preset,
-                shader_fade,
-                is_enter=True
+            # If no shader, just return the base transition
+            if not shader_config:
+                return base_transform_func(xalign=xalign, yalign=yalign)
+
+            # Get shader preset and fade duration
+            shader_preset = shader_config.get("preset")
+            shader_fade = shader_config.get("fade_duration", 0.5)
+
+            # Build combined transform with transition + fading shader
+            return self._build_combined_enter_transform(
+                base_transform_func, xalign, yalign,
+                shader_preset, shader_fade
             )
 
-        def build_exit_transform(self, character_name, override=None):
+        def build_exit_transform(self, character_name, xalign=None, yalign=None):
             """
-            Build transform for character exit with shader and sound.
+            Build transform for character exit.
+
+            Combines transition from character_animations with shader effects.
+
+            Args:
+                character_name: Character identifier
+                xalign: Starting horizontal position (uses stored if None)
+                yalign: Starting vertical position (uses stored if None)
+
+            Returns:
+                Transform for exit animation with shader
             """
-            lead_out = dict(self.get_lead_out(character_name))
-            if override:
-                lead_out.update(override)
+            lead_out = self.get_lead_out(character_name)
 
-            # Start from current position if not specified
-            start = lead_out.get("start")
-            if start is None:
-                start = self._character_positions.get(character_name, [0.5, 1.0])
+            # Get stored position or defaults
+            stored = self._character_positions.get(character_name, (0.5, 1.0))
+            if xalign is None:
+                xalign = stored[0]
+            if yalign is None:
+                yalign = stored[1]
 
-            end = lead_out.get("end", [1.3, 1.0])
-            speed = lead_out.get("speed", 0.5)
-            delay = lead_out.get("delay", 0.0)
-            easing = lead_out.get("easing", "ease_in")
-            alpha_config = lead_out.get("alpha", {"start": 1.0, "end": 0.0})
-            sound = lead_out.get("sound")
-            shader_config = lead_out.get("shader")
-
-            # Clear position on exit
+            # Clear stored position
             if character_name in self._character_positions:
                 del self._character_positions[character_name]
 
-            # Get shader transform if specified
-            shader_preset = None
-            shader_fade = 0.0
-            if shader_config:
-                shader_preset = shader_config.get("preset")
-                shader_fade = shader_config.get("fade_duration", speed)
+            # Get transition name and shader config
+            transition_name = lead_out.get("transition", "fade_left_exit")
+            shader_config = lead_out.get("shader")
 
-            return self._build_full_transform(
-                start, end, speed, delay, easing,
-                alpha_config.get("start", 1.0),
-                alpha_config.get("end", 0.0),
-                sound,
-                shader_preset,
-                shader_fade,
-                is_enter=False
+            # Get the base transition function from char_anim_factory
+            base_transform_func = char_anim_factory.get_transform(transition_name)
+            if not base_transform_func:
+                renpy.log("Mood: Transition '{}' not found".format(transition_name))
+                base_transform_func = char_anim_factory.get_transform("fade_left_exit")
+
+            # If no shader, just return the base transition
+            if not shader_config:
+                return base_transform_func(xalign=xalign, yalign=yalign)
+
+            # Get shader preset and fade duration
+            shader_preset = shader_config.get("preset")
+            shader_fade = shader_config.get("fade_duration", 0.5)
+
+            # Build combined transform with transition + fading shader
+            return self._build_combined_exit_transform(
+                base_transform_func, xalign, yalign,
+                shader_preset, shader_fade
             )
 
-        def _build_full_transform(self, start, end, speed, delay, easing,
-                                   alpha_start, alpha_end, sound,
-                                   shader_preset, shader_fade, is_enter):
-            """Build ATL transform with movement, alpha, sound, and shader."""
-            easing_func = self._get_easing(easing)
+        def _build_combined_enter_transform(self, base_func, xalign, yalign,
+                                            shader_preset, shader_fade):
+            """
+            Build a transform that combines base transition with shader fade-out.
 
-            # Get shader transform if we have a preset
-            shader_transform = None
-            if shader_preset:
-                shader_transform = preset_manager.build_shader_transform(shader_preset)
+            For entrances, shader starts strong and fades out.
+            """
+            # Get shader params from preset_manager
+            shader_params = self._get_shader_params(shader_preset)
 
-            # Track state across calls
-            state = {"sound_played": False, "started": False}
+            # Get the base transform
+            base_transform = base_func(xalign=xalign, yalign=yalign)
 
-            def transform_func(trans, st, at):
-                # Play sound on first frame (after delay)
-                if not state["sound_played"] and sound and st >= delay:
-                    if renpy.loadable(sound):
-                        renpy.play(sound, channel="sound")
-                    state["sound_played"] = True
+            # Check if shader is animated (needs continuous updates)
+            is_animated = shader_params.get("animated", False) if shader_params else False
 
-                # Handle delay
-                if st < delay:
-                    trans.xalign = start[0]
-                    trans.yalign = start[1]
-                    trans.alpha = alpha_start
-                    return 0
+            def combined_func(trans, st, at):
+                # Apply base transform first
+                if hasattr(base_transform, 'function') and base_transform.function:
+                    base_result = base_transform.function(trans, st, at)
+                else:
+                    base_result = None
 
-                # Calculate progress
-                effective_st = st - delay
-                progress = min(1.0, effective_st / speed) if speed > 0 else 1.0
-                eased = easing_func(progress)
-
-                # Movement
-                trans.xalign = start[0] + (end[0] - start[0]) * eased
-                trans.yalign = start[1] + (end[1] - start[1]) * eased
-
-                # Alpha
-                trans.alpha = alpha_start + (alpha_end - alpha_start) * eased
-
-                # Shader effect (fades out for enter, fades in for exit)
-                if shader_transform and shader_fade > 0:
-                    shader_progress = min(1.0, effective_st / shader_fade) if shader_fade > 0 else 1.0
-                    # For enter: shader starts strong, fades out
-                    # For exit: shader starts weak, gets stronger
-                    if is_enter:
+                # Apply shader with fade-out effect
+                if shader_params:
+                    if shader_fade > 0:
+                        # Calculate shader intensity (starts at 1, fades to 0)
+                        shader_progress = min(1.0, st / shader_fade)
                         shader_intensity = 1.0 - shader_progress
                     else:
-                        shader_intensity = shader_progress
+                        # No fade, full intensity
+                        shader_intensity = 1.0
 
-                    # Apply shader with intensity (modulate via alpha-like effect)
+                    # Apply shader if still visible
                     if shader_intensity > 0.01:
-                        # Apply the shader transform
-                        if hasattr(shader_transform, 'function'):
-                            shader_transform.function(trans, st, at)
+                        self._apply_shader_to_transform(
+                            trans, shader_params, shader_intensity
+                        )
+                        # Keep updating if shader is still active AND (animated OR still fading)
+                        if is_animated or shader_intensity > 0.01:
+                            return 0  # Request next frame
 
-                # Continue or finish
-                if progress >= 1.0:
-                    return None
-                return 0
+                # Return base result if shader done, or 0 if shader still needs updates
+                return base_result
 
-            return Transform(function=transform_func)
+            return Transform(function=combined_func)
 
-        def _get_easing(self, name):
-            """Get easing function by name."""
-            if name == "linear":
-                return lambda t: t
-            elif name == "ease_in":
-                return lambda t: t * t
-            elif name == "ease_out":
-                return lambda t: 1 - (1 - t) * (1 - t)
-            elif name == "ease_in_out":
-                return lambda t: t * t * (3 - 2 * t)
-            elif name == "bounce":
-                def bounce(t):
-                    if t < 0.5:
-                        return 2 * t * t
+        def _build_combined_exit_transform(self, base_func, xalign, yalign,
+                                           shader_preset, shader_fade):
+            """
+            Build a transform that combines base transition with shader fade-in.
+
+            For exits, shader starts weak and gets stronger.
+            """
+            shader_params = self._get_shader_params(shader_preset)
+
+            base_transform = base_func(xalign=xalign, yalign=yalign)
+
+            # Check if shader is animated (needs continuous updates)
+            is_animated = shader_params.get("animated", False) if shader_params else False
+
+            def combined_func(trans, st, at):
+                # Apply base transform first
+                if hasattr(base_transform, 'function') and base_transform.function:
+                    base_result = base_transform.function(trans, st, at)
+                else:
+                    base_result = None
+
+                # Apply shader with fade-in effect
+                if shader_params:
+                    if shader_fade > 0:
+                        # Calculate shader intensity (starts at 0, fades to 1)
+                        shader_progress = min(1.0, st / shader_fade)
+                        shader_intensity = shader_progress
                     else:
-                        t = t - 0.75
-                        return 1 - 2 * t * t
-                return bounce
-            elif name == "elastic":
-                import math
-                def elastic(t):
-                    if t == 0 or t == 1:
-                        return t
-                    return pow(2, -10 * t) * math.sin((t - 0.1) * 5 * math.pi) + 1
-                return elastic
-            else:
-                return lambda t: t
+                        # No fade, full intensity
+                        shader_intensity = 1.0
+
+                    # Apply shader
+                    if shader_intensity > 0.01:
+                        self._apply_shader_to_transform(
+                            trans, shader_params, shader_intensity
+                        )
+                        # Keep updating if animated
+                        if is_animated:
+                            return 0
+
+                return base_result
+
+            return Transform(function=combined_func)
+
+        def _get_shader_params(self, shader_preset):
+            """Get shader parameters from preset_manager."""
+            if not shader_preset:
+                return None
+
+            preset = preset_manager.get_shader_preset(shader_preset)
+            if not preset:
+                return None
+
+            shader_name = preset.get("shader")
+            params = dict(preset.get("params", {}))
+            mesh_pad = preset.get("mesh_pad", 0)
+            animated = preset.get("animated", False)
+
+            # Convert hex colors
+            for key, value in params.items():
+                if isinstance(value, str) and value.startswith("#"):
+                    params[key] = preset_manager.hex_to_vec4(value)
+
+            return {
+                "shader": shader_name,
+                "params": params,
+                "mesh_pad": mesh_pad,
+                "animated": animated
+            }
+
+        def _apply_shader_to_transform(self, trans, shader_params, intensity):
+            """Apply shader parameters to transform with intensity scaling."""
+            if not shader_params:
+                return
+
+            shader_name = shader_params.get("shader")
+            params = shader_params.get("params", {})
+            mesh_pad = shader_params.get("mesh_pad", 0)
+
+            if shader_name:
+                # CRITICAL: mesh=True is required for shaders to work
+                # Without it, the child isn't rendered to texture and shader can't sample
+                trans.mesh = True
+                trans.shader = shader_name
+
+            # Apply mesh_pad for effects that render outside bounds (glow, blur, etc)
+            if mesh_pad:
+                if isinstance(mesh_pad, list):
+                    trans.mesh_pad = tuple(mesh_pad)
+                elif isinstance(mesh_pad, (int, float)):
+                    pad = int(mesh_pad)
+                    trans.mesh_pad = (pad, pad, pad, pad)
+
+            # Params that should scale with intensity (for fade in/out effects)
+            intensity_params = [
+                "u_amount", "u_strength", "u_intensity", "u_blur_amount", "u_radius",
+                "u_outer_strength", "u_inner_strength"  # Glow params
+            ]
+
+            # Apply params, scaling intensity-based ones
+            for key, value in params.items():
+                # Convert lists to tuples (Ren'Py requires tuples for vec types)
+                if isinstance(value, list):
+                    value = tuple(value)
+
+                if key in intensity_params:
+                    # Scale by intensity
+                    if isinstance(value, (int, float)):
+                        setattr(trans, key, value * intensity)
+                    else:
+                        setattr(trans, key, value)
+                else:
+                    setattr(trans, key, value)
 
         def get_transition(self, direction="enter"):
             """
@@ -313,33 +394,32 @@ init python:
 default mood = MoodController()
 
 
-# Callable transform functions for use in show/hide statements
+# Callable functions for use in show/hide statements
 init python:
 
-    def mood_enter_func(character_name="default"):
+    def mood_enter_func(character_name="default", xalign=0.5, yalign=1.0):
         """
         Returns a transform for mood-aware character entrance.
 
         Usage:
             show novy at mood_enter_func("novy")
-            show novy at mood_enter_func()  # uses "default"
+            show novy at mood_enter_func("novy", xalign=0.3)
         """
-        return mood.build_enter_transform(character_name)
+        return mood.build_enter_transform(character_name, xalign, yalign)
 
-    def mood_exit_func(character_name="default"):
+    def mood_exit_func(character_name="default", xalign=None, yalign=None):
         """
         Returns a transform for mood-aware character exit.
 
         Usage:
             hide novy at mood_exit_func("novy")
-            hide novy at mood_exit_func()  # uses "default"
         """
-        return mood.build_exit_transform(character_name)
+        return mood.build_exit_transform(character_name, xalign, yalign)
 
 
-# ATL transforms that call the functions
-transform mood_enter(char="default"):
-    function renpy.curry(lambda trans, st, at, c=char: mood.build_enter_transform(c).function(trans, st, at))
+# ATL transform wrappers for cleaner syntax
+transform mood_enter(char="default", xalign=0.5, yalign=1.0):
+    function renpy.curry(lambda trans, st, at, c=char, x=xalign, y=yalign: mood.build_enter_transform(c, x, y).function(trans, st, at))
 
 transform mood_exit(char="default"):
     function renpy.curry(lambda trans, st, at, c=char: mood.build_exit_transform(c).function(trans, st, at))

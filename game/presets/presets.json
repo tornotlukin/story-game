@@ -1,40 +1,27 @@
 {
-    "_comment": "Scene Presets - Full choreography definitions. See docs/PRESET_SYSTEM.md",
-    "_audio_files": "Fantozzi-SandL1-3.ogg, SandR1-3.ogg, StoneL1-3.ogg, StoneR1-3.ogg",
+    "_comment": "Scene Presets - References transitions from transitions.json and adds shader effects",
+    "_design": "Transitions handle movement/sound, presets add shader layers on top",
 
     "presets": {
 
         "default": {
-            "_comment": "Base default preset - no effects",
+            "_comment": "Base default preset - standard transitions, no shader effects",
             "extends": null,
 
             "active": {
                 "shader": null,
-                "alpha": 1.0,
-                "ambient": null
+                "alpha": 1.0
             },
 
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [-0.3, 1.0],
-                        "end": [0.5, 1.0],
-                        "speed": 0.5,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL1.ogg",
-                        "shader": null,
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "slide_left_enter",
+                        "shader": null
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [1.3, 1.0],
-                        "speed": 0.4,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandL1.ogg",
-                        "shader": null,
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "fade_left_exit",
+                        "shader": null
                     }
                 }
             },
@@ -46,9 +33,7 @@
             },
 
             "background": {
-                "shader": null,
-                "alpha": 1.0,
-                "tint": null
+                "shader": null
             },
 
             "transition": {
@@ -59,7 +44,7 @@
 
 
         "dream_sequence": {
-            "_comment": "Ethereal dream state - soft blur, gentle movement",
+            "_comment": "Ethereal dream - rise up with blur that fades out",
             "extends": "default",
 
             "active": {
@@ -70,24 +55,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.3],
-                        "end": [0.5, 1.0],
-                        "speed": 1.2,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL2.ogg",
-                        "shader": {"preset": "blur_medium", "fade_duration": 0.8},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "rise_up_enter",
+                        "shader": {"preset": "blur_medium", "fade_duration": 0.8}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 0.7],
-                        "speed": 1.0,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR2.ogg",
-                        "shader": {"preset": "blur_medium", "fade_duration": 0.5},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "float_up_exit",
+                        "shader": {"preset": "blur_medium", "fade_duration": 0.5}
                     }
                 }
             },
@@ -99,8 +72,7 @@
             },
 
             "background": {
-                "shader": {"preset": "blur_light"},
-                "tint": "#E8E0FF"
+                "shader": {"preset": "blur_light"}
             },
 
             "transition": {
@@ -111,7 +83,7 @@
 
 
         "nightmare": {
-            "_comment": "Dark nightmare - glitchy, unsettling",
+            "_comment": "Dark nightmare - dramatic emerge with glitch shader",
             "extends": "default",
 
             "active": {
@@ -122,24 +94,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.4],
-                        "end": [0.5, 1.0],
-                        "speed": 0.6,
-                        "delay": 0.1,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL3.ogg",
-                        "shader": {"preset": "glitch_medium", "fade_duration": 0.4},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "dramatic_emerge_enter",
+                        "shader": {"preset": "glitch_medium", "fade_duration": 0.6}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.2],
-                        "speed": 0.15,
-                        "delay": 0.0,
-                        "easing": "linear",
-                        "sound": "audio/Fantozzi-StoneR3.ogg",
-                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.1},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.15}
                     }
                 }
             },
@@ -151,8 +111,7 @@
             },
 
             "background": {
-                "shader": {"preset": "shake_light"},
-                "tint": "#1A0A1A"
+                "shader": {"preset": "shake_light"}
             },
 
             "transition": {
@@ -163,7 +122,7 @@
 
 
         "flashback": {
-            "_comment": "Memory/flashback - sepia, soft",
+            "_comment": "Memory/flashback - pop in with blur and sepia",
             "extends": "default",
 
             "active": {
@@ -174,24 +133,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.0],
-                        "end": [0.5, 1.0],
-                        "speed": 0.8,
-                        "delay": 0.3,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL1.ogg",
-                        "shader": {"preset": "blur_light", "fade_duration": 0.6},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "pop_in_enter",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.4}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.0],
-                        "speed": 0.6,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR1.ogg",
-                        "shader": {"preset": "blur_light", "fade_duration": 0.4},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.15}
                     }
                 }
             },
@@ -203,8 +150,7 @@
             },
 
             "background": {
-                "shader": {"preset": "sepia"},
-                "tint": "#E8DCC8"
+                "shader": {"preset": "sepia"}
             },
 
             "transition": {
@@ -215,7 +161,7 @@
 
 
         "battle_intense": {
-            "_comment": "Action battle - fast, high contrast",
+            "_comment": "Action battle - fast dramatic entrances with radial blur",
             "extends": "default",
 
             "active": {
@@ -226,48 +172,32 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [-0.5, 1.0],
-                        "end": [0.5, 1.0],
-                        "speed": 0.25,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL1.ogg",
-                        "shader": {"preset": "blur_radial_light", "fade_duration": 0.15},
-                        "alpha": {"start": 0.5, "end": 1.0}
+                        "transition": "dramatic_left_enter",
+                        "shader": {"preset": "blur_radial_light", "fade_duration": 0.3}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [1.5, 1.0],
-                        "speed": 0.2,
-                        "delay": 0.0,
-                        "easing": "linear",
-                        "sound": "audio/Fantozzi-StoneR1.ogg",
-                        "shader": {"preset": "blur_radial_light", "fade_duration": 0.1},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "fade_right_exit",
+                        "shader": {"preset": "blur_radial_light", "fade_duration": 0.2}
                     }
                 },
                 "hero": {
                     "lead_in": {
-                        "start": [-0.5, 1.0],
-                        "end": [0.35, 1.0],
-                        "speed": 0.3,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL2.ogg",
-                        "shader": {"preset": "glow_blue", "fade_duration": 0.3},
-                        "alpha": {"start": 0.3, "end": 1.0}
+                        "transition": "dramatic_left_enter",
+                        "shader": {"preset": "glow_blue", "fade_duration": 0.4}
+                    },
+                    "lead_out": {
+                        "transition": "fade_left_exit",
+                        "shader": null
                     }
                 },
                 "villain": {
                     "lead_in": {
-                        "start": [1.5, 1.0],
-                        "end": [0.65, 1.0],
-                        "speed": 0.3,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneR2.ogg",
-                        "shader": {"preset": "glow_red", "fade_duration": 0.3},
-                        "alpha": {"start": 0.3, "end": 1.0}
+                        "transition": "dramatic_right_enter",
+                        "shader": {"preset": "glow_red", "fade_duration": 0.4}
+                    },
+                    "lead_out": {
+                        "transition": "fade_right_exit",
+                        "shader": null
                     }
                 }
             },
@@ -286,7 +216,7 @@
 
 
         "horror_tension": {
-            "_comment": "Horror/tension - dark, vignette, slow",
+            "_comment": "Horror/tension - slow dramatic emergence with vignette",
             "extends": "default",
 
             "active": {
@@ -297,24 +227,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.3],
-                        "end": [0.5, 1.0],
-                        "speed": 1.5,
-                        "delay": 0.5,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL3.ogg",
-                        "shader": {"preset": "vignette_dramatic", "fade_duration": 0.8},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "dramatic_emerge_enter",
+                        "shader": {"preset": "vignette_dramatic", "fade_duration": 0.8}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 0.8],
-                        "speed": 0.4,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandL3.ogg",
-                        "shader": null,
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "sink_down_exit",
+                        "shader": null
                     }
                 }
             },
@@ -326,8 +244,7 @@
             },
 
             "background": {
-                "shader": {"preset": "vignette_heavy"},
-                "tint": "#0A0510"
+                "shader": {"preset": "vignette_heavy"}
             },
 
             "transition": {
@@ -338,7 +255,7 @@
 
 
         "underwater": {
-            "_comment": "Underwater - blue tint, wave distortion",
+            "_comment": "Underwater - rise up with blur, wave background",
             "extends": "default",
 
             "active": {
@@ -349,24 +266,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.5],
-                        "end": [0.5, 1.0],
-                        "speed": 2.0,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL2.ogg",
-                        "shader": {"preset": "blur_light", "fade_duration": 0.8},
-                        "alpha": {"start": 0.3, "end": 1.0}
+                        "transition": "rise_up_enter",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.5}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 0.5],
-                        "speed": 1.5,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR2.ogg",
-                        "shader": {"preset": "blur_light", "fade_duration": 0.5},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "float_up_exit",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.5}
                     }
                 }
             },
@@ -378,8 +283,7 @@
             },
 
             "background": {
-                "shader": {"preset": "wave_gentle"},
-                "tint": "#304060"
+                "shader": {"preset": "wave_gentle"}
             },
 
             "transition": {
@@ -390,7 +294,7 @@
 
 
         "divine_moment": {
-            "_comment": "Divine/holy - bright, glowing, descending",
+            "_comment": "Divine/holy - drop down with golden glow",
             "extends": "default",
 
             "active": {
@@ -401,24 +305,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 0.5],
-                        "end": [0.5, 1.0],
-                        "speed": 1.5,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL2.ogg",
-                        "shader": {"preset": "glow_gold", "fade_duration": 1.0},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "drop_down_enter",
+                        "shader": {"preset": "glow_gold", "fade_duration": 0.6}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 0.5],
-                        "speed": 1.2,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-StoneR2.ogg",
-                        "shader": {"preset": "glow_gold", "fade_duration": 0.8},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "float_up_exit",
+                        "shader": {"preset": "glow_gold", "fade_duration": 0.5}
                     }
                 }
             },
@@ -426,13 +318,11 @@
             "dialogbox": {
                 "preset": "announcement",
                 "shader": {"preset": "glow_white"},
-                "alpha": 0.9,
-                "position": {"xalign": 0.5, "yalign": 0.5}
+                "alpha": 0.9
             },
 
             "background": {
-                "shader": {"preset": "light_rays"},
-                "tint": "#FFFFF0"
+                "shader": {"preset": "light_rays"}
             },
 
             "transition": {
@@ -443,30 +333,47 @@
 
 
         "dramatic_entrance": {
-            "_comment": "Important character reveals",
+            "_comment": "Important reveals - dramatic emerge with white glow",
             "extends": "default",
 
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.4],
-                        "end": [0.5, 1.0],
-                        "speed": 0.8,
-                        "delay": 0.1,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL3.ogg",
-                        "shader": {"preset": "glow_white", "fade_duration": 0.5},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "dramatic_emerge_enter",
+                        "shader": {"preset": "glow_white", "fade_duration": 0.6}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.2],
-                        "speed": 0.5,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-StoneR3.ogg",
-                        "shader": null,
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "dramatic_shrink_exit",
+                        "shader": null
+                    }
+                }
+            }
+        },
+
+
+        "corner_entrances": {
+            "_comment": "Sneaky/surprising entrances from corners",
+            "extends": "default",
+
+            "characters": {
+                "default": {
+                    "lead_in": {
+                        "transition": "corner_top_left_enter",
+                        "shader": null
+                    },
+                    "lead_out": {
+                        "transition": "corner_bottom_right_exit",
+                        "shader": null
+                    }
+                },
+                "sneaky": {
+                    "lead_in": {
+                        "transition": "corner_bottom_left_enter",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.3}
+                    },
+                    "lead_out": {
+                        "transition": "corner_top_right_exit",
+                        "shader": null
                     }
                 }
             }
@@ -474,30 +381,18 @@
 
 
         "quick_action": {
-            "_comment": "Fast-paced with quick pop-in/vanish",
+            "_comment": "Fast-paced pop in/vanish",
             "extends": "default",
 
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.1],
-                        "end": [0.5, 1.0],
-                        "speed": 0.15,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL3.ogg",
-                        "shader": null,
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "pop_in_enter",
+                        "shader": null
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.1],
-                        "speed": 0.1,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR3.ogg",
-                        "shader": null,
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": null
                     }
                 }
             },
@@ -509,8 +404,27 @@
         },
 
 
+        "spin_comedy": {
+            "_comment": "Comedic - pop in, spin out",
+            "extends": "default",
+
+            "characters": {
+                "default": {
+                    "lead_in": {
+                        "transition": "pop_in_enter",
+                        "shader": null
+                    },
+                    "lead_out": {
+                        "transition": "spin_out_exit",
+                        "shader": null
+                    }
+                }
+            }
+        },
+
+
         "old_tv": {
-            "_comment": "Retro CRT TV effect",
+            "_comment": "Retro CRT TV - pop in with scanlines shader",
             "extends": "default",
 
             "active": {
@@ -521,24 +435,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.1],
-                        "end": [0.5, 1.0],
-                        "speed": 0.2,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL1.ogg",
-                        "shader": {"preset": "scanlines_crt", "fade_duration": 0.3},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "pop_in_enter",
+                        "shader": {"preset": "scanlines_crt", "fade_duration": 0.25}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.1],
-                        "speed": 0.15,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-StoneR1.ogg",
-                        "shader": {"preset": "glitch_light", "fade_duration": 0.2},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": {"preset": "glitch_light", "fade_duration": 0.15}
                     }
                 }
             },
@@ -555,7 +457,7 @@
 
 
         "glitch_world": {
-            "_comment": "Digital glitch aesthetic",
+            "_comment": "Digital glitch - pop in with heavy glitch",
             "extends": "default",
 
             "active": {
@@ -566,24 +468,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.0],
-                        "end": [0.5, 1.0],
-                        "speed": 0.3,
-                        "delay": 0.0,
-                        "easing": "linear",
-                        "sound": "audio/Fantozzi-StoneR3.ogg",
-                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.3},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "pop_in_enter",
+                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.25}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.0],
-                        "speed": 0.2,
-                        "delay": 0.0,
-                        "easing": "linear",
-                        "sound": "audio/Fantozzi-StoneL3.ogg",
-                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.2},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": {"preset": "glitch_heavy", "fade_duration": 0.15}
                     }
                 }
             },
@@ -600,7 +490,7 @@
 
 
         "pixelated": {
-            "_comment": "Retro pixel art aesthetic",
+            "_comment": "Retro pixel art - pop in with pixelate shader",
             "extends": "default",
 
             "active": {
@@ -611,24 +501,12 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.0],
-                        "end": [0.5, 1.0],
-                        "speed": 0.4,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL1.ogg",
-                        "shader": {"preset": "pixelate_heavy", "fade_duration": 0.4},
-                        "alpha": {"start": 0.0, "end": 1.0}
+                        "transition": "pop_in_enter",
+                        "shader": {"preset": "pixelate_heavy", "fade_duration": 0.25}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.0],
-                        "speed": 0.3,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR1.ogg",
-                        "shader": {"preset": "pixelate_heavy", "fade_duration": 0.3},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "vanish_quick_exit",
+                        "shader": {"preset": "pixelate_heavy", "fade_duration": 0.15}
                     }
                 }
             },
@@ -640,7 +518,7 @@
 
 
         "poisoned": {
-            "_comment": "Poisoned/sick effect",
+            "_comment": "Poisoned/sick - rise up with wave distortion",
             "extends": "default",
 
             "active": {
@@ -651,37 +529,24 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.3],
-                        "end": [0.5, 1.0],
-                        "speed": 1.0,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-SandL2.ogg",
-                        "shader": {"preset": "wave_gentle", "fade_duration": 0.5},
-                        "alpha": {"start": 0.3, "end": 1.0}
+                        "transition": "rise_up_enter",
+                        "shader": {"preset": "wave_gentle", "fade_duration": 0.5}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.2],
-                        "speed": 0.6,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-SandR2.ogg",
-                        "shader": {"preset": "blur_light", "fade_duration": 0.3},
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "sink_down_exit",
+                        "shader": {"preset": "blur_light", "fade_duration": 0.35}
                     }
                 }
             },
 
             "background": {
-                "shader": {"preset": "tint_green"},
-                "tint": "#204020"
+                "shader": {"preset": "tint_green"}
             }
         },
 
 
         "hurt": {
-            "_comment": "Damage/hurt effect",
+            "_comment": "Damage/hurt - dramatic emerge with shake",
             "extends": "default",
 
             "active": {
@@ -692,31 +557,18 @@
             "characters": {
                 "default": {
                     "lead_in": {
-                        "start": [0.5, 1.2],
-                        "end": [0.5, 1.0],
-                        "speed": 0.4,
-                        "delay": 0.0,
-                        "easing": "ease_out",
-                        "sound": "audio/Fantozzi-StoneL2.ogg",
-                        "shader": {"preset": "shake_light", "fade_duration": 0.3},
-                        "alpha": {"start": 0.5, "end": 1.0}
+                        "transition": "dramatic_emerge_enter",
+                        "shader": {"preset": "shake_light", "fade_duration": 0.5}
                     },
                     "lead_out": {
-                        "start": null,
-                        "end": [0.5, 1.2],
-                        "speed": 0.3,
-                        "delay": 0.0,
-                        "easing": "ease_in",
-                        "sound": "audio/Fantozzi-StoneR2.ogg",
-                        "shader": null,
-                        "alpha": {"start": 1.0, "end": 0.0}
+                        "transition": "sink_down_exit",
+                        "shader": null
                     }
                 }
             },
 
             "background": {
-                "shader": {"preset": "vignette_dramatic"},
-                "tint": "#400010"
+                "shader": {"preset": "vignette_dramatic"}
             }
         }
     }
