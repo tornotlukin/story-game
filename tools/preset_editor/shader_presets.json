@@ -1,0 +1,300 @@
+{
+    "_comment": "Shader Presets - Visual effects loaded by shader_generator.rpy",
+    "_version": "3.0",
+    "_usage": "show character at shader_glow_blue",
+    "_chaining": "show character at preset_slide_left_enter(), shader_wave_gentle",
+
+    "_note": "mesh_pad removed - breaks transform chaining. Use mesh True only.",
+
+    "shader_presets": {
+
+        "_comment_glow": "========== GLOW EFFECTS ==========",
+
+        "glow_white": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#FFFFFF",
+                "u_outer_strength": 0.6,
+                "u_inner_strength": 0.0,
+                "u_scale": 1.0
+            }
+        },
+
+        "glow_gold": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#FFD94D",
+                "u_outer_strength": 0.8,
+                "u_inner_strength": 0.2,
+                "u_scale": 1.0
+            }
+        },
+
+        "glow_red": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#FF3333",
+                "u_outer_strength": 0.7,
+                "u_inner_strength": 0.1,
+                "u_scale": 1.0
+            }
+        },
+
+        "glow_blue": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#4D80FF",
+                "u_outer_strength": 0.7,
+                "u_inner_strength": 0.1,
+                "u_scale": 1.0
+            }
+        },
+
+        "glow_green": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#33FF66",
+                "u_outer_strength": 0.7,
+                "u_inner_strength": 0.1,
+                "u_scale": 1.0
+            }
+        },
+
+        "glow_purple": {
+            "shader": "shader.glow",
+            "params": {
+                "u_glow_color": "#B34DFF",
+                "u_outer_strength": 0.7,
+                "u_inner_strength": 0.1,
+                "u_scale": 1.0
+            }
+        },
+
+        "_comment_pulse": "========== ANIMATED GLOW (pulse) ==========",
+
+        "glow_pulse_white": {
+            "shader": "shader.glow_pulse",
+            "params": {
+                "u_glow_color": "#FFFFFF",
+                "u_strength": 0.8,
+                "u_speed": 2.0
+            },
+            "animated": true
+        },
+
+        "glow_pulse_gold": {
+            "shader": "shader.glow_pulse",
+            "params": {
+                "u_glow_color": "#FFD94D",
+                "u_strength": 1.0,
+                "u_speed": 1.5
+            },
+            "animated": true
+        },
+
+        "_comment_wave": "========== WAVE DISTORTION (animated) ==========",
+
+        "wave_gentle": {
+            "shader": "shader.distort_wave",
+            "params": {
+                "u_amplitude": 0.01,
+                "u_frequency": 10.0,
+                "u_speed": 2.0
+            },
+            "animated": true
+        },
+
+        "wave_strong": {
+            "shader": "shader.distort_wave",
+            "params": {
+                "u_amplitude": 0.03,
+                "u_frequency": 8.0,
+                "u_speed": 3.0
+            },
+            "animated": true
+        },
+
+        "wave_dreamy": {
+            "shader": "shader.distort_wave",
+            "params": {
+                "u_amplitude": 0.015,
+                "u_frequency": 5.0,
+                "u_speed": 1.0
+            },
+            "animated": true
+        },
+
+        "_comment_color": "========== COLOR ADJUSTMENTS ==========",
+
+        "grayscale": {
+            "shader": "shader.color_grayscale",
+            "params": {
+                "u_amount": 1.0
+            }
+        },
+
+        "grayscale_partial": {
+            "shader": "shader.color_grayscale",
+            "params": {
+                "u_amount": 0.5
+            }
+        },
+
+        "sepia": {
+            "shader": "shader.color_sepia",
+            "params": {
+                "u_amount": 1.0
+            }
+        },
+
+        "sepia_light": {
+            "shader": "shader.color_sepia",
+            "params": {
+                "u_amount": 0.5
+            }
+        },
+
+        "invert": {
+            "shader": "shader.color_invert",
+            "params": {
+                "u_amount": 1.0
+            }
+        },
+
+        "_comment_tint": "========== COLOR TINTS ==========",
+
+        "tint_red": {
+            "shader": "shader.color_tint",
+            "params": {
+                "u_tint_color": "#FFB3B3",
+                "u_amount": 0.5
+            }
+        },
+
+        "tint_blue": {
+            "shader": "shader.color_tint",
+            "params": {
+                "u_tint_color": "#B3B3FF",
+                "u_amount": 0.5
+            }
+        },
+
+        "tint_warm": {
+            "shader": "shader.color_tint",
+            "params": {
+                "u_tint_color": "#FFE6CC",
+                "u_amount": 0.4
+            }
+        },
+
+        "tint_cool": {
+            "shader": "shader.color_tint",
+            "params": {
+                "u_tint_color": "#CCE6FF",
+                "u_amount": 0.4
+            }
+        },
+
+        "_comment_blur": "========== BLUR EFFECTS ==========",
+
+        "blur_light": {
+            "shader": "shader.blur_box",
+            "params": {
+                "u_radius": 1.0
+            }
+        },
+
+        "blur_medium": {
+            "shader": "shader.blur_box",
+            "params": {
+                "u_radius": 2.0
+            }
+        },
+
+        "blur_heavy": {
+            "shader": "shader.blur_box",
+            "params": {
+                "u_radius": 4.0
+            }
+        },
+
+        "_comment_retro": "========== RETRO/STYLIZED ==========",
+
+        "pixelate_light": {
+            "shader": "shader.retro_pixelate",
+            "params": {
+                "u_pixel_size": 4.0
+            }
+        },
+
+        "pixelate_heavy": {
+            "shader": "shader.retro_pixelate",
+            "params": {
+                "u_pixel_size": 16.0
+            }
+        },
+
+        "scanlines": {
+            "shader": "shader.retro_scanlines",
+            "params": {
+                "u_intensity": 0.3,
+                "u_count": 400.0
+            }
+        },
+
+        "vignette": {
+            "shader": "shader.retro_vignette",
+            "params": {
+                "u_intensity": 0.5,
+                "u_radius": 0.6
+            }
+        },
+
+        "chromatic": {
+            "shader": "shader.retro_chromatic",
+            "params": {
+                "u_amount": 0.015
+            }
+        },
+
+        "_comment_glitch": "========== GLITCH (animated) ==========",
+
+        "glitch_light": {
+            "shader": "shader.retro_glitch",
+            "params": {
+                "u_intensity": 0.3,
+                "u_speed": 1.0
+            },
+            "animated": true
+        },
+
+        "glitch_heavy": {
+            "shader": "shader.retro_glitch",
+            "params": {
+                "u_intensity": 1.0,
+                "u_speed": 3.0
+            },
+            "animated": true
+        },
+
+        "_comment_shake": "========== SHAKE (animated) ==========",
+
+        "shake_light": {
+            "shader": "shader.distort_shake",
+            "params": {
+                "u_intensity": 2.0,
+                "u_speed": 20.0
+            },
+            "animated": true
+        },
+
+        "shake_heavy": {
+            "shader": "shader.distort_shake",
+            "params": {
+                "u_intensity": 8.0,
+                "u_speed": 30.0
+            },
+            "animated": true
+        }
+    }
+}

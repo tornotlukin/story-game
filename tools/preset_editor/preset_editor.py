@@ -145,8 +145,11 @@ class AppState:
         try:
             with open(config_path, 'w', encoding='utf-8') as f:
                 json.dump(config, f, indent=4)
+            print(f"Config saved to: {config_path}")
+            return True
         except Exception as e:
             print(f"Error saving config: {e}")
+            return False
 
     def load_data(self):
         """Load all data (JSON presets and shader definitions)."""
@@ -281,7 +284,48 @@ def refresh_transition_manager():
 
 
 def refresh_transition_builder():
-    """Refresh the transition builder panel."""
+    """Refresh the transition builder panel (list + content)."""
+    refresh_transition_builder_list()
+    refresh_transition_builder_content()
+
+
+def refresh_transition_builder_list():
+    """Refresh the transition builder list panel."""
+    if not dpg.does_item_exist("trans_builder_list"):
+        return
+
+    dpg.delete_item("trans_builder_list", children_only=True)
+
+    presets = app.json_mgr.get_transition_names()
+    for name in presets:
+        is_selected = name in app.trans_selection.selected
+        dpg.add_selectable(
+            label=name,
+            default_value=is_selected,
+            callback=lambda s, a, n=name: trans_builder_select(n),
+            width=230,
+            parent="trans_builder_list"
+        )
+
+
+def trans_builder_select(name: str):
+    """Select a preset in builder mode."""
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    if ctrl:
+        # Toggle selection
+        if name in app.trans_selection.selected:
+            app.trans_selection.selected.remove(name)
+        else:
+            app.trans_selection.selected.append(name)
+    else:
+        # Single selection
+        app.trans_selection.selected = [name]
+    refresh_transition_builder_list()
+    refresh_transition_builder_content()
+
+
+def refresh_transition_builder_content():
+    """Refresh the transition builder content/editor panel."""
     if not dpg.does_item_exist("trans_builder_content"):
         return
 
@@ -421,8 +465,8 @@ def refresh_transition_json():
 
 # Transition callbacks
 def trans_checkbox_click(name: str, checked: bool):
-    ctrl = dpg.is_key_down(dpg.mvKey_Control)
-    shift = dpg.is_key_down(dpg.mvKey_Shift)
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    shift = dpg.is_key_down(dpg.mvKey_LShift) or dpg.is_key_down(dpg.mvKey_RShift)
     app.trans_selection.handle_click(name, ctrl, shift)
     refresh_transition_manager()
 
@@ -619,7 +663,48 @@ def refresh_shader_manager():
 
 
 def refresh_shader_builder():
-    """Refresh the shader builder panel."""
+    """Refresh the shader builder panel (list + content)."""
+    refresh_shader_builder_list()
+    refresh_shader_builder_content()
+
+
+def refresh_shader_builder_list():
+    """Refresh the shader builder list panel."""
+    if not dpg.does_item_exist("shader_builder_list"):
+        return
+
+    dpg.delete_item("shader_builder_list", children_only=True)
+
+    presets = app.json_mgr.get_shader_names()
+    for name in presets:
+        is_selected = name in app.shader_selection.selected
+        dpg.add_selectable(
+            label=name,
+            default_value=is_selected,
+            callback=lambda s, a, n=name: shader_builder_select(n),
+            width=230,
+            parent="shader_builder_list"
+        )
+
+
+def shader_builder_select(name: str):
+    """Select a shader preset in builder mode."""
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    if ctrl:
+        # Toggle selection
+        if name in app.shader_selection.selected:
+            app.shader_selection.selected.remove(name)
+        else:
+            app.shader_selection.selected.append(name)
+    else:
+        # Single selection
+        app.shader_selection.selected = [name]
+    refresh_shader_builder_list()
+    refresh_shader_builder_content()
+
+
+def refresh_shader_builder_content():
+    """Refresh the shader builder content/editor panel."""
     if not dpg.does_item_exist("shader_builder_content"):
         return
 
@@ -712,8 +797,8 @@ def refresh_shader_json():
 
 # Shader callbacks
 def shader_checkbox_click(name: str, checked: bool):
-    ctrl = dpg.is_key_down(dpg.mvKey_Control)
-    shift = dpg.is_key_down(dpg.mvKey_Shift)
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    shift = dpg.is_key_down(dpg.mvKey_LShift) or dpg.is_key_down(dpg.mvKey_RShift)
     app.shader_selection.handle_click(name, ctrl, shift)
     refresh_shader_manager()
 
@@ -1068,59 +1153,262 @@ def demo_run():
 # Settings Modal
 # =============================================================================
 
-def show_settings_modal():
+def settings_browse_file(target_tag: str):
+    """Open file browser and set result to target input."""
+    # Store current values before hiding settings
+    current_values = {
+        "trans": dpg.get_value("settings_trans_path"),
+        "shader": dpg.get_value("settings_shader_path"),
+        "shader_folder": dpg.get_value("settings_shader_folder"),
+        "game_folder": dpg.get_value("settings_game_folder"),
+        "renpy_exe": dpg.get_value("settings_renpy_exe"),
+        "target": target_tag
+    }
+
+    def callback(sender, app_data):
+        selected_path = None
+        if app_data and "file_path_name" in app_data:
+            selected_path = app_data["file_path_name"]
+        dpg.delete_item("file_dialog")
+        # Reopen settings with updated value
+        reopen_settings_with_values(current_values, selected_path)
+
+    def cancel_callback(sender, app_data):
+        dpg.delete_item("file_dialog")
+        reopen_settings_with_values(current_values, None)
+
+    # Close settings window
+    dpg.delete_item("settings_window")
+
+    if dpg.does_item_exist("file_dialog"):
+        dpg.delete_item("file_dialog")
+
+    start_path = current_values.get(target_tag.replace("settings_", ""), "")
+    if start_path:
+        start_path = os.path.dirname(start_path)
+
+    with dpg.file_dialog(
+        callback=callback,
+        cancel_callback=cancel_callback,
+        tag="file_dialog",
+        width=700,
+        height=400,
+        show=True,
+        default_path=start_path or "."
+    ):
+        dpg.add_file_extension(".json", color=(0, 255, 0, 255))
+        dpg.add_file_extension(".exe", color=(0, 255, 255, 255))
+        dpg.add_file_extension(".*")
+
+
+def settings_browse_exe(target_tag: str):
+    """Open executable browser and set result to target input."""
+    # Store current values before hiding settings
+    current_values = {
+        "trans": dpg.get_value("settings_trans_path"),
+        "shader": dpg.get_value("settings_shader_path"),
+        "shader_folder": dpg.get_value("settings_shader_folder"),
+        "game_folder": dpg.get_value("settings_game_folder"),
+        "renpy_exe": dpg.get_value("settings_renpy_exe"),
+        "target": target_tag
+    }
+
+    def callback(sender, app_data):
+        selected_path = None
+        if app_data and "file_path_name" in app_data:
+            selected_path = app_data["file_path_name"]
+        dpg.delete_item("exe_dialog")
+        reopen_settings_with_values(current_values, selected_path)
+
+    def cancel_callback(sender, app_data):
+        dpg.delete_item("exe_dialog")
+        reopen_settings_with_values(current_values, None)
+
+    # Close settings window
+    dpg.delete_item("settings_window")
+
+    if dpg.does_item_exist("exe_dialog"):
+        dpg.delete_item("exe_dialog")
+
+    start_path = current_values["renpy_exe"]
+    if start_path:
+        start_path = os.path.dirname(start_path)
+
+    with dpg.file_dialog(
+        callback=callback,
+        cancel_callback=cancel_callback,
+        tag="exe_dialog",
+        width=700,
+        height=400,
+        show=True,
+        default_path=start_path or "."
+    ):
+        dpg.add_file_extension(".exe", color=(0, 255, 255, 255))
+        dpg.add_file_extension(".app", color=(0, 255, 255, 255))
+        dpg.add_file_extension(".*")
+
+
+def settings_browse_folder(target_tag: str):
+    """Open folder browser and set result to target input."""
+    # Store current values before hiding settings
+    current_values = {
+        "trans": dpg.get_value("settings_trans_path"),
+        "shader": dpg.get_value("settings_shader_path"),
+        "shader_folder": dpg.get_value("settings_shader_folder"),
+        "game_folder": dpg.get_value("settings_game_folder"),
+        "renpy_exe": dpg.get_value("settings_renpy_exe"),
+        "target": target_tag
+    }
+
+    def callback(sender, app_data):
+        selected_path = None
+        if app_data and "file_path_name" in app_data:
+            selected_path = app_data["file_path_name"]
+        dpg.delete_item("folder_dialog")
+        reopen_settings_with_values(current_values, selected_path)
+
+    def cancel_callback(sender, app_data):
+        dpg.delete_item("folder_dialog")
+        reopen_settings_with_values(current_values, None)
+
+    # Close settings window
+    dpg.delete_item("settings_window")
+
+    if dpg.does_item_exist("folder_dialog"):
+        dpg.delete_item("folder_dialog")
+
+    start_path = ""
+    if target_tag == "settings_shader_folder":
+        start_path = current_values["shader_folder"]
+    elif target_tag == "settings_game_folder":
+        start_path = current_values["game_folder"]
+
+    with dpg.file_dialog(
+        callback=callback,
+        cancel_callback=cancel_callback,
+        tag="folder_dialog",
+        directory_selector=True,
+        width=700,
+        height=400,
+        show=True,
+        default_path=start_path or "."
+    ):
+        pass
+
+
+def reopen_settings_with_values(values: dict, new_path: str):
+    """Reopen settings modal with preserved values, updating target if new_path provided."""
+    target = values["target"]
+
+    # Update the target value if a new path was selected
+    if new_path:
+        if target == "settings_trans_path":
+            values["trans"] = new_path
+        elif target == "settings_shader_path":
+            values["shader"] = new_path
+        elif target == "settings_shader_folder":
+            values["shader_folder"] = new_path
+        elif target == "settings_game_folder":
+            values["game_folder"] = new_path
+        elif target == "settings_renpy_exe":
+            values["renpy_exe"] = new_path
+
+    # Reopen the settings window
+    show_settings_modal_with_values(
+        values["trans"],
+        values["shader"],
+        values["shader_folder"],
+        values["game_folder"],
+        values["renpy_exe"]
+    )
+
+
+def show_settings_modal_with_values(trans_path, shader_path, shader_folder, game_folder, renpy_exe):
+    """Show settings modal with specific values."""
     if dpg.does_item_exist("settings_window"):
         dpg.delete_item("settings_window")
 
     with dpg.window(
         label="Settings",
         modal=True,
-        width=700,
-        height=320,
-        pos=[290, 220],
+        width=620,
+        height=400,
+        pos=[280, 160],
         tag="settings_window",
         on_close=lambda: dpg.delete_item("settings_window")
     ):
         dpg.add_text("Configure file paths")
         dpg.add_separator()
+        dpg.add_spacer(height=5)
 
-        dpg.add_input_text(
-            label="Transition Presets JSON",
-            default_value=app.transition_presets_path,
-            tag="settings_trans_path",
-            width=-1
-        )
-        dpg.add_input_text(
-            label="Shader Presets JSON",
-            default_value=app.shader_presets_path,
-            tag="settings_shader_path",
-            width=-1
-        )
-        dpg.add_input_text(
-            label="Shader .rpy Folder",
-            default_value=app.shader_folder,
-            tag="settings_shader_folder",
-            width=-1
-        )
-        dpg.add_input_text(
-            label="Game Folder",
-            default_value=app.game_folder,
-            tag="settings_game_folder",
-            width=-1
-        )
-        dpg.add_input_text(
-            label="Ren'Py Executable",
-            default_value=app.renpy_exe,
-            tag="settings_renpy_exe",
-            width=-1
-        )
+        dpg.add_text("Transition Presets JSON:")
+        with dpg.group(horizontal=True):
+            dpg.add_input_text(
+                default_value=trans_path,
+                tag="settings_trans_path",
+                width=500
+            )
+            dpg.add_button(label="Browse...", callback=lambda: settings_browse_file("settings_trans_path"), width=80)
+        dpg.add_spacer(height=5)
 
+        dpg.add_text("Shader Presets JSON:")
+        with dpg.group(horizontal=True):
+            dpg.add_input_text(
+                default_value=shader_path,
+                tag="settings_shader_path",
+                width=500
+            )
+            dpg.add_button(label="Browse...", callback=lambda: settings_browse_file("settings_shader_path"), width=80)
+        dpg.add_spacer(height=5)
+
+        dpg.add_text("Shader .rpy Folder:")
+        with dpg.group(horizontal=True):
+            dpg.add_input_text(
+                default_value=shader_folder,
+                tag="settings_shader_folder",
+                width=500
+            )
+            dpg.add_button(label="Browse...", callback=lambda: settings_browse_folder("settings_shader_folder"), width=80)
+        dpg.add_spacer(height=5)
+
+        dpg.add_text("Game Folder:")
+        with dpg.group(horizontal=True):
+            dpg.add_input_text(
+                default_value=game_folder,
+                tag="settings_game_folder",
+                width=500
+            )
+            dpg.add_button(label="Browse...", callback=lambda: settings_browse_folder("settings_game_folder"), width=80)
+        dpg.add_spacer(height=5)
+
+        dpg.add_text("Ren'Py Executable:")
+        with dpg.group(horizontal=True):
+            dpg.add_input_text(
+                default_value=renpy_exe,
+                tag="settings_renpy_exe",
+                width=500
+            )
+            dpg.add_button(label="Browse...", callback=lambda: settings_browse_exe("settings_renpy_exe"), width=80)
+
+        dpg.add_spacer(height=10)
         dpg.add_separator()
+        dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
             dpg.add_button(label="Apply", callback=settings_apply, width=100)
             dpg.add_button(label="Cancel",
                           callback=lambda: dpg.delete_item("settings_window"),
                           width=100)
+
+
+def show_settings_modal():
+    """Show settings modal with current app values."""
+    show_settings_modal_with_values(
+        app.transition_presets_path,
+        app.shader_presets_path,
+        app.shader_folder,
+        app.game_folder,
+        app.renpy_exe
+    )
 
 
 def settings_apply():
@@ -1130,7 +1418,13 @@ def settings_apply():
     app.game_folder = dpg.get_value("settings_game_folder")
     app.renpy_exe = dpg.get_value("settings_renpy_exe")
 
-    app.save_config()
+    if app.save_config():
+        if app.status_bar:
+            app.status_bar.set_status("Settings saved successfully", (100, 200, 100))
+    else:
+        if app.status_bar:
+            app.status_bar.set_status("Error saving settings!", (255, 100, 100))
+
     app.load_data()
     refresh_all()
 
@@ -1163,6 +1457,9 @@ def setup_ui():
 
     # Main window
     with dpg.window(tag="primary_window"):
+        # Add spacing below menu bar
+        dpg.add_spacer(height=10)
+
         # Tab bar
         with dpg.tab_bar():
             # ========== TRANSITIONS TAB ==========
@@ -1183,12 +1480,13 @@ def setup_ui():
 
                 # Builder panel
                 with dpg.group(horizontal=True, tag="trans_builder_panel", show=False):
-                    with dpg.child_window(width=280, height=-30):
+                    with dpg.group():
                         dpg.add_text("Preset List")
                         dpg.add_separator()
-                        with dpg.child_window(tag="trans_builder_list", height=-1):
+                        with dpg.child_window(tag="trans_builder_list", width=250, height=500):
                             pass
-                    with dpg.child_window(width=-1, height=-30, tag="trans_builder_content"):
+                    dpg.add_spacer(width=10)
+                    with dpg.child_window(width=-1, height=500, tag="trans_builder_content"):
                         dpg.add_text("Select a preset to edit")
 
                 # Manager panel
@@ -1223,12 +1521,13 @@ def setup_ui():
 
                 # Builder panel
                 with dpg.group(horizontal=True, tag="shader_builder_panel", show=False):
-                    with dpg.child_window(width=280, height=-30):
+                    with dpg.group():
                         dpg.add_text("Preset List")
                         dpg.add_separator()
-                        with dpg.child_window(tag="shader_builder_list", height=-1):
+                        with dpg.child_window(tag="shader_builder_list", width=250, height=500):
                             pass
-                    with dpg.child_window(width=-1, height=-30, tag="shader_builder_content"):
+                    dpg.add_spacer(width=10)
+                    with dpg.child_window(width=-1, height=500, tag="shader_builder_content"):
                         dpg.add_text("Select a preset to edit")
 
                 # Manager panel
@@ -1256,14 +1555,22 @@ def setup_ui():
 
 def setup_keyboard_shortcuts():
     """Set up global keyboard shortcuts."""
-    with dpg.handler_registry():
-        dpg.add_key_press_handler(dpg.mvKey_Z, callback=lambda: (
-            app.json_mgr.undo(), refresh_all()
-        ) if dpg.is_key_down(dpg.mvKey_Control) else None)
+    def ctrl_pressed():
+        return dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
 
-        dpg.add_key_press_handler(dpg.mvKey_Y, callback=lambda: (
-            app.json_mgr.redo(), refresh_all()
-        ) if dpg.is_key_down(dpg.mvKey_Control) else None)
+    def undo_callback():
+        if ctrl_pressed():
+            app.json_mgr.undo()
+            refresh_all()
+
+    def redo_callback():
+        if ctrl_pressed():
+            app.json_mgr.redo()
+            refresh_all()
+
+    with dpg.handler_registry():
+        dpg.add_key_press_handler(dpg.mvKey_Z, callback=undo_callback)
+        dpg.add_key_press_handler(dpg.mvKey_Y, callback=redo_callback)
 
 
 # =============================================================================

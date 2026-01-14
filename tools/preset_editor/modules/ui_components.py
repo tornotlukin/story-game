@@ -377,6 +377,12 @@ class StatusBar:
         if self.redo_text_tag and dpg.does_item_exist(self.redo_text_tag):
             dpg.set_value(self.redo_text_tag, f"Redo: {redo_count}")
 
+    def set_status(self, message: str, color: tuple = (100, 200, 100)):
+        """Set a custom status message."""
+        if self.status_text_tag and dpg.does_item_exist(self.status_text_tag):
+            dpg.set_value(self.status_text_tag, message)
+            dpg.configure_item(self.status_text_tag, color=color)
+
 
 # =============================================================================
 # Theme Setup
