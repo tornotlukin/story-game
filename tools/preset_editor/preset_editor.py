@@ -230,57 +230,70 @@ def refresh_transition_manager():
     names = app.json_mgr.get_transition_names()
     selected = app.trans_selection.selected
 
-    # Selection count
+    # Top toolbar: selection + actions
     with dpg.group(horizontal=True, parent="trans_manager_list"):
         dpg.add_text(f"Selected: {len(selected)} of {len(names)}")
+        dpg.add_spacer(width=10)
+        dpg.add_button(label="All", callback=trans_select_all, width=40)
+        dpg.add_button(label="None", callback=trans_select_none, width=45)
+        dpg.add_button(label="Invert", callback=trans_invert_selection, width=50)
         dpg.add_spacer(width=20)
-        dpg.add_button(label="Select All", callback=trans_select_all, width=80)
-        dpg.add_button(label="Select None", callback=trans_select_none, width=85)
-        dpg.add_button(label="Invert", callback=trans_invert_selection, width=60)
+        dpg.add_button(label="^^", width=25, callback=trans_move_selected_top)
+        dpg.add_button(label="^", width=25, callback=trans_move_selected_up)
+        dpg.add_button(label="v", width=25, callback=trans_move_selected_down)
+        dpg.add_button(label="vv", width=25, callback=trans_move_selected_bottom)
+        dpg.add_spacer(width=10)
+        dpg.add_button(label="Dupe", width=45, callback=trans_duplicate_selected)
+        dpg.add_button(label="Del", width=40, callback=trans_delete_selected)
 
     dpg.add_separator(parent="trans_manager_list")
-    dpg.add_text("Tip: Ctrl+Click to toggle, Shift+Click for range",
-                 color=(150, 150, 150), parent="trans_manager_list")
-    dpg.add_spacer(height=5, parent="trans_manager_list")
 
-    # List items
+    # Selectable list
     for name in names:
         is_selected = name in selected
-        with dpg.group(horizontal=True, parent="trans_manager_list"):
-            dpg.add_checkbox(
-                default_value=is_selected,
-                callback=lambda s, a, n=name: trans_checkbox_click(n, a)
-            )
-            dpg.add_text(f"preset_{name}", color=(200, 200, 200))
-            dpg.add_spacer(width=20)
+        dpg.add_selectable(
+            label=f"preset_{name}",
+            default_value=is_selected,
+            callback=lambda s, a, n=name: trans_manager_select(n),
+            width=800,
+            parent="trans_manager_list"
+        )
 
-            # Move buttons
-            dpg.add_button(label="^^", width=25,
-                          callback=lambda s, a, n=name: trans_move(n, "top"))
-            dpg.add_button(label="^", width=25,
-                          callback=lambda s, a, n=name: trans_move(n, "up"))
-            dpg.add_button(label="v", width=25,
-                          callback=lambda s, a, n=name: trans_move(n, "down"))
-            dpg.add_button(label="vv", width=25,
-                          callback=lambda s, a, n=name: trans_move(n, "bottom"))
-            dpg.add_spacer(width=10)
 
-            # Action buttons
-            dpg.add_button(label="Edit", width=40,
-                          callback=lambda s, a, n=name: trans_edit(n))
-            dpg.add_button(label="Rename", width=55,
-                          callback=lambda s, a, n=name: trans_rename(n))
-            dpg.add_button(label="Dupe", width=40,
-                          callback=lambda s, a, n=name: trans_duplicate(n))
-            dpg.add_button(label="Del", width=35,
-                          callback=lambda s, a, n=name: trans_delete(n))
+def trans_manager_select(name: str):
+    """Handle selection in manager mode."""
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    shift = dpg.is_key_down(dpg.mvKey_LShift) or dpg.is_key_down(dpg.mvKey_RShift)
+    app.trans_selection.handle_click(name, ctrl, shift)
+    refresh_transition_manager()
 
-    # Bulk actions
-    dpg.add_separator(parent="trans_manager_list")
-    with dpg.group(horizontal=True, parent="trans_manager_list"):
-        dpg.add_text("Bulk Actions:")
-        dpg.add_button(label="Delete Selected", callback=trans_delete_selected)
-        dpg.add_button(label="Duplicate Selected", callback=trans_duplicate_selected)
+
+def trans_move_selected_top():
+    """Move selected items to top."""
+    for name in reversed(app.trans_selection.selected):
+        app.json_mgr.move_transition(name, "top")
+    refresh_transition_manager()
+
+
+def trans_move_selected_up():
+    """Move selected items up."""
+    for name in app.trans_selection.selected:
+        app.json_mgr.move_transition(name, "up")
+    refresh_transition_manager()
+
+
+def trans_move_selected_down():
+    """Move selected items down."""
+    for name in reversed(app.trans_selection.selected):
+        app.json_mgr.move_transition(name, "down")
+    refresh_transition_manager()
+
+
+def trans_move_selected_bottom():
+    """Move selected items to bottom."""
+    for name in app.trans_selection.selected:
+        app.json_mgr.move_transition(name, "bottom")
+    refresh_transition_manager()
 
 
 def refresh_transition_builder():
@@ -588,78 +601,70 @@ def refresh_shader_manager():
     names = app.json_mgr.get_shader_names()
     selected = app.shader_selection.selected
 
-    # Selection count
+    # Top toolbar: selection + actions
     with dpg.group(horizontal=True, parent="shader_manager_list"):
         dpg.add_text(f"Selected: {len(selected)} of {len(names)}")
+        dpg.add_spacer(width=10)
+        dpg.add_button(label="All", callback=shader_select_all, width=40)
+        dpg.add_button(label="None", callback=shader_select_none, width=45)
+        dpg.add_button(label="Invert", callback=shader_invert_selection, width=50)
         dpg.add_spacer(width=20)
-        dpg.add_button(label="Select All", callback=shader_select_all, width=80)
-        dpg.add_button(label="Select None", callback=shader_select_none, width=85)
-        dpg.add_button(label="Invert", callback=shader_invert_selection, width=60)
+        dpg.add_button(label="^^", width=25, callback=shader_move_selected_top)
+        dpg.add_button(label="^", width=25, callback=shader_move_selected_up)
+        dpg.add_button(label="v", width=25, callback=shader_move_selected_down)
+        dpg.add_button(label="vv", width=25, callback=shader_move_selected_bottom)
+        dpg.add_spacer(width=10)
+        dpg.add_button(label="Dupe", width=45, callback=shader_duplicate_selected)
+        dpg.add_button(label="Del", width=40, callback=shader_delete_selected)
 
     dpg.add_separator(parent="shader_manager_list")
-    dpg.add_text("Tip: Ctrl+Click to toggle, Shift+Click for range",
-                 color=(150, 150, 150), parent="shader_manager_list")
-    dpg.add_spacer(height=5, parent="shader_manager_list")
 
-    # List items
+    # Selectable list
     for name in names:
         is_selected = name in selected
-        preset = app.json_mgr.get_shader(name) or {}
-        params = preset.get("params", {})
+        dpg.add_selectable(
+            label=f"shader_{name}",
+            default_value=is_selected,
+            callback=lambda s, a, n=name: shader_manager_select(n),
+            width=800,
+            parent="shader_manager_list"
+        )
 
-        # Get color if present
-        color_hex = None
-        for key in ["u_glow_color", "u_tint_color"]:
-            if key in params:
-                color_hex = params[key]
-                break
 
-        with dpg.group(horizontal=True, parent="shader_manager_list"):
-            dpg.add_checkbox(
-                default_value=is_selected,
-                callback=lambda s, a, n=name: shader_checkbox_click(n, a)
-            )
+def shader_manager_select(name: str):
+    """Handle selection in manager mode."""
+    ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    shift = dpg.is_key_down(dpg.mvKey_LShift) or dpg.is_key_down(dpg.mvKey_RShift)
+    app.shader_selection.handle_click(name, ctrl, shift)
+    refresh_shader_manager()
 
-            # Color swatch
-            if color_hex:
-                rgb = hex_to_rgb(color_hex)
-                dpg.add_color_button(
-                    default_value=[rgb[0], rgb[1], rgb[2], 255],
-                    width=20, height=20,
-                    no_border=True,
-                    callback=lambda s, a, n=name: shader_color_click(n)
-                )
 
-            dpg.add_text(f"shader_{name}", color=(200, 200, 200))
-            dpg.add_spacer(width=20)
+def shader_move_selected_top():
+    """Move selected items to top."""
+    for name in reversed(app.shader_selection.selected):
+        app.json_mgr.move_shader(name, "top")
+    refresh_shader_manager()
 
-            # Move buttons
-            dpg.add_button(label="^^", width=25,
-                          callback=lambda s, a, n=name: shader_move(n, "top"))
-            dpg.add_button(label="^", width=25,
-                          callback=lambda s, a, n=name: shader_move(n, "up"))
-            dpg.add_button(label="v", width=25,
-                          callback=lambda s, a, n=name: shader_move(n, "down"))
-            dpg.add_button(label="vv", width=25,
-                          callback=lambda s, a, n=name: shader_move(n, "bottom"))
-            dpg.add_spacer(width=10)
 
-            # Action buttons
-            dpg.add_button(label="Edit", width=40,
-                          callback=lambda s, a, n=name: shader_edit(n))
-            dpg.add_button(label="Rename", width=55,
-                          callback=lambda s, a, n=name: shader_rename(n))
-            dpg.add_button(label="Dupe", width=40,
-                          callback=lambda s, a, n=name: shader_duplicate(n))
-            dpg.add_button(label="Del", width=35,
-                          callback=lambda s, a, n=name: shader_delete(n))
+def shader_move_selected_up():
+    """Move selected items up."""
+    for name in app.shader_selection.selected:
+        app.json_mgr.move_shader(name, "up")
+    refresh_shader_manager()
 
-    # Bulk actions
-    dpg.add_separator(parent="shader_manager_list")
-    with dpg.group(horizontal=True, parent="shader_manager_list"):
-        dpg.add_text("Bulk Actions:")
-        dpg.add_button(label="Delete Selected", callback=shader_delete_selected)
-        dpg.add_button(label="Duplicate Selected", callback=shader_duplicate_selected)
+
+def shader_move_selected_down():
+    """Move selected items down."""
+    for name in reversed(app.shader_selection.selected):
+        app.json_mgr.move_shader(name, "down")
+    refresh_shader_manager()
+
+
+def shader_move_selected_bottom():
+    """Move selected items to bottom."""
+    for name in app.shader_selection.selected:
+        app.json_mgr.move_shader(name, "bottom")
+    refresh_shader_manager()
 
 
 def refresh_shader_builder():
