@@ -89,9 +89,11 @@
         },
         "drop_down_enter": {
             "start_position": {
-                "yoffset": -200
+                "xoffset": 0.0,
+                "yoffset": 0.0
             },
             "end_position": {
+                "xoffset": 300.0,
                 "yoffset": 0
             },
             "alpha": {
@@ -377,6 +379,16 @@
             },
             "duration": 0.4,
             "easing": "easeout"
+        },
+        "null": {
+            "start_position": {
+                "xoffset": 0.0,
+                "yoffset": 0.0
+            },
+            "end_position": {
+                "xoffset": 0.0,
+                "yoffset": 0.0
+            }
         }
     }
 }

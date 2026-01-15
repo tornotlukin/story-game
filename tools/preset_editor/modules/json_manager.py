@@ -200,7 +200,9 @@ class JsonManager:
     def get_transition_names(self) -> List[str]:
         """Get list of transition preset names (excluding comments)."""
         presets = self.transition_data.get("presets", {})
-        return [k for k in presets.keys() if not k.startswith("_")]
+        if not presets:
+            return []
+        return [k for k in presets.keys() if k and not k.startswith("_")]
 
     def get_transition(self, name: str) -> Optional[Dict]:
         """Get a transition preset by name."""
@@ -345,7 +347,9 @@ class JsonManager:
     def get_shader_names(self) -> List[str]:
         """Get list of shader preset names (excluding comments)."""
         presets = self.shader_data.get("shader_presets", {})
-        return [k for k in presets.keys() if not k.startswith("_")]
+        if not presets:
+            return []
+        return [k for k in presets.keys() if k and not k.startswith("_")]
 
     def get_shader(self, name: str) -> Optional[Dict]:
         """Get a shader preset by name."""
