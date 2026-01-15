@@ -3,5 +3,7 @@
     "shader_presets": "C:\\Work\\story-game\\tools\\preset_editor\\game\\presets\\shader_presets.json",
     "shader_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game\\shader",
     "game_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game",
-    "renpy_exe": "C:\\Programs\\renpy-8.5.2-sdk\\renpy.exe"
+    "renpy_exe": "C:\\Programs\\renpy-8.5.2-sdk\\renpy.exe",
+    "demo_width": 1920,
+    "demo_height": 1920
 }

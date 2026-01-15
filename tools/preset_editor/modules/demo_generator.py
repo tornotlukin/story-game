@@ -49,6 +49,7 @@ class DemoGenerator:
     - Menu-based navigation (max 10 items)
     - Tests transition + shader combinations
     - Configurable character and background
+    - Configurable screen dimensions
     """
 
     MAX_ITEMS = 10
@@ -56,9 +57,11 @@ class DemoGenerator:
     def __init__(self):
         self.items: List[DemoItem] = []
         self.character_name = "test"
-        self.character_image = "test_char"
-        self.background = "bg_test"
+        self.character_image = "char_demo"
+        self.background = "bg_demo"
         self.label_name = "preset_demo"
+        self.screen_width = 1080
+        self.screen_height = 1920
 
     def add_item(self, transition: Optional[str], shader: Optional[str]) -> bool:
         """
@@ -137,7 +140,7 @@ class DemoGenerator:
             lines.append(f"            show {self.character_image} at {at_clause}")
             lines.append(f'            {self.character_name} "{at_clause}"')
             lines.append(f"            pause 0.5")
-            lines.append(f"            hide {self.character_name.split()[0]} with dissolve")
+            lines.append(f"            hide {self.character_image} with dissolve")
             lines.append(f"            jump {self.label_name}")
             lines.append("")
 
@@ -194,6 +197,7 @@ label {self.label_name}:
         Generate a complete test game script.rpy.
 
         This is for the standalone test game folder.
+        Uses bg_demo.png (stretched to fit) and char_demo.png.
         """
         lines = [
             "## script.rpy - Test game for Preset Editor",
@@ -204,11 +208,11 @@ label {self.label_name}:
             "# Character definition",
             f'define {self.character_name} = Character("{self.character_name.title()}")',
             "",
-            "# Background (use a solid color if no image)",
-            f'image {self.background} = Solid("#333333")',
+            f"# Background - stretched to fit {self.screen_width}x{self.screen_height}",
+            f'image {self.background} = im.Scale("images/bg_demo.png", {self.screen_width}, {self.screen_height})',
             "",
-            "# Character placeholder",
-            f'image {self.character_image} = Solid("#666666", xsize=400, ysize=800)',
+            "# Character image",
+            f'image {self.character_image} = "images/char_demo.png"',
             "",
             "label start:",
             '    "Welcome to the Preset Editor Test Game!"',
@@ -238,17 +242,17 @@ label {self.label_name}:
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(self.generate_test_game_script())
 
-            # options.rpy (minimal)
+            # options.rpy with configured dimensions
             options_path = game_path / "options.rpy"
             with open(options_path, 'w', encoding='utf-8') as f:
-                f.write('''## options.rpy - Test game configuration
+                f.write(f'''## options.rpy - Test game configuration
 
 define config.name = "Preset Editor Test"
 define build.name = "PresetTest"
 define config.version = "1.0"
 
-define config.screen_width = 1920
-define config.screen_height = 1080
+define config.screen_width = {self.screen_width}
+define config.screen_height = {self.screen_height}
 
 define config.save_directory = "preset_editor_test"
 ''')

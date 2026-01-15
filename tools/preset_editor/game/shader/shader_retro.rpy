@@ -5,19 +5,30 @@
 ## Ported from Phaser.js retro filters.
 ##
 ## Shaders:
-##   - shader.retro_pixelate - Pixelation/mosaic effect
+##   - shader.retro_pixelate - Pixelation/mosaic effect (square or rectangular)
 ##   - shader.retro_scanlines - CRT scanline effect
 ##   - shader.retro_vignette - Darkened edges
 ##   - shader.retro_chromatic - RGB channel split
 ##   - shader.retro_glitch - Digital glitch effect (animated)
 ##
-## Related files: shader_transforms.rpy
+## @tool-category: Retro
+## @tool-description: Retro/vintage effects (pixelate, scanlines, CRT, glitch)
 
 init python:
 
-    # Pixelate - Ported from Phaser pixelate.js
+    # =========================================================================
+    # shader.retro_pixelate - Robust pixelation effect
+    # =========================================================================
+
+    # @shader: shader.retro_pixelate
+    # @description: Pixelation/mosaic effect with optional smoothing and rectangular pixels
+    # @param u_pixel_w: float, range=2.0-64.0, default=8.0, description=Pixel width in screen pixels
+    # @param u_pixel_h: float, range=2.0-64.0, default=8.0, description=Pixel height in screen pixels (0 = same as width)
+    # @param u_smooth: float, range=0.0-1.0, default=0.0, description=Smoothing (0 = crisp/aliased, 1 = anti-aliased)
     renpy.register_shader("shader.retro_pixelate", variables="""
-        uniform float u_pixel_size;
+        uniform float u_pixel_w;
+        uniform float u_pixel_h;
+        uniform float u_smooth;
         uniform sampler2D tex0;
         uniform vec2 u_model_size;
         attribute vec2 a_tex_coord;
@@ -25,25 +36,56 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Ported from Phaser pixelate filter
-        float pixelSize = max(2.0, u_pixel_size);
-        vec2 resolution = u_model_size;
-        vec2 center = pixelSize * floor(v_tex_coord * resolution / pixelSize) + pixelSize * vec2(0.5, 0.5);
-        vec2 corner1 = center + pixelSize * vec2(-0.5, -0.5);
-        vec2 corner2 = center + pixelSize * vec2(0.5, -0.5);
-        vec2 corner3 = center + pixelSize * vec2(0.5, 0.5);
-        vec2 corner4 = center + pixelSize * vec2(-0.5, 0.5);
+        // Get pixel dimensions (use width for height if height is 0 or not set)
+        float pixelW = max(2.0, u_pixel_w);
+        float pixelH = u_pixel_h > 0.0 ? max(2.0, u_pixel_h) : pixelW;
+        vec2 pixelSize = vec2(pixelW, pixelH);
 
-        vec4 pixel = 0.4 * texture2D(tex0, center / resolution);
-        pixel += 0.15 * texture2D(tex0, corner1 / resolution);
-        pixel += 0.15 * texture2D(tex0, corner2 / resolution);
-        pixel += 0.15 * texture2D(tex0, corner3 / resolution);
-        pixel += 0.15 * texture2D(tex0, corner4 / resolution);
+        vec2 resolution = u_model_size;
+
+        // Find cell center in pixel coordinates
+        vec2 cell = floor(v_tex_coord * resolution / pixelSize);
+        vec2 cellCenter = (cell + 0.5) * pixelSize;
+
+        // Sample center
+        vec2 centerUV = cellCenter / resolution;
+        vec4 centerColor = texture2D(tex0, centerUV);
+
+        vec4 pixel;
+        if (u_smooth > 0.5) {
+            // Anti-aliased mode: 5-tap weighted sampling
+            vec2 corner1 = cellCenter + pixelSize * vec2(-0.5, -0.5);
+            vec2 corner2 = cellCenter + pixelSize * vec2(0.5, -0.5);
+            vec2 corner3 = cellCenter + pixelSize * vec2(0.5, 0.5);
+            vec2 corner4 = cellCenter + pixelSize * vec2(-0.5, 0.5);
+
+            pixel = 0.4 * centerColor;
+            pixel += 0.15 * texture2D(tex0, corner1 / resolution);
+            pixel += 0.15 * texture2D(tex0, corner2 / resolution);
+            pixel += 0.15 * texture2D(tex0, corner3 / resolution);
+            pixel += 0.15 * texture2D(tex0, corner4 / resolution);
+        } else {
+            // Crisp mode: single sample from cell center
+            pixel = centerColor;
+        }
+
+        // Preserve alpha from original position for proper sprite edges
+        vec4 origColor = texture2D(tex0, v_tex_coord);
+        if (origColor.a < 0.01) {
+            pixel.a = 0.0;
+        }
 
         gl_FragColor = pixel;
     """)
 
-    # CRT Scanlines
+    # =========================================================================
+    # shader.retro_scanlines - CRT scanline effect
+    # =========================================================================
+
+    # @shader: shader.retro_scanlines
+    # @description: CRT-style horizontal scanlines
+    # @param u_intensity: float, range=0.0-1.0, default=0.3, description=Scanline darkness
+    # @param u_count: float, range=100.0-800.0, default=400.0, description=Number of scanlines
     renpy.register_shader("shader.retro_scanlines", variables="""
         uniform float u_intensity;
         uniform float u_count;
@@ -60,7 +102,14 @@ init python:
         gl_FragColor = color;
     """)
 
-    # Vignette (darkened edges)
+    # =========================================================================
+    # shader.retro_vignette - Darkened edges
+    # =========================================================================
+
+    # @shader: shader.retro_vignette
+    # @description: Darkens edges of image (spotlight/tunnel effect)
+    # @param u_intensity: float, range=0.0-1.0, default=0.5, description=Edge darkness amount
+    # @param u_radius: float, range=0.2-1.0, default=0.6, description=Vignette radius (smaller = more visible)
     renpy.register_shader("shader.retro_vignette", variables="""
         uniform float u_intensity;
         uniform float u_radius;
@@ -78,7 +127,13 @@ init python:
         gl_FragColor = color;
     """)
 
-    # Chromatic Aberration (RGB split)
+    # =========================================================================
+    # shader.retro_chromatic - RGB channel split
+    # =========================================================================
+
+    # @shader: shader.retro_chromatic
+    # @description: Chromatic aberration (RGB color fringing from center)
+    # @param u_amount: float, range=0.0-0.1, default=0.015, description=Separation amount
     renpy.register_shader("shader.retro_chromatic", variables="""
         uniform float u_amount;
         uniform sampler2D tex0;
@@ -99,7 +154,15 @@ init python:
         gl_FragColor = vec4(r, g, b, a);
     """)
 
-    # Glitch Effect
+    # =========================================================================
+    # shader.retro_glitch - Digital glitch effect
+    # =========================================================================
+
+    # @shader: shader.retro_glitch
+    # @description: Animated digital glitch with horizontal tearing and color split
+    # @animated
+    # @param u_intensity: float, range=0.0-2.0, default=0.6, description=Glitch strength
+    # @param u_speed: float, range=0.5-5.0, default=2.0, description=Animation speed
     renpy.register_shader("shader.retro_glitch", variables="""
         uniform float u_intensity;
         uniform float u_speed;

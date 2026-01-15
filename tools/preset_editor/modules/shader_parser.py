@@ -151,10 +151,32 @@ class ShaderParser:
             elif stripped.startswith("# @description:") and current_shader:
                 current_shader.description = stripped.split(":", 1)[1].strip()
 
-        # Save last shader
+            # Also detect renpy.register_shader() calls directly
+            elif 'renpy.register_shader(' in stripped:
+                shader_name = self._extract_shader_name(stripped)
+                if shader_name and shader_name not in self.shaders:
+                    # Create basic definition from register_shader call
+                    shader_def = ShaderDefinition(
+                        name=shader_name,
+                        category=file_category,
+                        description="",
+                        source_file=filename,
+                        line_number=i + 1
+                    )
+                    self.shaders[shader_name] = shader_def
+
+        # Save last annotated shader
         if current_shader:
             current_shader.params = current_params
             self.shaders[current_shader.name] = current_shader
+
+    def _extract_shader_name(self, line: str) -> Optional[str]:
+        """Extract shader name from renpy.register_shader() call."""
+        # Match patterns like: renpy.register_shader("shader.name", ...)
+        match = re.search(r'renpy\.register_shader\s*\(\s*["\']([^"\']+)["\']', line)
+        if match:
+            return match.group(1)
+        return None
 
     def _parse_param_line(self, line: str) -> Optional[ShaderParam]:
         """

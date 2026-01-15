@@ -1,14 +1,26 @@
-## shader_transforms.rpy - Pre-configured shader transforms
+## shader_transforms.rpy - DEPRECATED
 ##
-## Ready-to-use transforms that apply shader effects.
-## Use these directly or as examples for custom configurations.
+## ============================================================================
+## DEPRECATION NOTICE
+## ============================================================================
+## This file is DEPRECATED. Do not add new transforms here.
 ##
-## Usage:
-##     show eileen at glow_gold
-##     show bg at blur_heavy
-##     show portrait at grayscale
+## Shader transforms are now generated at runtime from shader_presets.json
+## by shader_generator.rpy. Use the Preset Editor to create/edit shader presets.
 ##
-## Related files: shader_library.rpy
+## New workflow:
+##   1. Create shader in game/shader/shader_<category>.rpy
+##   2. Add preset via Preset Editor -> Shaders -> Builder
+##   3. Export to update shader_presets.json
+##   4. Transforms auto-registered as shader_<preset_name>
+##
+## This file remains for backwards compatibility but will be removed
+## in a future version.
+## ============================================================================
+##
+## Legacy transforms below - use shader_<name> from shader_presets.json instead
+##
+## Related files: shader_presets.json, shader_generator.rpy
 
 ################################################################################
 ## Glow Transforms

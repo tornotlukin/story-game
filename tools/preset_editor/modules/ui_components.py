@@ -388,6 +388,48 @@ class StatusBar:
 # Theme Setup
 # =============================================================================
 
+# Global theme references (set after creation)
+SELECTED_THEME = None
+UNSELECTED_THEME = None
+
+
+def create_selected_theme() -> int:
+    """Create theme for selected items (blue highlight)."""
+    with dpg.theme() as theme:
+        with dpg.theme_component(dpg.mvSelectable):
+            # Bright blue background for selected items
+            dpg.add_theme_color(dpg.mvThemeCol_Header, (51, 102, 204, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered, (71, 122, 224, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderActive, (91, 142, 244, 255))
+    return theme
+
+
+def create_unselected_theme() -> int:
+    """Create theme for unselected items (default dark)."""
+    with dpg.theme() as theme:
+        with dpg.theme_component(dpg.mvSelectable):
+            dpg.add_theme_color(dpg.mvThemeCol_Header, (50, 50, 55))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered, (70, 70, 80))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderActive, (80, 80, 90))
+    return theme
+
+
+def init_selection_themes():
+    """Initialize selection themes. Call after dpg.create_context()."""
+    global SELECTED_THEME, UNSELECTED_THEME
+    SELECTED_THEME = create_selected_theme()
+    UNSELECTED_THEME = create_unselected_theme()
+
+
+def apply_selection_theme(item_id: int, is_selected: bool):
+    """Apply appropriate theme to a selectable item."""
+    if SELECTED_THEME is None:
+        return
+    # Only bind selected theme - unselected items use default
+    if is_selected:
+        dpg.bind_item_theme(item_id, SELECTED_THEME)
+
+
 def create_dark_theme() -> int:
     """Create and return the dark theme."""
     with dpg.theme() as theme:

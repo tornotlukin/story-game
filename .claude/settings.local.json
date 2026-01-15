@@ -6,7 +6,9 @@
       "Bash(python:*)",
       "Bash(dir /s /b \"C:\\\\Work\\\\story-game\\\\*.txt\")",
       "Bash(findstr:*)",
-      "Bash(dir \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\")"
+      "Bash(dir \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\")",
+      "Bash(\"C:\\\\Programs\\\\renpy-8.5.2-sdk\\\\renpy.exe\" \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\" run)",
+      "Bash(ls:*)"
     ]
   }
 }
