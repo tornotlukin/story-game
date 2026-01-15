@@ -389,7 +389,15 @@ def refresh_transition_builder_content():
 
     parent = "trans_builder_content"
 
-    dpg.add_text(f"Editing: preset_{name}", parent=parent)
+    # Editable preset name
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_text("Preset Name:")
+        dpg.add_input_text(
+            default_value=name,
+            callback=lambda s, a, n=name: trans_rename_preset(n, a),
+            on_enter=True,
+            width=200
+        )
     dpg.add_separator(parent=parent)
 
     # Duration
@@ -415,31 +423,91 @@ def refresh_transition_builder_content():
     dpg.add_separator(parent=parent)
     dpg.add_text("Start Position", parent=parent)
     start_pos = preset.get("start_position", {})
-    for key in ["xoffset", "yoffset", "xalign", "yalign"]:
-        default = start_pos.get(key, 0.0 if "offset" in key else None)
-        if default is not None or key in ["xoffset", "yoffset"]:
-            dpg.add_input_float(
-                label=f"Start {key}",
-                default_value=default if default is not None else 0.0,
-                callback=lambda s, a, k=key: trans_update_position(name, "start_position", k, a),
-                step=0.1 if "align" in key else 10.0,
-                parent=parent
-            )
+
+    # X axis - toggle between xoffset (pixels) and xalign (0-1)
+    start_x_is_align = "xalign" in start_pos
+    start_x_value = start_pos.get("xalign", start_pos.get("xoffset", 0.0))
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_checkbox(
+            label="",
+            default_value=start_x_is_align,
+            callback=lambda s, a, n=name: trans_toggle_position_mode(n, "start_position", "x", a),
+            tag=f"start_x_align_toggle_{name}"
+        )
+        dpg.add_text("Align" if start_x_is_align else "Pixel", tag=f"start_x_mode_label_{name}")
+        dpg.add_input_float(
+            label="X",
+            default_value=start_x_value,
+            callback=lambda s, a, n=name: trans_update_position_smart(n, "start_position", "x", a),
+            step=0.1 if start_x_is_align else 10.0,
+            width=150,
+            tag=f"start_x_input_{name}"
+        )
+
+    # Y axis - toggle between yoffset (pixels) and yalign (0-1)
+    start_y_is_align = "yalign" in start_pos
+    start_y_value = start_pos.get("yalign", start_pos.get("yoffset", 0.0))
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_checkbox(
+            label="",
+            default_value=start_y_is_align,
+            callback=lambda s, a, n=name: trans_toggle_position_mode(n, "start_position", "y", a),
+            tag=f"start_y_align_toggle_{name}"
+        )
+        dpg.add_text("Align" if start_y_is_align else "Pixel", tag=f"start_y_mode_label_{name}")
+        dpg.add_input_float(
+            label="Y",
+            default_value=start_y_value,
+            callback=lambda s, a, n=name: trans_update_position_smart(n, "start_position", "y", a),
+            step=0.1 if start_y_is_align else 10.0,
+            width=150,
+            tag=f"start_y_input_{name}"
+        )
 
     # End Position
     dpg.add_separator(parent=parent)
     dpg.add_text("End Position", parent=parent)
     end_pos = preset.get("end_position", {})
-    for key in ["xoffset", "yoffset", "xalign", "yalign"]:
-        default = end_pos.get(key, 0.0 if "offset" in key else None)
-        if default is not None or key in ["xoffset", "yoffset"]:
-            dpg.add_input_float(
-                label=f"End {key}",
-                default_value=default if default is not None else 0.0,
-                callback=lambda s, a, k=key: trans_update_position(name, "end_position", k, a),
-                step=0.1 if "align" in key else 10.0,
-                parent=parent
-            )
+
+    # X axis
+    end_x_is_align = "xalign" in end_pos
+    end_x_value = end_pos.get("xalign", end_pos.get("xoffset", 0.0))
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_checkbox(
+            label="",
+            default_value=end_x_is_align,
+            callback=lambda s, a, n=name: trans_toggle_position_mode(n, "end_position", "x", a),
+            tag=f"end_x_align_toggle_{name}"
+        )
+        dpg.add_text("Align" if end_x_is_align else "Pixel", tag=f"end_x_mode_label_{name}")
+        dpg.add_input_float(
+            label="X",
+            default_value=end_x_value,
+            callback=lambda s, a, n=name: trans_update_position_smart(n, "end_position", "x", a),
+            step=0.1 if end_x_is_align else 10.0,
+            width=150,
+            tag=f"end_x_input_{name}"
+        )
+
+    # Y axis
+    end_y_is_align = "yalign" in end_pos
+    end_y_value = end_pos.get("yalign", end_pos.get("yoffset", 0.0))
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_checkbox(
+            label="",
+            default_value=end_y_is_align,
+            callback=lambda s, a, n=name: trans_toggle_position_mode(n, "end_position", "y", a),
+            tag=f"end_y_align_toggle_{name}"
+        )
+        dpg.add_text("Align" if end_y_is_align else "Pixel", tag=f"end_y_mode_label_{name}")
+        dpg.add_input_float(
+            label="Y",
+            default_value=end_y_value,
+            callback=lambda s, a, n=name: trans_update_position_smart(n, "end_position", "y", a),
+            step=0.1 if end_y_is_align else 10.0,
+            width=150,
+            tag=f"end_y_input_{name}"
+        )
 
     # Alpha
     dpg.add_separator(parent=parent)
@@ -615,6 +683,82 @@ def trans_update_nested(name: str, category: str, key: str, value: Any):
     preset[category][key] = value
     app.json_mgr.set_transition(name, preset)
     update_status_bar()
+
+
+def trans_toggle_position_mode(name: str, pos_type: str, axis: str, use_align: bool):
+    """Toggle between align (0-1) and offset (pixels) mode for a position axis."""
+    preset = app.json_mgr.get_transition(name) or {}
+    if pos_type not in preset:
+        preset[pos_type] = {}
+
+    pos = preset[pos_type]
+    offset_key = f"{axis}offset"
+    align_key = f"{axis}align"
+
+    # Get current value
+    current_value = pos.get(align_key, pos.get(offset_key, 0.0))
+
+    # Remove both keys
+    pos.pop(offset_key, None)
+    pos.pop(align_key, None)
+
+    # Set the appropriate key based on mode
+    if use_align:
+        # Convert to align range if coming from offset
+        if current_value > 1.0 or current_value < 0.0:
+            current_value = 0.5  # Default to center
+        pos[align_key] = current_value
+    else:
+        # Convert to offset if coming from align
+        if 0.0 <= current_value <= 1.0 and current_value != 0.0:
+            current_value = 0.0  # Default to 0 offset
+        pos[offset_key] = current_value
+
+    app.json_mgr.set_transition(name, preset)
+    update_status_bar()
+
+    # Update UI - refresh the builder to reflect changes
+    refresh_trans_builder()
+
+
+def trans_update_position_smart(name: str, pos_type: str, axis: str, value: float):
+    """Update position value, using the current mode (align or offset)."""
+    preset = app.json_mgr.get_transition(name) or {}
+    if pos_type not in preset:
+        preset[pos_type] = {}
+
+    pos = preset[pos_type]
+    offset_key = f"{axis}offset"
+    align_key = f"{axis}align"
+
+    # Determine which mode we're in based on which key exists
+    if align_key in pos:
+        pos[align_key] = value
+    else:
+        pos[offset_key] = value
+
+    app.json_mgr.set_transition(name, preset)
+    update_status_bar()
+
+
+def trans_rename_preset(old_name: str, new_name: str):
+    """Rename a transition preset."""
+    new_name = new_name.strip()
+    if not new_name or new_name == old_name:
+        return
+    # Check if new name already exists
+    if app.json_mgr.get_transition(new_name):
+        return
+    # Copy data to new name, delete old
+    preset = app.json_mgr.get_transition(old_name)
+    if preset:
+        app.json_mgr.set_transition(new_name, preset)
+        app.json_mgr.delete_transition(old_name)
+        # Update selection
+        app.trans_selection.clear()
+        app.trans_selection.toggle(new_name)
+        refresh_all()
+        update_status_bar()
 
 
 # =============================================================================
@@ -837,7 +981,15 @@ def refresh_shader_builder_content():
 
     parent = "shader_builder_content"
 
-    dpg.add_text(f"Editing: shader_{name}", parent=parent)
+    # Editable preset name
+    with dpg.group(horizontal=True, parent=parent):
+        dpg.add_text("Preset Name:")
+        dpg.add_input_text(
+            default_value=name,
+            callback=lambda s, a, n=name: shader_rename_preset(n, a),
+            on_enter=True,
+            width=200
+        )
     dpg.add_separator(parent=parent)
 
     # Shader name (read-only)
@@ -1031,6 +1183,26 @@ def shader_update_param(name: str, param: str, value: Any):
 def shader_update_param_color(name: str, param: str, rgba: list):
     hex_color = rgba_to_hex(rgba)
     shader_update_param(name, param, hex_color)
+
+
+def shader_rename_preset(old_name: str, new_name: str):
+    """Rename a shader preset."""
+    new_name = new_name.strip()
+    if not new_name or new_name == old_name:
+        return
+    # Check if new name already exists
+    if app.json_mgr.get_shader(new_name):
+        return
+    # Copy data to new name, delete old
+    preset = app.json_mgr.get_shader(old_name)
+    if preset:
+        app.json_mgr.set_shader(new_name, preset)
+        app.json_mgr.delete_shader(old_name)
+        # Update selection
+        app.shader_selection.clear()
+        app.shader_selection.toggle(new_name)
+        refresh_all()
+        update_status_bar()
 
 
 # =============================================================================

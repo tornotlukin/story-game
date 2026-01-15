@@ -17,9 +17,6 @@
     },
     "presets": {
         "_comment_entrances": "========== ENTRANCE PRESETS ==========",
-        "_comment_exits": "========== EXIT PRESETS ==========",
-        "_comment_special": "========== SPECIAL PRESETS ==========",
-        "_comment_positions": "========== POSITION PRESETS (using xalign) ==========",
         "slide_left_enter": {
             "start_position": {
                 "xoffset": -300
@@ -32,10 +29,7 @@
                 "end": 1.0
             },
             "duration": 0.5,
-            "easing": "easeout",
-            "scale": {
-                "start": 1.0
-            }
+            "easing": "easeout"
         },
         "slide_right_enter": {
             "start_position": {
@@ -155,20 +149,6 @@
             "duration": 0.4,
             "easing": "linear"
         },
-        "slide_right_exit": {
-            "start_position": {
-                "xoffset": 0
-            },
-            "end_position": {
-                "xoffset": 300
-            },
-            "alpha": {
-                "start": 1.0,
-                "end": 0.0
-            },
-            "duration": 0.4,
-            "easing": "easein"
-        },
         "dramatic_enter": {
             "start_position": {
                 "yoffset": 100
@@ -187,12 +167,27 @@
             "duration": 0.7,
             "easing": "easeout"
         },
+        "_comment_exits": "========== EXIT PRESETS ==========",
         "slide_left_exit": {
             "start_position": {
                 "xoffset": 0
             },
             "end_position": {
                 "xoffset": -300
+            },
+            "alpha": {
+                "start": 1.0,
+                "end": 0.0
+            },
+            "duration": 0.4,
+            "easing": "easein"
+        },
+        "slide_right_exit": {
+            "start_position": {
+                "xoffset": 0
+            },
+            "end_position": {
+                "xoffset": 300
             },
             "alpha": {
                 "start": 1.0,
@@ -281,6 +276,15 @@
             "duration": 0.4,
             "easing": "easein"
         },
+        "fade_exit": {
+            "alpha": {
+                "start": 1.0,
+                "end": 0.0
+            },
+            "duration": 0.4,
+            "easing": "linear"
+        },
+        "_comment_special": "========== SPECIAL PRESETS ==========",
         "bounce_enter": {
             "start_position": {
                 "yoffset": -100
@@ -299,13 +303,17 @@
             "duration": 0.4,
             "easing": "easeout"
         },
-        "fade_exit": {
+        "zoom_enter": {
             "alpha": {
-                "start": 1.0,
-                "end": 0.0
+                "start": 0.0,
+                "end": 1.0
             },
-            "duration": 0.4,
-            "easing": "linear"
+            "scale": {
+                "start": 2.0,
+                "end": 1.0
+            },
+            "duration": 0.5,
+            "easing": "easeout"
         },
         "tilt_enter": {
             "start_position": {
@@ -325,18 +333,7 @@
             "duration": 0.4,
             "easing": "easeout"
         },
-        "zoom_enter": {
-            "alpha": {
-                "start": 0.0,
-                "end": 1.0
-            },
-            "scale": {
-                "start": 2.0,
-                "end": 1.0
-            },
-            "duration": 0.5,
-            "easing": "easeout"
-        },
+        "_comment_positions": "========== POSITION PRESETS (using xalign) ==========",
         "move_to_left": {
             "start_position": {
                 "xalign": 0.5

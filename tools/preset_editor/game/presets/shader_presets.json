@@ -16,7 +16,7 @@
             }
         },
         "glow_gold": {
-            "shader": "shader.blend_difference",
+            "shader": "shader.glow",
             "params": {
                 "u_glow_color": "#FFD94D",
                 "u_outer_strength": 0.8,
@@ -25,14 +25,13 @@
             }
         },
         "glow_red": {
-            "shader": "shader.glow_pulse",
+            "shader": "shader.glow",
             "params": {
                 "u_glow_color": "#FF3333",
                 "u_outer_strength": 0.7,
                 "u_inner_strength": 0.1,
                 "u_scale": 1.0
-            },
-            "animated": false
+            }
         },
         "glow_blue": {
             "shader": "shader.glow",
@@ -100,7 +99,7 @@
             "animated": true
         },
         "wave_dreamy": {
-            "shader": "shader.color_matrix",
+            "shader": "shader.distort_wave",
             "params": {
                 "u_amplitude": 0.015,
                 "u_frequency": 5.0,
@@ -253,20 +252,6 @@
                 "u_speed": 30.0
             },
             "animated": true
-        },
-        "new_shader": {
-            "shader": "shader.color_grayscale",
-            "params": {
-                "u_tint_color": "#FFFFFF",
-                "u_amount": 0.5
-            }
-        },
-        "new_shader_1": {
-            "shader": "shader.color_tint",
-            "params": {
-                "u_tint_color": "#FFFFFF",
-                "u_amount": 0.5
-            }
         }
     }
 }
