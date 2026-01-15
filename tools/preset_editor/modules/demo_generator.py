@@ -55,9 +55,9 @@ class DemoGenerator:
 
     def __init__(self):
         self.items: List[DemoItem] = []
-        self.character_name = "novy"
-        self.character_image = "novy front"
-        self.background = "bg_street"
+        self.character_name = "test"
+        self.character_image = "test_char"
+        self.background = "bg_test"
         self.label_name = "preset_demo"
 
     def add_item(self, transition: Optional[str], shader: Optional[str]) -> bool:

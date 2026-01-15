@@ -1,7 +1,7 @@
 {
-    "transition_presets": "C:\\Work\\story-game\\tools\\preset_editor\\transition_presets.json",
-    "shader_presets": "C:\\Work\\story-game\\tools\\preset_editor\\shader_presets.json",
-    "shader_folder": "C:\\Work\\story-game\\game\\shader",
-    "game_folder": "C:\\Work\\story-game\\game",
+    "transition_presets": "C:\\Work\\story-game\\tools\\preset_editor\\game\\presets\\transition_presets.json",
+    "shader_presets": "C:\\Work\\story-game\\tools\\preset_editor\\game\\presets\\shader_presets.json",
+    "shader_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game\\shader",
+    "game_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game",
     "renpy_exe": "C:\\Programs\\renpy-8.5.2-sdk\\renpy.exe"
 }
