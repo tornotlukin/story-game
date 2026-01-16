@@ -286,7 +286,7 @@
                 "u_density": 0.5,
                 "u_color_core": "#FFFFFF",
                 "u_color_edge": "#6699FF",
-                "u_opacity": 1.0,
+                "u_opacity": 0.9,
                 "u_blend_mode": 1.0
             }
         },

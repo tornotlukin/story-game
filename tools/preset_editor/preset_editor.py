@@ -685,18 +685,25 @@ def trans_duplicate_selected():
     refresh_all()
 
 
+def _clean_float(value: Any) -> Any:
+    """Round floats to 2 decimal places to avoid floating point noise."""
+    if isinstance(value, float):
+        return round(value, 2)
+    return value
+
+
 def trans_field_callback(sender, app_data, user_data):
     """DearPyGui callback for transition field inputs."""
     if user_data:
         name, field = user_data
-        trans_update_field(name, field, app_data)
+        trans_update_field(name, field, _clean_float(app_data))
 
 
 def trans_nested_callback(sender, app_data, user_data):
     """DearPyGui callback for nested transition field inputs (alpha, scale, rotation)."""
     if user_data:
         name, category, key = user_data
-        trans_update_nested(name, category, key, app_data)
+        trans_update_nested(name, category, key, _clean_float(app_data))
 
 
 def trans_rename_callback(sender, app_data, user_data):
@@ -1315,7 +1322,7 @@ def shader_param_callback(sender, app_data, user_data):
     """DearPyGui callback for shader parameter inputs."""
     if user_data:
         name, param = user_data
-        shader_update_param(name, param, app_data)
+        shader_update_param(name, param, _clean_float(app_data))
 
 
 def shader_param_color_callback(sender, app_data, user_data):
