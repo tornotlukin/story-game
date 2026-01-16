@@ -41,6 +41,7 @@ class ShaderDefinition:
     name: str  # e.g., "shader.glow"
     category: str = "Uncategorized"
     description: str = ""
+    file_description: str = ""  # Natural language description from lines 3-5 of file
     params: List[ShaderParam] = field(default_factory=list)
     source_file: str = ""
     line_number: int = 0
@@ -104,6 +105,21 @@ class ShaderParser:
         # File-level metadata
         file_category = "Uncategorized"
         file_description = ""
+        file_natural_description = ""
+
+        # Extract natural language description from lines 3-5
+        # These are the human-readable description lines before @tool annotations
+        desc_lines = []
+        for i in range(2, min(5, len(lines))):  # Lines 3-5 (0-indexed: 2-4)
+            line = lines[i].strip()
+            # Stop if we hit an empty comment line, annotation, or non-comment
+            if line == "##" or line.startswith("## @") or not line.startswith("##"):
+                break
+            # Extract text after ##
+            text = line[2:].strip()
+            if text:
+                desc_lines.append(text)
+        file_natural_description = " ".join(desc_lines)
 
         # Parse file-level annotations (## @tool-xxx)
         for line in lines[:20]:  # Check first 20 lines for file metadata
@@ -132,6 +148,7 @@ class ShaderParser:
                     name=shader_name,
                     category=file_category,
                     description=file_description,
+                    file_description=file_natural_description,
                     source_file=filename,
                     line_number=i + 1
                 )
@@ -160,6 +177,7 @@ class ShaderParser:
                         name=shader_name,
                         category=file_category,
                         description="",
+                        file_description=file_natural_description,
                         source_file=filename,
                         line_number=i + 1
                     )

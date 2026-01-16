@@ -5,7 +5,7 @@
 define test = Character("Test")
 
 # Background stretched to fit screen dimensions
-image bg_demo = im.Scale("images/bg_demo.png", 1920, 1920)
+image bg_demo = im.Scale("images/bg_demo.png", 1080, 1920)
 
 # Character image
 image char_demo = "images/char_demo.png"

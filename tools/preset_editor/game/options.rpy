@@ -2,7 +2,7 @@
 ##
 ## Screen dimensions for demo testing
 
-define config.screen_width = 1920
+define config.screen_width = 1080
 define config.screen_height = 1920
 
 define config.name = "Preset Editor Demo"

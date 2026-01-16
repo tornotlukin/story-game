@@ -367,6 +367,13 @@ def trans_builder_select(name: str):
     refresh_transition_builder_content()
 
 
+def trans_update_name_button_callback(sender, app_data, user_data):
+    """Callback for Update Name button in transition builder."""
+    old_name, input_tag = user_data
+    new_name = dpg.get_value(input_tag)
+    trans_rename_preset(old_name, new_name)
+
+
 def refresh_transition_builder_content():
     """Refresh the transition builder content/editor panel."""
     if not dpg.does_item_exist("trans_builder_content"):
@@ -389,14 +396,20 @@ def refresh_transition_builder_content():
 
     parent = "trans_builder_content"
 
-    # Editable preset name
+    # Editable preset name with Update button
     with dpg.group(horizontal=True, parent=parent):
         dpg.add_text("Preset Name:")
-        dpg.add_input_text(
+        name_input = dpg.add_input_text(
             default_value=name,
-            callback=lambda s, a, n=name: trans_rename_preset(n, a),
+            callback=trans_rename_callback,
+            user_data=name,
             on_enter=True,
-            width=200
+            width=150
+        )
+        dpg.add_button(
+            label="Update Name",
+            callback=trans_update_name_button_callback,
+            user_data=(name, name_input)
         )
     dpg.add_separator(parent=parent)
 
@@ -404,7 +417,8 @@ def refresh_transition_builder_content():
     dpg.add_input_float(
         label="Duration",
         default_value=preset.get("duration", 0.4),
-        callback=lambda s, a: trans_update_field(name, "duration", a),
+        callback=trans_field_callback,
+        user_data=(name, "duration"),
         min_value=0.0, max_value=5.0, step=0.1,
         width=150,
         parent=parent
@@ -416,7 +430,8 @@ def refresh_transition_builder_content():
         label="Easing",
         items=easing_options,
         default_value=preset.get("easing", "easeout"),
-        callback=lambda s, a: trans_update_field(name, "easing", a),
+        callback=trans_field_callback,
+        user_data=(name, "easing"),
         width=150,
         parent=parent
     )
@@ -514,7 +529,8 @@ def refresh_transition_builder_content():
     dpg.add_input_float(
         label="Alpha Start",
         default_value=alpha.get("start", 1.0),
-        callback=lambda s, a: trans_update_nested(name, "alpha", "start", a),
+        callback=trans_nested_callback,
+        user_data=(name, "alpha", "start"),
         min_value=0.0, max_value=1.0, step=0.1,
         width=150,
         parent=parent
@@ -522,7 +538,8 @@ def refresh_transition_builder_content():
     dpg.add_input_float(
         label="Alpha End",
         default_value=alpha.get("end", 1.0),
-        callback=lambda s, a: trans_update_nested(name, "alpha", "end", a),
+        callback=trans_nested_callback,
+        user_data=(name, "alpha", "end"),
         min_value=0.0, max_value=1.0, step=0.1,
         width=150,
         parent=parent
@@ -535,7 +552,8 @@ def refresh_transition_builder_content():
     dpg.add_input_float(
         label="Scale Start",
         default_value=scale.get("start", 1.0),
-        callback=lambda s, a: trans_update_nested(name, "scale", "start", a),
+        callback=trans_nested_callback,
+        user_data=(name, "scale", "start"),
         min_value=0.0, max_value=3.0, step=0.1,
         width=150,
         parent=parent
@@ -543,7 +561,8 @@ def refresh_transition_builder_content():
     dpg.add_input_float(
         label="Scale End",
         default_value=scale.get("end", 1.0),
-        callback=lambda s, a: trans_update_nested(name, "scale", "end", a),
+        callback=trans_nested_callback,
+        user_data=(name, "scale", "end"),
         min_value=0.0, max_value=3.0, step=0.1,
         width=150,
         parent=parent
@@ -556,7 +575,8 @@ def refresh_transition_builder_content():
     dpg.add_input_int(
         label="Rotation Start",
         default_value=int(rotation.get("start", 0)),
-        callback=lambda s, a: trans_update_nested(name, "rotation", "start", a),
+        callback=trans_nested_callback,
+        user_data=(name, "rotation", "start"),
         min_value=-360, max_value=360, step=15,
         width=150,
         parent=parent
@@ -564,7 +584,8 @@ def refresh_transition_builder_content():
     dpg.add_input_int(
         label="Rotation End",
         default_value=int(rotation.get("end", 0)),
-        callback=lambda s, a: trans_update_nested(name, "rotation", "end", a),
+        callback=trans_nested_callback,
+        user_data=(name, "rotation", "end"),
         min_value=-360, max_value=360, step=15,
         width=150,
         parent=parent
@@ -664,6 +685,26 @@ def trans_duplicate_selected():
     refresh_all()
 
 
+def trans_field_callback(sender, app_data, user_data):
+    """DearPyGui callback for transition field inputs."""
+    if user_data:
+        name, field = user_data
+        trans_update_field(name, field, app_data)
+
+
+def trans_nested_callback(sender, app_data, user_data):
+    """DearPyGui callback for nested transition field inputs (alpha, scale, rotation)."""
+    if user_data:
+        name, category, key = user_data
+        trans_update_nested(name, category, key, app_data)
+
+
+def trans_rename_callback(sender, app_data, user_data):
+    """DearPyGui callback for transition rename input."""
+    if user_data:
+        trans_rename_preset(user_data, app_data)
+
+
 def trans_update_field(name: str, field: str, value: Any):
     preset = app.json_mgr.get_transition(name) or {}
     preset[field] = value
@@ -721,18 +762,14 @@ def trans_update_end_y_callback(sender, app_data, user_data):
 
 def trans_toggle_section_mode(name: str, pos_type: str, use_align: bool):
     """Toggle between align (0-1) and offset (pixels) mode for a position section (both X and Y)."""
-    print(f"DEBUG: trans_toggle_section_mode called - name={name}, pos_type={pos_type}, use_align={use_align}")
-
     preset = app.json_mgr.get_transition(name)
     if preset is None:
-        print(f"DEBUG: preset is None!")
         preset = {}
 
     if pos_type not in preset:
         preset[pos_type] = {}
 
     pos = preset[pos_type]
-    print(f"DEBUG: before - pos={pos}")
 
     # Handle X axis
     x_value = pos.get("xalign", pos.get("xoffset", 0.0))
@@ -760,15 +797,8 @@ def trans_toggle_section_mode(name: str, pos_type: str, use_align: bool):
             y_value = 0.0
         pos["yoffset"] = y_value
 
-    print(f"DEBUG: after - pos={pos}")
-    print(f"DEBUG: full preset={preset}")
-
     app.json_mgr.set_transition(name, preset)
     update_status_bar()
-
-    # Verify the data was saved
-    verify = app.json_mgr.get_transition(name)
-    print(f"DEBUG: verify after save - {pos_type}={verify.get(pos_type, {})}")
 
     # Update UI - refresh the builder to reflect changes
     refresh_transition_builder()
@@ -1012,6 +1042,19 @@ def shader_builder_select(name: str):
     refresh_shader_builder_content()
 
 
+def shader_update_name_button_callback(sender, app_data, user_data):
+    """Callback for Update Name button in shader builder."""
+    old_name, input_tag = user_data
+    new_name = dpg.get_value(input_tag)
+    shader_rename_preset(old_name, new_name)
+
+
+def shader_rename_callback(sender, app_data, user_data):
+    """DearPyGui callback for shader rename input."""
+    if user_data:
+        shader_rename_preset(user_data, app_data)
+
+
 def refresh_shader_builder_content():
     """Refresh the shader builder content/editor panel."""
     if not dpg.does_item_exist("shader_builder_content"):
@@ -1034,74 +1077,118 @@ def refresh_shader_builder_content():
 
     parent = "shader_builder_content"
 
-    # Editable preset name
+    # Editable preset name with Update button
     with dpg.group(horizontal=True, parent=parent):
         dpg.add_text("Preset Name:")
-        dpg.add_input_text(
+        name_input = dpg.add_input_text(
             default_value=name,
-            callback=lambda s, a, n=name: shader_rename_preset(n, a),
+            callback=shader_rename_callback,
+            user_data=name,
             on_enter=True,
-            width=200
+            width=150
+        )
+        dpg.add_button(
+            label="Update Name",
+            callback=shader_update_name_button_callback,
+            user_data=(name, name_input)
         )
     dpg.add_separator(parent=parent)
 
     # Shader name (read-only)
+    shader_name = preset.get("shader", "")
     dpg.add_input_text(
         label="Shader",
-        default_value=preset.get("shader", ""),
+        default_value=shader_name,
         readonly=True,
         parent=parent
     )
 
-    # Available shaders dropdown
-    available = app.shader_parser.list_available_shaders()
-    if available:
-        dpg.add_combo(
-            label="Change Shader",
-            items=available,
-            default_value=preset.get("shader", ""),
-            callback=lambda s, a: shader_update_field(name, "shader", a),
-            parent=parent
-        )
-
-    # Animated flag
-    dpg.add_checkbox(
-        label="Animated",
-        default_value=preset.get("animated", False),
-        callback=lambda s, a: shader_update_field(name, "animated", a),
-        parent=parent
-    )
+    # Shader description from parsed shader file (natural language from lines 3-5)
+    shader_def = app.shader_parser.get_shader(shader_name)
+    if shader_def:
+        desc = shader_def.file_description
+        if desc:
+            dpg.add_text(desc, parent=parent, wrap=400, color=(200, 200, 200))
+        # Show animated status as info text
+        if shader_def.is_animated:
+            dpg.add_text("(Animated shader - uses u_time)", parent=parent, color=(150, 200, 255))
 
     # Parameters
     dpg.add_separator(parent=parent)
     dpg.add_text("Parameters", parent=parent)
 
-    params = preset.get("params", {})
-    for key, value in params.items():
-        if isinstance(value, str) and value.startswith("#"):
+    # Get params from preset
+    preset_params = preset.get("params", {})
+
+    # Also get param definitions from shader (for defaults and types)
+    shader_def = app.shader_parser.get_shader(shader_name)
+    shader_param_defs = {}
+    if shader_def:
+        for p in shader_def.params:
+            shader_param_defs[p.name] = p
+
+    # Merge: use preset values, fall back to shader defaults
+    all_param_keys = set(preset_params.keys()) | set(shader_param_defs.keys())
+
+    for key in sorted(all_param_keys):
+        # Skip invalid keys
+        if not key or key == "null":
+            continue
+
+        # Get value from preset, or default from shader def
+        if key in preset_params:
+            value = preset_params[key]
+        elif key in shader_param_defs:
+            value = shader_param_defs[key].default
+            if value is None:
+                # Use type-based defaults
+                ptype = shader_param_defs[key].param_type
+                if ptype == "color":
+                    value = "#FFFFFF"
+                elif ptype == "float":
+                    value = 0.0
+                elif ptype == "int":
+                    value = 0
+                else:
+                    value = 0.0
+        else:
+            continue
+
+        # Determine type from value or shader def
+        param_type = None
+        if key in shader_param_defs:
+            param_type = shader_param_defs[key].param_type
+
+        if param_type == "color" or (isinstance(value, str) and value.startswith("#")):
             # Color parameter
-            rgb = hex_to_rgb(value)
+            rgb = hex_to_rgb(value) if isinstance(value, str) else (255, 255, 255)
             dpg.add_color_edit(
                 label=key,
                 default_value=[rgb[0], rgb[1], rgb[2], 255],
-                callback=lambda s, a, k=key: shader_update_param_color(name, k, a),
+                callback=shader_param_color_callback,
+                user_data=(name, key),
                 no_alpha=True,
-                parent=parent
+                parent=parent,
+                width=150
             )
-        elif isinstance(value, float):
+        elif isinstance(value, float) or param_type == "float":
             dpg.add_input_float(
                 label=key,
-                default_value=value,
-                callback=lambda s, a, k=key: shader_update_param(name, k, a),
+                default_value=float(value) if value is not None else 0.0,
+                callback=shader_param_callback,
+                user_data=(name, key),
                 step=0.1,
-                parent=parent
+                parent=parent,
+                width=150
             )
-        elif isinstance(value, int):
+        elif isinstance(value, int) or param_type == "int":
             dpg.add_input_int(
                 label=key,
-                default_value=value,
-                callback=lambda s, a, k=key: shader_update_param(name, k, a),
-                parent=parent
+                default_value=int(value) if value is not None else 0,
+                callback=shader_param_callback,
+                user_data=(name, key),
+                parent=parent,
+                width=150
             )
 
 
@@ -1224,7 +1311,26 @@ def shader_update_field(name: str, field: str, value: Any):
     update_status_bar()
 
 
+def shader_param_callback(sender, app_data, user_data):
+    """DearPyGui callback for shader parameter inputs."""
+    if user_data:
+        name, param = user_data
+        shader_update_param(name, param, app_data)
+
+
+def shader_param_color_callback(sender, app_data, user_data):
+    """DearPyGui callback for shader color parameter inputs."""
+    if user_data:
+        name, param = user_data
+        shader_update_param_color(name, param, app_data)
+
+
 def shader_update_param(name: str, param: str, value: Any):
+    """Update a shader parameter value."""
+    # Skip invalid param names
+    if not param or param == "null":
+        return
+
     preset = app.json_mgr.get_shader(name) or {}
     if "params" not in preset:
         preset["params"] = {}
@@ -1234,6 +1340,7 @@ def shader_update_param(name: str, param: str, value: Any):
 
 
 def shader_update_param_color(name: str, param: str, rgba: list):
+    """Update a shader color parameter from RGBA list."""
     hex_color = rgba_to_hex(rgba)
     shader_update_param(name, param, hex_color)
 
@@ -1548,6 +1655,12 @@ def demo_clear_items():
     refresh_demo_items_list()
 
 
+def demo_remove_item_callback(sender, app_data, user_data):
+    """DearPyGui callback for demo item remove button."""
+    if user_data is not None:
+        demo_remove_item(user_data)
+
+
 def demo_remove_item(index: int):
     app.demo_gen.remove_item(index)
     if dpg.does_item_exist("demo_items_header"):
@@ -1567,7 +1680,8 @@ def refresh_demo_items_list():
             dpg.add_text(item.display_name, color=(200, 200, 200))
             dpg.add_button(
                 label="X",
-                callback=lambda s, a, idx=i: demo_remove_item(idx),
+                callback=demo_remove_item_callback,
+                user_data=i,
                 width=25
             )
 

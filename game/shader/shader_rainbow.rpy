@@ -42,56 +42,52 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        // Digital rainbow colors based on phase value
-        vec3 digitalRainbow(float value, float sat) {
+    """, fragment_functions="""
+        vec3 rbp_digitalRainbow(float value, float sat) {
             float r = clamp(sin(value + 0.0) * 0.5 + 0.5, 0.0, 1.0);
             float g = clamp(sin(value + 2.0944) * 0.5 + 0.5, 0.0, 1.0);
             float b = clamp(sin(value + 4.18879) * 0.5 + 0.5, 0.0, 1.0);
             vec3 rainbow = vec3(r, g, b);
-            // Desaturate by mixing with grayscale
             float gray = dot(rainbow, vec3(0.299, 0.587, 0.114));
             return mix(vec3(gray), rainbow, sat);
         }
+    """, fragment_300="""
+        vec2 uv = v_tex_coord;
+        vec4 origColor = texture2D(tex0, uv);
 
-        void main() {
-            vec2 uv = v_tex_coord;
-            vec4 origColor = texture2D(tex0, uv);
+        float time = u_time * u_speed;
 
-            float time = u_time * u_speed;
+        // Random factor for flow field variation
+        float randomFactor = fract(sin(dot(uv, vec2(5555555.9898, 9.233))) * 33758.5453);
 
-            // Random factor for flow field variation
-            float randomFactor = fract(sin(dot(uv, vec2(5555555.9898, 9.233))) * 33758.5453);
+        // Flow field direction based on UV and time
+        float flowAngle = sin(uv.x * u_flow_scale) + cos(uv.y * u_flow_scale) + time;
+        vec2 flowDir = vec2(cos(flowAngle), sin(flowAngle));
 
-            // Flow field direction based on UV and time
-            float flowAngle = sin(uv.x * u_flow_scale) + cos(uv.y * u_flow_scale) + time;
-            vec2 flowDir = vec2(cos(flowAngle), sin(flowAngle));
+        // Apply flow field distortion
+        vec2 newUV = uv + flowDir * randomFactor * u_flow_strength;
 
-            // Apply flow field distortion
-            vec2 newUV = uv + flowDir * randomFactor * u_flow_strength;
+        // Create pixel grid
+        vec2 scaledUV = newUV * u_scale;
 
-            // Create pixel grid
-            vec2 scaledUV = newUV * u_scale;
+        // Checkerboard pattern (determines rainbow vs background)
+        float pixelValue = 1.0 - step(0.5, mod(scaledUV.x + scaledUV.y, 2.0));
 
-            // Checkerboard pattern (determines rainbow vs background)
-            float pixelValue = 1.0 - step(0.5, mod(scaledUV.x + scaledUV.y, 2.0));
+        // Direction vector for rainbow
+        vec2 dir = vec2(cos(u_angle), sin(u_angle));
 
-            // Direction vector for rainbow
-            vec2 dir = vec2(cos(u_angle), sin(u_angle));
+        // Calculate rainbow phase based on direction
+        float rainbowPhase = dot(scaledUV, dir);
+        rainbowPhase = mod(time + rainbowPhase, 6.2831);
 
-            // Calculate rainbow phase based on direction
-            float rainbowPhase = dot(scaledUV, dir);
-            rainbowPhase = mod(time + rainbowPhase, 6.2831);
+        // Get rainbow color
+        vec3 rainbowColor = rbp_digitalRainbow(rainbowPhase, u_saturation);
 
-            // Get rainbow color
-            vec3 rainbowColor = digitalRainbow(rainbowPhase, u_saturation);
+        // Combine with background
+        vec3 finalColor = mix(u_bg_color, rainbowColor, pixelValue);
 
-            // Combine with background
-            vec3 finalColor = mix(u_bg_color, rainbowColor, pixelValue);
-
-            // Preserve alpha from original image
-            gl_FragColor = vec4(finalColor, origColor.a);
-        }
+        // Preserve alpha from original image
+        gl_FragColor = vec4(finalColor, origColor.a);
     """)
 
     # =========================================================================
@@ -118,49 +114,47 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        vec3 rainbow(float t) {
+    """, fragment_functions="""
+        vec3 rbg_rainbow(float t) {
             float r = sin(t) * 0.5 + 0.5;
             float g = sin(t + 2.0944) * 0.5 + 0.5;
             float b = sin(t + 4.18879) * 0.5 + 0.5;
             return vec3(r, g, b);
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-
-            if (origColor.a < 0.01) {
-                gl_FragColor = origColor;
-                return;
-            }
-
-            // Direction vector
-            vec2 dir = vec2(cos(u_angle), sin(u_angle));
-
-            // Calculate position along gradient direction
-            float pos = dot(v_tex_coord - 0.5, dir) + 0.5;
-
-            // Rainbow phase
-            float phase = pos * u_frequency * 6.2831 + u_time * u_speed;
-            vec3 rainbowColor = rainbow(phase);
-
-            // Blend modes
-            vec3 result;
-            if (u_blend_mode < 0.5) {
-                // Overlay blend
-                result = mix(origColor.rgb, rainbowColor, u_opacity);
-            } else if (u_blend_mode < 1.5) {
-                // Multiply blend
-                vec3 multiplied = origColor.rgb * rainbowColor;
-                result = mix(origColor.rgb, multiplied, u_opacity);
-            } else {
-                // Screen blend
-                vec3 screened = 1.0 - (1.0 - origColor.rgb) * (1.0 - rainbowColor);
-                result = mix(origColor.rgb, screened, u_opacity);
-            }
-
-            gl_FragColor = vec4(result, origColor.a);
+        if (origColor.a < 0.01) {
+            gl_FragColor = origColor;
+            return;
         }
+
+        // Direction vector
+        vec2 dir = vec2(cos(u_angle), sin(u_angle));
+
+        // Calculate position along gradient direction
+        float pos = dot(v_tex_coord - 0.5, dir) + 0.5;
+
+        // Rainbow phase
+        float phase = pos * u_frequency * 6.2831 + u_time * u_speed;
+        vec3 rainbowColor = rbg_rainbow(phase);
+
+        // Blend modes
+        vec3 result;
+        if (u_blend_mode < 0.5) {
+            // Overlay blend
+            result = mix(origColor.rgb, rainbowColor, u_opacity);
+        } else if (u_blend_mode < 1.5) {
+            // Multiply blend
+            vec3 multiplied = origColor.rgb * rainbowColor;
+            result = mix(origColor.rgb, multiplied, u_opacity);
+        } else {
+            // Screen blend
+            vec3 screened = 1.0 - (1.0 - origColor.rgb) * (1.0 - rainbowColor);
+            result = mix(origColor.rgb, screened, u_opacity);
+        }
+
+        gl_FragColor = vec4(result, origColor.a);
     """)
 
     # =========================================================================
@@ -183,44 +177,42 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        vec3 rainbow(float t) {
+    """, fragment_functions="""
+        vec3 rbt_rainbow(float t) {
             float r = sin(t) * 0.5 + 0.5;
             float g = sin(t + 2.0944) * 0.5 + 0.5;
             float b = sin(t + 4.18879) * 0.5 + 0.5;
             return vec3(r, g, b);
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-
-            if (origColor.a < 0.01) {
-                gl_FragColor = origColor;
-                return;
-            }
-
-            // Get rainbow color based on time
-            float phase = u_time * u_speed;
-            vec3 tint = rainbow(phase);
-
-            // Calculate original luminance
-            float lum = dot(origColor.rgb, vec3(0.299, 0.587, 0.114));
-
-            // Apply tint
-            vec3 tinted = origColor.rgb * tint;
-
-            // Optionally preserve luminance
-            if (u_preserve_luminance > 0.5) {
-                float tintedLum = dot(tinted, vec3(0.299, 0.587, 0.114));
-                if (tintedLum > 0.01) {
-                    tinted = tinted * (lum / tintedLum);
-                }
-            }
-
-            vec3 result = mix(origColor.rgb, tinted, u_intensity);
-
-            gl_FragColor = vec4(result, origColor.a);
+        if (origColor.a < 0.01) {
+            gl_FragColor = origColor;
+            return;
         }
+
+        // Get rainbow color based on time
+        float phase = u_time * u_speed;
+        vec3 tint = rbt_rainbow(phase);
+
+        // Calculate original luminance
+        float lum = dot(origColor.rgb, vec3(0.299, 0.587, 0.114));
+
+        // Apply tint
+        vec3 tinted = origColor.rgb * tint;
+
+        // Optionally preserve luminance
+        if (u_preserve_luminance > 0.5) {
+            float tintedLum = dot(tinted, vec3(0.299, 0.587, 0.114));
+            if (tintedLum > 0.01) {
+                tinted = tinted * (lum / tintedLum);
+            }
+        }
+
+        vec3 result = mix(origColor.rgb, tinted, u_intensity);
+
+        gl_FragColor = vec4(result, origColor.a);
     """)
 
     # =========================================================================
@@ -249,43 +241,41 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        vec3 rainbow(float t) {
+    """, fragment_functions="""
+        vec3 rbw_rainbow(float t) {
             float r = sin(t) * 0.5 + 0.5;
             float g = sin(t + 2.0944) * 0.5 + 0.5;
             float b = sin(t + 4.18879) * 0.5 + 0.5;
             return vec3(r, g, b);
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-
-            if (origColor.a < 0.01) {
-                gl_FragColor = origColor;
-                return;
-            }
-
-            float time = u_time * u_speed;
-
-            // Direction vectors (rainbow direction and perpendicular for wave)
-            vec2 dir = vec2(cos(u_angle), sin(u_angle));
-            vec2 perp = vec2(-dir.y, dir.x);
-
-            // Position along rainbow direction
-            float pos = dot(v_tex_coord - 0.5, dir);
-
-            // Add wave distortion perpendicular to direction
-            float perpPos = dot(v_tex_coord - 0.5, perp);
-            float wave = sin(perpPos * u_wave_freq + time * 2.0) * u_wave_amp;
-            pos += wave;
-
-            // Rainbow phase
-            float phase = pos * u_frequency * 6.2831 + time;
-            vec3 rainbowColor = rainbow(phase);
-
-            // Blend with original
-            vec3 result = mix(origColor.rgb, rainbowColor, u_opacity);
-
-            gl_FragColor = vec4(result, origColor.a);
+        if (origColor.a < 0.01) {
+            gl_FragColor = origColor;
+            return;
         }
+
+        float time = u_time * u_speed;
+
+        // Direction vectors (rainbow direction and perpendicular for wave)
+        vec2 dir = vec2(cos(u_angle), sin(u_angle));
+        vec2 perp = vec2(-dir.y, dir.x);
+
+        // Position along rainbow direction
+        float pos = dot(v_tex_coord - 0.5, dir);
+
+        // Add wave distortion perpendicular to direction
+        float perpPos = dot(v_tex_coord - 0.5, perp);
+        float wave = sin(perpPos * u_wave_freq + time * 2.0) * u_wave_amp;
+        pos += wave;
+
+        // Rainbow phase
+        float phase = pos * u_frequency * 6.2831 + time;
+        vec3 rainbowColor = rbw_rainbow(phase);
+
+        // Blend with original
+        vec3 result = mix(origColor.rgb, rainbowColor, u_opacity);
+
+        gl_FragColor = vec4(result, origColor.a);
     """)

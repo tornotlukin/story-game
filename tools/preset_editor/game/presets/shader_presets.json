@@ -252,6 +252,56 @@
                 "u_speed": 30.0
             },
             "animated": true
+        },
+        "warp_hyperspace": {
+            "shader": "shader.warp_hyperspace",
+            "animated": true,
+            "params": {
+                "u_speed": 5.0,
+                "u_streak_length": 0.5,
+                "u_density": 0.5,
+                "u_color_core": "#FFFFFF",
+                "u_color_edge": "#6699FF"
+            }
+        },
+        "weather_snow": {
+            "shader": "shader.weather_snow",
+            "animated": true,
+            "params": {
+                "u_speed": 0.5,
+                "u_wind": 0.05,
+                "u_density": 0.4,
+                "u_size": 0.012,
+                "u_wobble": 0.3,
+                "u_color": "#FFFFFF",
+                "u_opacity": 0.8
+            }
+        },
+        "magic_spinner": {
+            "shader": "shader.warp_hyperspace_overlay",
+            "animated": true,
+            "params": {
+                "u_speed": 5.0,
+                "u_streak_length": 0.5,
+                "u_density": 0.5,
+                "u_color_core": "#FFFFFF",
+                "u_color_edge": "#6699FF",
+                "u_opacity": 1.0,
+                "u_blend_mode": 1.0
+            }
+        },
+        "warp_hyperspace_overlay": {
+            "shader": "shader.warp_hyperspace_overlay",
+            "animated": true,
+            "params": {
+                "u_speed": 5.0,
+                "u_streak_length": 0.5,
+                "u_density": 0.5,
+                "u_color_core": "#FFFFFF",
+                "u_color_edge": "#6699FF",
+                "u_opacity": 0.6,
+                "u_blend_mode": 1.0
+            }
         }
     }
 }

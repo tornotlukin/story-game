@@ -42,85 +42,80 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        // Hash function for pseudo-random values
-        float hash(vec2 p) {
+    """, fragment_functions="""
+        float weather_hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
         }
 
-        // Hash that returns vec2
-        vec2 hash2(vec2 p) {
+        vec2 weather_hash2(vec2 p) {
             return vec2(
                 fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453),
                 fract(sin(dot(p, vec2(269.5, 183.3))) * 43758.5453)
             );
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
+        // Wrap time to avoid precision issues
+        float time = mod(u_time * u_speed, 1000.0);
 
-            // Wrap time to avoid precision issues
-            float time = mod(u_time * u_speed, 1000.0);
+        // Rain direction vector
+        vec2 rainDir = normalize(vec2(u_angle, -1.0));
 
-            // Rain direction vector
-            vec2 rainDir = normalize(vec2(u_angle, -1.0));
+        // Grid for rain drops
+        float gridSize = 0.05 / max(0.1, u_density);
+        vec2 uv = v_tex_coord;
 
-            // Grid for rain drops
-            float gridSize = 0.05 / max(0.1, u_density);
-            vec2 uv = v_tex_coord;
+        float rain = 0.0;
 
-            float rain = 0.0;
+        // Multiple layers for depth
+        for (int layer = 0; layer < 3; layer++) {
+            float layerOffset = float(layer) * 0.37;
+            float layerSpeed = 1.0 - float(layer) * 0.2;
+            float layerSize = 1.0 - float(layer) * 0.3;
 
-            // Multiple layers for depth
-            for (int layer = 0; layer < 3; layer++) {
-                float layerOffset = float(layer) * 0.37;
-                float layerSpeed = 1.0 - float(layer) * 0.2;
-                float layerSize = 1.0 - float(layer) * 0.3;
+            // Offset UV by time and direction
+            vec2 movingUV = uv;
+            movingUV.y += time * layerSpeed;
+            movingUV.x += time * u_angle * layerSpeed;
+            movingUV += layerOffset;
 
-                // Offset UV by time and direction
-                vec2 movingUV = uv;
-                movingUV.y += time * layerSpeed;
-                movingUV.x += time * u_angle * layerSpeed;
-                movingUV += layerOffset;
+            // Grid cell
+            vec2 cell = floor(movingUV / gridSize);
+            vec2 cellUV = fract(movingUV / gridSize);
 
-                // Grid cell
-                vec2 cell = floor(movingUV / gridSize);
-                vec2 cellUV = fract(movingUV / gridSize);
+            // Random values for this cell
+            vec2 randVal = weather_hash2(cell);
 
-                // Random values for this cell
-                vec2 randVal = hash2(cell);
+            // Only some cells have rain drops
+            if (randVal.x < u_density) {
+                // Drop position within cell
+                vec2 dropPos = vec2(randVal.y, 0.5);
 
-                // Only some cells have rain drops
-                if (randVal.x < u_density) {
-                    // Drop position within cell
-                    vec2 dropPos = vec2(randVal.y, 0.5);
+                // Distance to rain streak (line segment)
+                vec2 toPoint = cellUV - dropPos;
 
-                    // Distance to rain streak (line segment)
-                    vec2 toPoint = cellUV - dropPos;
+                // Project onto rain direction
+                float alongRain = dot(toPoint, -rainDir);
+                vec2 projected = -rainDir * alongRain;
+                vec2 perpendicular = toPoint - projected;
 
-                    // Project onto rain direction
-                    float alongRain = dot(toPoint, -rainDir);
-                    vec2 projected = -rainDir * alongRain;
-                    vec2 perpendicular = toPoint - projected;
+                // Check if within streak bounds
+                float perpDist = length(perpendicular);
+                float streakLen = u_length * layerSize / gridSize;
 
-                    // Check if within streak bounds
-                    float perpDist = length(perpendicular);
-                    float streakLen = u_length * layerSize / gridSize;
-
-                    if (alongRain > 0.0 && alongRain < streakLen && perpDist < u_thickness / gridSize) {
-                        // Fade along streak
-                        float fade = 1.0 - alongRain / streakLen;
-                        rain = max(rain, fade * layerSize);
-                    }
+                if (alongRain > 0.0 && alongRain < streakLen && perpDist < u_thickness / gridSize) {
+                    // Fade along streak
+                    float fade = 1.0 - alongRain / streakLen;
+                    rain = max(rain, fade * layerSize);
                 }
             }
-
-            // Blend rain with original
-            vec3 result = mix(origColor.rgb, u_color, rain * u_opacity);
-            float alpha = max(origColor.a, rain * u_opacity * origColor.a);
-
-            gl_FragColor = vec4(result, origColor.a);
         }
+
+        // Blend rain with original
+        vec3 result = mix(origColor.rgb, u_color, rain * u_opacity);
+
+        gl_FragColor = vec4(result, origColor.a);
     """)
 
     # =========================================================================
@@ -152,79 +147,76 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        // Hash functions
-        float hash(vec2 p) {
+    """, fragment_functions="""
+        float snow_hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
         }
 
-        vec2 hash2(vec2 p) {
+        vec2 snow_hash2(vec2 p) {
             return vec2(
                 fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453),
                 fract(sin(dot(p, vec2(269.5, 183.3))) * 43758.5453)
             );
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
+        float time = mod(u_time * u_speed, 1000.0);
 
-            float time = mod(u_time * u_speed, 1000.0);
+        float gridSize = 0.08 / max(0.1, u_density);
+        vec2 uv = v_tex_coord;
 
-            float gridSize = 0.08 / max(0.1, u_density);
-            vec2 uv = v_tex_coord;
+        // Aspect ratio correction
+        float aspect = u_model_size.x / u_model_size.y;
 
-            // Aspect ratio correction
-            float aspect = u_model_size.x / u_model_size.y;
+        float snow = 0.0;
 
-            float snow = 0.0;
+        // Multiple layers for depth
+        for (int layer = 0; layer < 4; layer++) {
+            float layerOffset = float(layer) * 0.41;
+            float layerSpeed = 1.0 - float(layer) * 0.15;
+            float layerSizeMod = 1.0 - float(layer) * 0.2;
 
-            // Multiple layers for depth
-            for (int layer = 0; layer < 4; layer++) {
-                float layerOffset = float(layer) * 0.41;
-                float layerSpeed = 1.0 - float(layer) * 0.15;
-                float layerSizeMod = 1.0 - float(layer) * 0.2;
+            // Moving UV
+            vec2 movingUV = uv;
+            movingUV.y += time * layerSpeed;
+            movingUV.x += time * u_wind * layerSpeed;
+            movingUV += layerOffset;
 
-                // Moving UV
-                vec2 movingUV = uv;
-                movingUV.y += time * layerSpeed;
-                movingUV.x += time * u_wind * layerSpeed;
-                movingUV += layerOffset;
+            // Grid cell
+            vec2 cell = floor(movingUV / gridSize);
+            vec2 cellUV = fract(movingUV / gridSize);
 
-                // Grid cell
-                vec2 cell = floor(movingUV / gridSize);
-                vec2 cellUV = fract(movingUV / gridSize);
+            // Random values
+            vec2 randVal = snow_hash2(cell);
+            float randPhase = snow_hash(cell + 0.5);
 
-                // Random values
-                vec2 randVal = hash2(cell);
-                float randPhase = hash(cell + 0.5);
+            // Only some cells have snowflakes
+            if (randVal.x < u_density) {
+                // Snowflake position with wobble
+                float wobbleX = sin(time * 3.0 + randPhase * 6.28) * u_wobble * 0.3;
+                vec2 flakePos = vec2(randVal.y + wobbleX, 0.5);
 
-                // Only some cells have snowflakes
-                if (randVal.x < u_density) {
-                    // Snowflake position with wobble
-                    float wobbleX = sin(time * 3.0 + randPhase * 6.28) * u_wobble * 0.3;
-                    vec2 flakePos = vec2(randVal.y + wobbleX, 0.5);
+                // Distance to flake center
+                vec2 toFlake = cellUV - flakePos;
+                toFlake.x *= aspect; // Correct for aspect ratio
 
-                    // Distance to flake center
-                    vec2 toFlake = cellUV - flakePos;
-                    toFlake.x *= aspect; // Correct for aspect ratio
+                float dist = length(toFlake);
+                float flakeSize = u_size * layerSizeMod / gridSize;
 
-                    float dist = length(toFlake);
-                    float flakeSize = u_size * layerSizeMod / gridSize;
-
-                    // Soft circular flake
-                    if (dist < flakeSize) {
-                        float falloff = 1.0 - dist / flakeSize;
-                        falloff = falloff * falloff; // Softer edges
-                        snow = max(snow, falloff * layerSizeMod);
-                    }
+                // Soft circular flake
+                if (dist < flakeSize) {
+                    float falloff = 1.0 - dist / flakeSize;
+                    falloff = falloff * falloff; // Softer edges
+                    snow = max(snow, falloff * layerSizeMod);
                 }
             }
-
-            // Blend snow with original
-            vec3 result = mix(origColor.rgb, u_color, snow * u_opacity);
-
-            gl_FragColor = vec4(result, origColor.a);
         }
+
+        // Blend snow with original
+        vec3 result = mix(origColor.rgb, u_color, snow * u_opacity);
+
+        gl_FragColor = vec4(result, origColor.a);
     """)
 
     # =========================================================================
@@ -256,91 +248,89 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        float hash(vec2 p) {
+    """, fragment_functions="""
+        float overlay_hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
         }
 
-        vec2 hash2(vec2 p) {
+        vec2 overlay_hash2(vec2 p) {
             return vec2(
                 fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453),
                 fract(sin(dot(p, vec2(269.5, 183.3))) * 43758.5453)
             );
         }
+    """, fragment_300="""
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
+        float time = mod(u_time * u_speed, 1000.0);
+        float gridSize = 0.06 / max(0.1, u_density);
+        vec2 uv = v_tex_coord;
+        float aspect = u_model_size.x / u_model_size.y;
 
-            float time = mod(u_time * u_speed, 1000.0);
-            float gridSize = 0.06 / max(0.1, u_density);
-            vec2 uv = v_tex_coord;
-            float aspect = u_model_size.x / u_model_size.y;
+        float effect = 0.0;
+        bool isSnow = u_mode > 0.5;
 
-            float effect = 0.0;
-            bool isSnow = u_mode > 0.5;
+        // Fall direction
+        vec2 fallDir = normalize(vec2(u_angle, -1.0));
 
-            // Fall direction
-            vec2 fallDir = normalize(vec2(u_angle, -1.0));
+        for (int layer = 0; layer < 3; layer++) {
+            float layerOffset = float(layer) * 0.37;
+            float layerSpeed = 1.0 - float(layer) * 0.2;
+            float layerSizeMod = 1.0 - float(layer) * 0.25;
 
-            for (int layer = 0; layer < 3; layer++) {
-                float layerOffset = float(layer) * 0.37;
-                float layerSpeed = 1.0 - float(layer) * 0.2;
-                float layerSizeMod = 1.0 - float(layer) * 0.25;
+            vec2 movingUV = uv;
+            movingUV.y += time * layerSpeed;
+            movingUV.x += time * u_angle * layerSpeed;
+            movingUV += layerOffset;
 
-                vec2 movingUV = uv;
-                movingUV.y += time * layerSpeed;
-                movingUV.x += time * u_angle * layerSpeed;
-                movingUV += layerOffset;
+            vec2 cell = floor(movingUV / gridSize);
+            vec2 cellUV = fract(movingUV / gridSize);
 
-                vec2 cell = floor(movingUV / gridSize);
-                vec2 cellUV = fract(movingUV / gridSize);
+            vec2 randVal = overlay_hash2(cell);
+            float randPhase = overlay_hash(cell + 0.5);
 
-                vec2 randVal = hash2(cell);
-                float randPhase = hash(cell + 0.5);
+            if (randVal.x < u_density) {
+                vec2 particlePos;
 
-                if (randVal.x < u_density) {
-                    vec2 particlePos;
+                if (isSnow) {
+                    // Snow: wobble horizontally
+                    float wobble = sin(time * 2.0 + randPhase * 6.28) * 0.2;
+                    particlePos = vec2(randVal.y + wobble, 0.5);
+                } else {
+                    // Rain: fixed position
+                    particlePos = vec2(randVal.y, 0.5);
+                }
 
-                    if (isSnow) {
-                        // Snow: wobble horizontally
-                        float wobble = sin(time * 2.0 + randPhase * 6.28) * 0.2;
-                        particlePos = vec2(randVal.y + wobble, 0.5);
-                    } else {
-                        // Rain: fixed position
-                        particlePos = vec2(randVal.y, 0.5);
+                vec2 toParticle = cellUV - particlePos;
+
+                if (isSnow) {
+                    // Snow: circular soft particle
+                    toParticle.x *= aspect;
+                    float dist = length(toParticle);
+                    float pSize = u_size * layerSizeMod / gridSize;
+
+                    if (dist < pSize) {
+                        float falloff = 1.0 - dist / pSize;
+                        falloff *= falloff;
+                        effect = max(effect, falloff * layerSizeMod);
                     }
+                } else {
+                    // Rain: elongated streak
+                    float alongFall = dot(toParticle, -fallDir);
+                    vec2 perpVec = toParticle - (-fallDir * alongFall);
+                    float perpDist = length(perpVec);
 
-                    vec2 toParticle = cellUV - particlePos;
+                    float streakLen = u_size * 2.0 * layerSizeMod / gridSize;
+                    float streakThick = u_size * 0.15 / gridSize;
 
-                    if (isSnow) {
-                        // Snow: circular soft particle
-                        toParticle.x *= aspect;
-                        float dist = length(toParticle);
-                        float pSize = u_size * layerSizeMod / gridSize;
-
-                        if (dist < pSize) {
-                            float falloff = 1.0 - dist / pSize;
-                            falloff *= falloff;
-                            effect = max(effect, falloff * layerSizeMod);
-                        }
-                    } else {
-                        // Rain: elongated streak
-                        float alongFall = dot(toParticle, -fallDir);
-                        vec2 perpVec = toParticle - (-fallDir * alongFall);
-                        float perpDist = length(perpVec);
-
-                        float streakLen = u_size * 2.0 * layerSizeMod / gridSize;
-                        float streakThick = u_size * 0.15 / gridSize;
-
-                        if (alongFall > 0.0 && alongFall < streakLen && perpDist < streakThick) {
-                            float fade = 1.0 - alongFall / streakLen;
-                            effect = max(effect, fade * layerSizeMod);
-                        }
+                    if (alongFall > 0.0 && alongFall < streakLen && perpDist < streakThick) {
+                        float fade = 1.0 - alongFall / streakLen;
+                        effect = max(effect, fade * layerSizeMod);
                     }
                 }
             }
-
-            vec3 result = mix(origColor.rgb, u_color, effect * u_opacity);
-            gl_FragColor = vec4(result, origColor.a);
         }
+
+        vec3 result = mix(origColor.rgb, u_color, effect * u_opacity);
+        gl_FragColor = vec4(result, origColor.a);
     """)

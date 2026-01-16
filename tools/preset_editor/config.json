@@ -4,6 +4,6 @@
     "shader_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game\\shader",
     "game_folder": "C:\\Work\\story-game\\tools\\preset_editor\\game",
     "renpy_exe": "C:\\Programs\\renpy-8.5.2-sdk\\renpy.exe",
-    "demo_width": 1920,
+    "demo_width": 1080,
     "demo_height": 1920
 }

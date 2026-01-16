@@ -33,7 +33,8 @@
         },
         "slide_right_enter": {
             "start_position": {
-                "xoffset": 300
+                "xoffset": 0.0,
+                "yoffset": 0.0
             },
             "end_position": {
                 "xoffset": 0
@@ -245,7 +246,7 @@
                 "yoffset": 0
             },
             "end_position": {
-                "yoffset": -200
+                "yoffset": -200.0
             },
             "alpha": {
                 "start": 1.0,

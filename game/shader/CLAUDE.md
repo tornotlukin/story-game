@@ -49,13 +49,144 @@ init python:
 
 ```python
 renpy.register_shader("shader.name",
-    variables="...",      # Uniform/attribute/varying declarations
-    vertex_300="...",     # Vertex shader code (GLSL ES 3.0)
-    fragment_300="..."    # Fragment shader code (GLSL ES 3.0)
+    variables="...",           # Uniform/attribute/varying declarations
+    vertex_300="...",          # Vertex shader code (goes inside main())
+    fragment_functions="...",  # Helper functions (optional, goes OUTSIDE main())
+    fragment_300="..."         # Fragment shader code (goes inside main())
 )
 ```
 
 **Naming Convention:** `shader.<category>_<effect>` (e.g., `shader.blur_gaussian`, `shader.glow_pulse`)
+
+---
+
+## CRITICAL: Ren'Py Shader Structure Rules
+
+Ren'Py assembles shaders automatically. Follow these rules or shaders will fail to compile:
+
+### 1. DO NOT use `void main()` in fragment_300
+
+Ren'Py creates the `main()` function automatically. Your `fragment_300` code is **inserted inside** that function.
+
+```python
+# WRONG - causes syntax error
+fragment_300="""
+    void main() {
+        vec4 color = texture2D(tex0, v_tex_coord);
+        gl_FragColor = color;
+    }
+"""
+
+# CORRECT - just the code that goes inside main()
+fragment_300="""
+    vec4 color = texture2D(tex0, v_tex_coord);
+    gl_FragColor = color;
+"""
+```
+
+### 2. Put helper functions in `fragment_functions`
+
+If you need custom functions, use the `fragment_functions` parameter. This code is placed **outside** of main().
+
+```python
+# WRONG - function inside fragment_300 causes error
+fragment_300="""
+    vec3 myHelper(vec3 c) {
+        return c * 2.0;
+    }
+
+    vec4 color = texture2D(tex0, v_tex_coord);
+    gl_FragColor = vec4(myHelper(color.rgb), color.a);
+"""
+
+# CORRECT - function in fragment_functions, called from fragment_300
+fragment_functions="""
+    vec3 myHelper(vec3 c) {
+        return c * 2.0;
+    }
+""", fragment_300="""
+    vec4 color = texture2D(tex0, v_tex_coord);
+    gl_FragColor = vec4(myHelper(color.rgb), color.a);
+"""
+```
+
+### 3. Use unique function name prefixes
+
+Multiple shaders may be loaded simultaneously. To avoid function name collisions, prefix your functions with a unique identifier (usually based on shader name):
+
+```python
+# For shader.rainbow_pixel, use "rbp_" prefix
+fragment_functions="""
+    vec3 rbp_rainbow(float t) {
+        return vec3(sin(t), sin(t + 2.094), sin(t + 4.189)) * 0.5 + 0.5;
+    }
+"""
+
+# For shader.toon_cel, use "toon_" prefix
+fragment_functions="""
+    vec3 toon_rgb2hsv(vec3 c) { ... }
+    vec3 toon_hsv2rgb(vec3 hsv) { ... }
+"""
+
+# For shader.vision_night, use "nv_" prefix
+fragment_functions="""
+    float nv_hash(vec2 p) { ... }
+    float nv_noise(vec2 p) { ... }
+"""
+```
+
+### 4. `#define` statements CAN go in fragment_300
+
+Preprocessor defines are fine inside `fragment_300`:
+
+```python
+fragment_300="""
+    #define TAU 6.28318530718
+    #define MAX_ITER 16
+
+    vec4 color = texture2D(tex0, v_tex_coord);
+    // ... use TAU and MAX_ITER here
+"""
+```
+
+### Complete Correct Example
+
+```python
+# @shader: shader.effect_example
+# @description: Example with helper function
+# @param u_amount: float, range=0.0-1.0, default=0.5, description=Effect amount
+renpy.register_shader("shader.effect_example", variables="""
+    uniform sampler2D tex0;
+    uniform float u_amount;
+    attribute vec2 a_tex_coord;
+    varying vec2 v_tex_coord;
+""", vertex_300="""
+    v_tex_coord = a_tex_coord;
+""", fragment_functions="""
+    vec3 fx_adjustColor(vec3 c, float amount) {
+        float gray = dot(c, vec3(0.299, 0.587, 0.114));
+        return mix(c, vec3(gray), amount);
+    }
+""", fragment_300="""
+    vec4 color = texture2D(tex0, v_tex_coord);
+
+    if (color.a < 0.01) {
+        gl_FragColor = color;
+        return;
+    }
+
+    vec3 result = fx_adjustColor(color.rgb, u_amount);
+    gl_FragColor = vec4(result, color.a);
+""")
+```
+
+### Common Compilation Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `'{' : syntax error` | `void main()` in fragment_300 | Remove `void main() {` and closing `}` |
+| `function already defined` | Duplicate function names across shaders | Add unique prefix to function names |
+| `undeclared identifier` | Function defined in fragment_300 | Move function to fragment_functions |
 
 ---
 
@@ -424,6 +555,8 @@ show eileen at preset_slide_left_enter(), shader_glow_soft_gold
 - [ ] `# @param` annotations for all custom uniforms
 - [ ] `# @animated` if shader uses `u_time`
 - [ ] Shader name matches: `shader.<category>_<name>`
+- [ ] **NO `void main()` in fragment_300** (Ren'Py creates it)
+- [ ] Helper functions in `fragment_functions` with unique prefix
 - [ ] Alpha preservation in fragment shader
 - [ ] `clamp(uv, 0.0, 1.0)` for any UV manipulation
 

@@ -87,23 +87,53 @@ class JsonManager:
             print(f"JsonManager: Error loading {filepath}: {e}")
             return {}
 
-    def save(self) -> bool:
-        """Save both JSON files."""
+    def save(self, which: str = "both") -> bool:
+        """Save JSON files.
+
+        Args:
+            which: "transition", "shader", or "both"
+        """
         success = True
 
-        if self.transition_path and self.transition_data:
+        if which in ("transition", "both") and self.transition_path:
             if not self._save_json(self.transition_path, self.transition_data):
                 success = False
 
-        if self.shader_path and self.shader_data:
+        if which in ("shader", "both") and self.shader_path:
             if not self._save_json(self.shader_path, self.shader_data):
                 success = False
 
         return success
 
+    def _clean_params(self, data: Dict) -> Dict:
+        """Remove invalid keys (None, 'null', empty) from params in presets."""
+        if "shader_presets" in data:
+            for preset_name, preset in data["shader_presets"].items():
+                if isinstance(preset, dict) and "params" in preset:
+                    # Filter out invalid keys
+                    preset["params"] = {
+                        k: v for k, v in preset["params"].items()
+                        if k and k != "null"
+                    }
+        if "presets" in data:
+            for preset_name, preset in data["presets"].items():
+                if isinstance(preset, dict):
+                    for section in ["start_position", "end_position", "alpha", "scale", "rotation"]:
+                        if section in preset and isinstance(preset[section], dict):
+                            preset[section] = {
+                                k: v for k, v in preset[section].items()
+                                if k and k != "null"
+                            }
+        return data
+
     def _save_json(self, filepath: str, data: Dict) -> bool:
         """Save data to a JSON file."""
         try:
+            # Clean invalid keys before saving
+            data = self._clean_params(data)
+
+            # Ensure parent directory exists
+            Path(filepath).parent.mkdir(parents=True, exist_ok=True)
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             return True
@@ -219,7 +249,7 @@ class JsonManager:
         self.transition_data["presets"][name] = data
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
 
     def add_transition(self, name: str, data: Dict):
@@ -232,7 +262,7 @@ class JsonManager:
         self.transition_data["presets"][name] = data
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
 
     def delete_transition(self, name: str):
@@ -242,7 +272,7 @@ class JsonManager:
             del self.transition_data["presets"][name]
 
             if self._auto_save:
-                self.save()
+                self.save("transition")
             self._notify_change()
 
     def delete_transitions(self, names: List[str]):
@@ -257,7 +287,7 @@ class JsonManager:
                 del self.transition_data["presets"][name]
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
 
     def rename_transition(self, old_name: str, new_name: str) -> bool:
@@ -271,7 +301,7 @@ class JsonManager:
         presets[new_name] = presets.pop(old_name)
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
         return True
 
@@ -286,7 +316,7 @@ class JsonManager:
         presets[new_name] = copy.deepcopy(presets[name])
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
         return True
 
@@ -319,7 +349,7 @@ class JsonManager:
         self._reorder_transitions(names)
 
         if self._auto_save:
-            self.save()
+            self.save("transition")
         self._notify_change()
         return True
 
@@ -366,7 +396,7 @@ class JsonManager:
         self.shader_data["shader_presets"][name] = data
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
 
     def add_shader(self, name: str, data: Dict):
@@ -379,7 +409,7 @@ class JsonManager:
         self.shader_data["shader_presets"][name] = data
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
 
     def delete_shader(self, name: str):
@@ -389,7 +419,7 @@ class JsonManager:
             del self.shader_data["shader_presets"][name]
 
             if self._auto_save:
-                self.save()
+                self.save("shader")
             self._notify_change()
 
     def delete_shaders(self, names: List[str]):
@@ -404,7 +434,7 @@ class JsonManager:
                 del self.shader_data["shader_presets"][name]
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
 
     def rename_shader(self, old_name: str, new_name: str) -> bool:
@@ -418,7 +448,7 @@ class JsonManager:
         presets[new_name] = presets.pop(old_name)
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
         return True
 
@@ -433,7 +463,7 @@ class JsonManager:
         presets[new_name] = copy.deepcopy(presets[name])
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
         return True
 
@@ -462,7 +492,7 @@ class JsonManager:
         self._reorder_shaders(names)
 
         if self._auto_save:
-            self.save()
+            self.save("shader")
         self._notify_change()
         return True
 

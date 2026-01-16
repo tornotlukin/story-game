@@ -11,9 +11,9 @@ label preset_demo:
     menu preset_demo_menu:
         "Select a preset to demo:"
 
-        "1. preset_edge_left_enter(), shader_glow_purple":
-            show char_demo at preset_edge_left_enter(), shader_glow_purple
-            test "preset_edge_left_enter(), shader_glow_purple"
+        "1. preset_pop_in_enter(), shader_magic_spinner":
+            show char_demo at preset_pop_in_enter(), shader_magic_spinner
+            test "preset_pop_in_enter(), shader_magic_spinner"
             pause 0.5
             hide char_demo with dissolve
             jump preset_demo

@@ -38,9 +38,8 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        // HSV conversion functions
-        vec3 rgb2hsv(vec3 c) {
+    """, fragment_functions="""
+        vec3 toon_rgb2hsv(vec3 c) {
             float minC = min(min(c.r, c.g), c.b);
             float maxC = max(max(c.r, c.g), c.b);
             float delta = maxC - minC;
@@ -57,7 +56,7 @@ init python:
             return hsv;
         }
 
-        vec3 hsv2rgb(vec3 hsv) {
+        vec3 toon_hsv2rgb(vec3 hsv) {
             if (hsv.y == 0.0) { return vec3(hsv.z); }
             float h = hsv.x / 60.0;
             int i = int(floor(h));
@@ -75,69 +74,51 @@ init python:
             return rgb;
         }
 
-        // Quantize a value to discrete levels
-        float quantize(float val, float levels) {
+        float toon_quantize(float val, float levels) {
             return floor(val * levels + 0.5) / levels;
         }
 
-        // Get average pixel intensity
-        float avgIntensity(vec4 pix) {
+        float toon_avgIntensity(vec4 pix) {
             return (pix.r + pix.g + pix.b) / 3.0;
+        }
+    """, fragment_300="""
+        vec4 color = texture2D(tex0, v_tex_coord);
+
+        // Skip fully transparent pixels
+        if (color.a < 0.01) {
+            gl_FragColor = color;
+            return;
         }
 
         // Edge detection using neighbor sampling
-        float detectEdge(vec2 uv) {
-            vec2 px = 1.0 / u_model_size;
-            float pix[9];
-            int k = 0;
+        vec2 px = 1.0 / u_model_size;
+        float pix0 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, -1.0) * px));
+        float pix1 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(0.0, -1.0) * px));
+        float pix2 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, -1.0) * px));
+        float pix3 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, 0.0) * px));
+        float pix5 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, 0.0) * px));
+        float pix6 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, 1.0) * px));
+        float pix7 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(0.0, 1.0) * px));
+        float pix8 = toon_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, 1.0) * px));
 
-            // Sample 3x3 neighborhood
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    vec2 offset = vec2(float(i), float(j)) * px;
-                    pix[k] = avgIntensity(texture2D(tex0, uv + offset));
-                    k++;
-                }
-            }
+        float delta = (abs(pix1 - pix7) + abs(pix5 - pix3) + abs(pix0 - pix8) + abs(pix2 - pix6)) / 4.0;
+        float edge = clamp(u_edge_strength * delta, 0.0, 1.0);
 
-            // Sobel-like edge detection
-            float delta = (abs(pix[1] - pix[7]) +
-                          abs(pix[5] - pix[3]) +
-                          abs(pix[0] - pix[8]) +
-                          abs(pix[2] - pix[6])) / 4.0;
+        // Convert to HSV and quantize
+        vec3 hsv = toon_rgb2hsv(color.rgb);
+        hsv.x = toon_quantize(hsv.x / 360.0, u_hue_levels) * 360.0;
+        hsv.y = toon_quantize(hsv.y, u_sat_levels);
+        hsv.z = toon_quantize(hsv.z, u_val_levels);
 
-            return clamp(u_edge_strength * delta, 0.0, 1.0);
+        // Apply edge as black outline
+        vec3 result;
+        if (edge >= u_edge_threshold) {
+            result = vec3(0.0);  // Black edge
+        } else {
+            result = toon_hsv2rgb(hsv);
         }
 
-        void main() {
-            vec4 color = texture2D(tex0, v_tex_coord);
-
-            // Skip fully transparent pixels
-            if (color.a < 0.01) {
-                gl_FragColor = color;
-                return;
-            }
-
-            // Convert to HSV and quantize
-            vec3 hsv = rgb2hsv(color.rgb);
-            hsv.x = quantize(hsv.x / 360.0, u_hue_levels) * 360.0;
-            hsv.y = quantize(hsv.y, u_sat_levels);
-            hsv.z = quantize(hsv.z, u_val_levels);
-
-            // Detect edges
-            float edge = detectEdge(v_tex_coord);
-
-            // Apply edge as black outline
-            vec3 result;
-            if (edge >= u_edge_threshold) {
-                result = vec3(0.0);  // Black edge
-            } else {
-                result = hsv2rgb(hsv);
-            }
-
-            // Preserve alpha
-            gl_FragColor = vec4(result, color.a);
-        }
+        gl_FragColor = vec4(result, color.a);
     """)
 
     # =========================================================================
@@ -158,9 +139,8 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        // HSV conversion functions
-        vec3 rgb2hsv(vec3 c) {
+    """, fragment_functions="""
+        vec3 post_rgb2hsv(vec3 c) {
             float minC = min(min(c.r, c.g), c.b);
             float maxC = max(max(c.r, c.g), c.b);
             float delta = maxC - minC;
@@ -177,7 +157,7 @@ init python:
             return hsv;
         }
 
-        vec3 hsv2rgb(vec3 hsv) {
+        vec3 post_hsv2rgb(vec3 hsv) {
             if (hsv.y == 0.0) { return vec3(hsv.z); }
             float h = hsv.x / 60.0;
             int i = int(floor(h));
@@ -195,26 +175,24 @@ init python:
             return rgb;
         }
 
-        float quantize(float val, float levels) {
+        float post_quantize(float val, float levels) {
             return floor(val * levels + 0.5) / levels;
         }
+    """, fragment_300="""
+        vec4 color = texture2D(tex0, v_tex_coord);
 
-        void main() {
-            vec4 color = texture2D(tex0, v_tex_coord);
-
-            if (color.a < 0.01) {
-                gl_FragColor = color;
-                return;
-            }
-
-            vec3 hsv = rgb2hsv(color.rgb);
-            hsv.x = quantize(hsv.x / 360.0, u_hue_levels) * 360.0;
-            hsv.y = quantize(hsv.y, u_sat_levels);
-            hsv.z = quantize(hsv.z, u_val_levels);
-
-            vec3 result = hsv2rgb(hsv);
-            gl_FragColor = vec4(result, color.a);
+        if (color.a < 0.01) {
+            gl_FragColor = color;
+            return;
         }
+
+        vec3 hsv = post_rgb2hsv(color.rgb);
+        hsv.x = post_quantize(hsv.x / 360.0, u_hue_levels) * 360.0;
+        hsv.y = post_quantize(hsv.y, u_sat_levels);
+        hsv.z = post_quantize(hsv.z, u_val_levels);
+
+        vec3 result = post_hsv2rgb(hsv);
+        gl_FragColor = vec4(result, color.a);
     """)
 
     # =========================================================================
@@ -238,54 +216,42 @@ init python:
         varying vec2 v_tex_coord;
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
-    """, fragment_300="""
-        float avgIntensity(vec4 pix) {
+    """, fragment_functions="""
+        float edge_avgIntensity(vec4 pix) {
             return (pix.r + pix.g + pix.b) / 3.0;
         }
+    """, fragment_300="""
+        vec4 color = texture2D(tex0, v_tex_coord);
 
-        float detectEdge(vec2 uv) {
-            vec2 px = 1.0 / u_model_size;
-            float pix[9];
-            int k = 0;
-
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    vec2 offset = vec2(float(i), float(j)) * px;
-                    pix[k] = avgIntensity(texture2D(tex0, uv + offset));
-                    k++;
-                }
-            }
-
-            float delta = (abs(pix[1] - pix[7]) +
-                          abs(pix[5] - pix[3]) +
-                          abs(pix[0] - pix[8]) +
-                          abs(pix[2] - pix[6])) / 4.0;
-
-            return clamp(u_edge_strength * delta, 0.0, 1.0);
+        if (color.a < 0.01) {
+            gl_FragColor = color;
+            return;
         }
 
-        void main() {
-            vec4 color = texture2D(tex0, v_tex_coord);
+        vec2 px = 1.0 / u_model_size;
+        float pix0 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, -1.0) * px));
+        float pix1 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(0.0, -1.0) * px));
+        float pix2 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, -1.0) * px));
+        float pix3 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, 0.0) * px));
+        float pix5 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, 0.0) * px));
+        float pix6 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(-1.0, 1.0) * px));
+        float pix7 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(0.0, 1.0) * px));
+        float pix8 = edge_avgIntensity(texture2D(tex0, v_tex_coord + vec2(1.0, 1.0) * px));
 
-            if (color.a < 0.01) {
-                gl_FragColor = color;
-                return;
-            }
+        float delta = (abs(pix1 - pix7) + abs(pix5 - pix3) + abs(pix0 - pix8) + abs(pix2 - pix6)) / 4.0;
+        float edge = clamp(u_edge_strength * delta, 0.0, 1.0);
+        float isEdge = step(u_edge_threshold, edge);
 
-            float edge = detectEdge(v_tex_coord);
-            float isEdge = step(u_edge_threshold, edge);
-
-            vec3 result;
-            if (u_edge_only > 0.5) {
-                // Edge-only mode: show edges as colored lines on transparent
-                result = u_edge_color;
-                float alpha = isEdge * color.a;
-                gl_FragColor = vec4(result, alpha);
-            } else {
-                // Normal mode: overlay edges on original
-                result = mix(color.rgb, u_edge_color, isEdge);
-                gl_FragColor = vec4(result, color.a);
-            }
+        vec3 result;
+        if (u_edge_only > 0.5) {
+            // Edge-only mode: show edges as colored lines on transparent
+            result = u_edge_color;
+            float alpha = isEdge * color.a;
+            gl_FragColor = vec4(result, alpha);
+        } else {
+            // Normal mode: overlay edges on original
+            result = mix(color.rgb, u_edge_color, isEdge);
+            gl_FragColor = vec4(result, color.a);
         }
     """)
 

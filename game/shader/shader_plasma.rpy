@@ -43,37 +43,35 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-            vec2 position = v_tex_coord * u_scale;
+        vec4 origColor = texture2D(tex0, v_tex_coord);
+        vec2 position = v_tex_coord * u_scale;
 
-            float t = u_time * u_speed;
+        float t = u_time * u_speed;
 
-            // Wave interference pattern (from original shader)
-            float value = 0.0;
-            value += sin(position.x * cos(t / 15.0) * 80.0 * u_complexity)
-                   + cos(position.y * cos(t / 15.0) * 10.0 * u_complexity);
-            value += sin(position.y * sin(t / 10.0) * 40.0 * u_complexity)
-                   + cos(position.x * sin(t / 25.0) * 40.0 * u_complexity);
-            value += sin(position.x * sin(t / 5.0) * 10.0 * u_complexity)
-                   + sin(position.y * sin(t / 35.0) * 80.0 * u_complexity);
-            value *= sin(t / 10.0) * 0.5;
+        // Wave interference pattern (from original shader)
+        float value = 0.0;
+        value += sin(position.x * cos(t / 15.0) * 80.0 * u_complexity)
+               + cos(position.y * cos(t / 15.0) * 10.0 * u_complexity);
+        value += sin(position.y * sin(t / 10.0) * 40.0 * u_complexity)
+               + cos(position.x * sin(t / 25.0) * 40.0 * u_complexity);
+        value += sin(position.x * sin(t / 5.0) * 10.0 * u_complexity)
+               + sin(position.y * sin(t / 35.0) * 80.0 * u_complexity);
+        value *= sin(t / 10.0) * 0.5;
 
-            // Normalize value to 0-1 range
-            float v = value * 0.5 + 0.5;
+        // Normalize value to 0-1 range
+        float v = value * 0.5 + 0.5;
 
-            // Color cycling
-            float ct = u_time * u_color_speed;
-            float phase1 = sin(v * 3.14159 + ct) * 0.5 + 0.5;
-            float phase2 = sin(v * 3.14159 + ct + 2.094) * 0.5 + 0.5;
-            float phase3 = sin(v * 3.14159 + ct + 4.189) * 0.5 + 0.5;
+        // Color cycling
+        float ct = u_time * u_color_speed;
+        float phase1 = sin(v * 3.14159 + ct) * 0.5 + 0.5;
+        float phase2 = sin(v * 3.14159 + ct + 2.094) * 0.5 + 0.5;
+        float phase3 = sin(v * 3.14159 + ct + 4.189) * 0.5 + 0.5;
 
-            // Mix the three colors based on phases
-            vec3 color = u_color1 * phase1 + u_color2 * phase2 + u_color3 * phase3;
-            color = clamp(color, 0.0, 1.0);
+        // Mix the three colors based on phases
+        vec3 color = u_color1 * phase1 + u_color2 * phase2 + u_color3 * phase3;
+        color = clamp(color, 0.0, 1.0);
 
-            gl_FragColor = vec4(color, origColor.a);
-        }
+        gl_FragColor = vec4(color, origColor.a);
     """)
 
     # =========================================================================
@@ -103,30 +101,28 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-            vec2 position = v_tex_coord * u_scale;
+        vec4 origColor = texture2D(tex0, v_tex_coord);
+        vec2 position = v_tex_coord * u_scale;
 
-            float t = u_time * u_speed;
+        float t = u_time * u_speed;
 
-            // Original wave pattern
-            float color = 0.0;
-            color += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
-            color += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
-            color += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
-            color *= sin(t / 10.0) * 0.5;
+        // Original wave pattern
+        float color = 0.0;
+        color += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
+        color += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
+        color += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
+        color *= sin(t / 10.0) * 0.5;
 
-            // Original color formula with adjustable multipliers
-            vec3 rgb;
-            rgb.r = color * u_red_mult;
-            rgb.g = color * u_green_mult;
-            rgb.b = sin(color + t / 3.0 * u_blue_speed) * u_blue_mult;
+        // Original color formula with adjustable multipliers
+        vec3 rgb;
+        rgb.r = color * u_red_mult;
+        rgb.g = color * u_green_mult;
+        rgb.b = sin(color + t / 3.0 * u_blue_speed) * u_blue_mult;
 
-            // Normalize to visible range
-            rgb = rgb * 0.5 + 0.5;
+        // Normalize to visible range
+        rgb = rgb * 0.5 + 0.5;
 
-            gl_FragColor = vec4(rgb, origColor.a);
-        }
+        gl_FragColor = vec4(rgb, origColor.a);
     """)
 
     # =========================================================================
@@ -154,31 +150,29 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-            vec2 position = v_tex_coord * u_scale;
+        vec4 origColor = texture2D(tex0, v_tex_coord);
+        vec2 position = v_tex_coord * u_scale;
 
-            float t = u_time * u_speed;
+        float t = u_time * u_speed;
 
-            float value = 0.0;
-            value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
-            value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
-            value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
-            value *= sin(t / 10.0) * 0.5;
+        float value = 0.0;
+        value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
+        value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
+        value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
+        value *= sin(t / 10.0) * 0.5;
 
-            // Normalize to 0-1
-            float v = clamp(value * 0.25 + 0.5, 0.0, 1.0);
+        // Normalize to 0-1
+        float v = clamp(value * 0.25 + 0.5, 0.0, 1.0);
 
-            // Three-color gradient
-            vec3 color;
-            if (v < 0.5) {
-                color = mix(u_color_low, u_color_mid, v * 2.0);
-            } else {
-                color = mix(u_color_mid, u_color_high, (v - 0.5) * 2.0);
-            }
-
-            gl_FragColor = vec4(color, origColor.a);
+        // Three-color gradient
+        vec3 color;
+        if (v < 0.5) {
+            color = mix(u_color_low, u_color_mid, v * 2.0);
+        } else {
+            color = mix(u_color_mid, u_color_high, (v - 0.5) * 2.0);
         }
+
+        gl_FragColor = vec4(color, origColor.a);
     """)
 
     # =========================================================================
@@ -208,47 +202,45 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
+        vec4 origColor = texture2D(tex0, v_tex_coord);
 
-            if (origColor.a < 0.01) {
-                gl_FragColor = origColor;
-                return;
-            }
-
-            vec2 position = v_tex_coord * u_scale;
-            float t = u_time * u_speed;
-
-            float value = 0.0;
-            value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
-            value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
-            value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
-            value *= sin(t / 10.0) * 0.5;
-
-            float v = value * 0.5 + 0.5;
-            vec3 plasmaColor = mix(u_color1, u_color2, v);
-
-            // Blend modes
-            vec3 result;
-            if (u_blend_mode < 0.5) {
-                // Simple mix
-                result = mix(origColor.rgb, plasmaColor, u_opacity);
-            } else if (u_blend_mode < 1.5) {
-                // Screen
-                vec3 screened = 1.0 - (1.0 - origColor.rgb) * (1.0 - plasmaColor);
-                result = mix(origColor.rgb, screened, u_opacity);
-            } else if (u_blend_mode < 2.5) {
-                // Multiply
-                vec3 multiplied = origColor.rgb * plasmaColor;
-                result = mix(origColor.rgb, multiplied, u_opacity);
-            } else {
-                // Additive
-                result = origColor.rgb + plasmaColor * u_opacity;
-                result = clamp(result, 0.0, 1.0);
-            }
-
-            gl_FragColor = vec4(result, origColor.a);
+        if (origColor.a < 0.01) {
+            gl_FragColor = origColor;
+            return;
         }
+
+        vec2 position = v_tex_coord * u_scale;
+        float t = u_time * u_speed;
+
+        float value = 0.0;
+        value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
+        value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
+        value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
+        value *= sin(t / 10.0) * 0.5;
+
+        float v = value * 0.5 + 0.5;
+        vec3 plasmaColor = mix(u_color1, u_color2, v);
+
+        // Blend modes
+        vec3 result;
+        if (u_blend_mode < 0.5) {
+            // Simple mix
+            result = mix(origColor.rgb, plasmaColor, u_opacity);
+        } else if (u_blend_mode < 1.5) {
+            // Screen
+            vec3 screened = 1.0 - (1.0 - origColor.rgb) * (1.0 - plasmaColor);
+            result = mix(origColor.rgb, screened, u_opacity);
+        } else if (u_blend_mode < 2.5) {
+            // Multiply
+            vec3 multiplied = origColor.rgb * plasmaColor;
+            result = mix(origColor.rgb, multiplied, u_opacity);
+        } else {
+            // Additive
+            result = origColor.rgb + plasmaColor * u_opacity;
+            result = clamp(result, 0.0, 1.0);
+        }
+
+        gl_FragColor = vec4(result, origColor.a);
     """)
 
     # =========================================================================
@@ -272,32 +264,30 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        void main() {
-            vec4 origColor = texture2D(tex0, v_tex_coord);
-            vec2 position = v_tex_coord * u_scale;
+        vec4 origColor = texture2D(tex0, v_tex_coord);
+        vec2 position = v_tex_coord * u_scale;
 
-            float t = u_time * u_speed;
+        float t = u_time * u_speed;
 
-            float value = 0.0;
-            value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
-            value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
-            value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
-            value *= sin(t / 10.0) * 0.5;
+        float value = 0.0;
+        value += sin(position.x * cos(t / 15.0) * 80.0) + cos(position.y * cos(t / 15.0) * 10.0);
+        value += sin(position.y * sin(t / 10.0) * 40.0) + cos(position.x * sin(t / 25.0) * 40.0);
+        value += sin(position.x * sin(t / 5.0) * 10.0) + sin(position.y * sin(t / 35.0) * 80.0);
+        value *= sin(t / 10.0) * 0.5;
 
-            float v = clamp((value * 0.5 + 0.5) * u_intensity, 0.0, 1.0);
+        float v = clamp((value * 0.5 + 0.5) * u_intensity, 0.0, 1.0);
 
-            // Fire gradient: black -> red -> orange -> yellow -> white
-            vec3 color;
-            if (v < 0.25) {
-                color = mix(vec3(0.0, 0.0, 0.0), vec3(0.5, 0.0, 0.0), v * 4.0);
-            } else if (v < 0.5) {
-                color = mix(vec3(0.5, 0.0, 0.0), vec3(1.0, 0.3, 0.0), (v - 0.25) * 4.0);
-            } else if (v < 0.75) {
-                color = mix(vec3(1.0, 0.3, 0.0), vec3(1.0, 0.8, 0.0), (v - 0.5) * 4.0);
-            } else {
-                color = mix(vec3(1.0, 0.8, 0.0), vec3(1.0, 1.0, 0.8), (v - 0.75) * 4.0);
-            }
-
-            gl_FragColor = vec4(color, origColor.a);
+        // Fire gradient: black -> red -> orange -> yellow -> white
+        vec3 color;
+        if (v < 0.25) {
+            color = mix(vec3(0.0, 0.0, 0.0), vec3(0.5, 0.0, 0.0), v * 4.0);
+        } else if (v < 0.5) {
+            color = mix(vec3(0.5, 0.0, 0.0), vec3(1.0, 0.3, 0.0), (v - 0.25) * 4.0);
+        } else if (v < 0.75) {
+            color = mix(vec3(1.0, 0.3, 0.0), vec3(1.0, 0.8, 0.0), (v - 0.5) * 4.0);
+        } else {
+            color = mix(vec3(1.0, 0.8, 0.0), vec3(1.0, 1.0, 0.8), (v - 0.75) * 4.0);
         }
+
+        gl_FragColor = vec4(color, origColor.a);
     """)
