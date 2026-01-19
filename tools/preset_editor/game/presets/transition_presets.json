@@ -17,6 +17,9 @@
     },
     "presets": {
         "_comment_entrances": "========== ENTRANCE PRESETS ==========",
+        "_comment_exits": "========== EXIT PRESETS ==========",
+        "_comment_special": "========== SPECIAL PRESETS ==========",
+        "_comment_positions": "========== POSITION PRESETS (using xalign) ==========",
         "slide_left_enter": {
             "start_position": {
                 "xoffset": -300
@@ -170,7 +173,6 @@
             "duration": 0.7,
             "easing": "easeout"
         },
-        "_comment_exits": "========== EXIT PRESETS ==========",
         "slide_left_exit": {
             "start_position": {
                 "xoffset": 0
@@ -287,7 +289,6 @@
             "duration": 0.4,
             "easing": "linear"
         },
-        "_comment_special": "========== SPECIAL PRESETS ==========",
         "bounce_enter": {
             "start_position": {
                 "yoffset": -100
@@ -336,7 +337,6 @@
             "duration": 0.4,
             "easing": "easeout"
         },
-        "_comment_positions": "========== POSITION PRESETS (using xalign) ==========",
         "move_to_left": {
             "start_position": {
                 "xalign": 0.5

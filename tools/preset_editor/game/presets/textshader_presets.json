@@ -45,6 +45,10 @@
     },
     "presets": {
         "_comment_basic": "========== BASIC TEXT STYLES (no shader) ==========",
+        "_comment_typewriter": "========== TYPEWRITER STYLES ==========",
+        "_comment_wave": "========== WAVE EFFECTS ==========",
+        "_comment_jitter": "========== JITTER EFFECTS ==========",
+        "_comment_special": "========== SPECIAL CHARACTER STYLES ==========",
         "default": {
             "shader": null,
             "shader_params": {},
@@ -133,7 +137,6 @@
                 "italic": false
             }
         },
-        "_comment_typewriter": "========== TYPEWRITER STYLES ==========",
         "typewriter_slow": {
             "shader": "typewriter",
             "shader_params": {},
@@ -178,7 +181,6 @@
                 "italic": false
             }
         },
-        "_comment_wave": "========== WAVE EFFECTS ==========",
         "wave_gentle": {
             "shader": "wave",
             "shader_params": {
@@ -229,7 +231,6 @@
                 "italic": true
             }
         },
-        "_comment_jitter": "========== JITTER EFFECTS ==========",
         "jitter_nervous": {
             "shader": "jitter",
             "shader_params": {
@@ -278,7 +279,6 @@
                 "italic": false
             }
         },
-        "_comment_special": "========== SPECIAL CHARACTER STYLES ==========",
         "whisper": {
             "shader": "dissolve",
             "shader_params": {},
@@ -371,28 +371,6 @@
                 "slow_cps": 15,
                 "bold": false,
                 "italic": true
-            }
-        },
-        "text_style": {
-            "shader": null,
-            "shader_params": {},
-            "text": {
-                "font": "DejaVuSans.ttf",
-                "size": 28,
-                "color": "#FFFFFF",
-                "outlines": [
-                    [
-                        2,
-                        "#000000",
-                        0,
-                        0
-                    ]
-                ],
-                "kerning": 0.0,
-                "line_spacing": 0,
-                "slow_cps": 30,
-                "bold": false,
-                "italic": false
             }
         }
     }
