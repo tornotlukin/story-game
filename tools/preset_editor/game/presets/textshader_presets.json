@@ -1,0 +1,399 @@
+{
+    "_comment": "Text Shader Presets - Complete text styling loaded by textshader_generator.rpy",
+    "_version": "1.0",
+    "_usage": "Applied via style or Character definition",
+    "_schema": {
+        "shader": "Text shader name (wave, jitter, typewriter, etc.) or null for no shader",
+        "shader_params": "Parameters for the text shader (u_amplitude, u_speed, etc.)",
+        "text": {
+            "font": "Font file path relative to game directory",
+            "size": "Font size in pixels",
+            "color": "Text color in hex format (#RRGGBB)",
+            "outlines": "List of outlines: [[size, color, x_offset, y_offset], ...]",
+            "kerning": "Letter spacing adjustment in pixels",
+            "line_spacing": "Extra space between lines in pixels",
+            "slow_cps": "Characters per second for typewriter effect (0 = instant)",
+            "bold": "true/false",
+            "italic": "true/false"
+        }
+    },
+    "_available_shaders": [
+        "null (no shader - text styling only)",
+        "dissolve - Fade in character by character",
+        "flip - Flip characters as they appear",
+        "jitter - Shake/vibrate characters",
+        "linetexture - Apply texture to text",
+        "offset - Offset text position",
+        "slowalpha - Slow alpha fade during display",
+        "texture - Apply texture overlay",
+        "typewriter - Classic typewriter reveal",
+        "wave - Sine wave displacement",
+        "zoom - Zoom in characters as they appear"
+    ],
+    "defaults": {
+        "text": {
+            "font": "DejaVuSans.ttf",
+            "size": 28,
+            "color": "#FFFFFF",
+            "outlines": [],
+            "kerning": 0.0,
+            "line_spacing": 0,
+            "slow_cps": 0,
+            "bold": false,
+            "italic": false
+        }
+    },
+    "presets": {
+        "_comment_basic": "========== BASIC TEXT STYLES (no shader) ==========",
+        "default": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FFFFFF",
+                "outlines": [
+                    [
+                        2,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 30,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "narrator": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 26,
+                "color": "#CCCCCC",
+                "outlines": [
+                    [
+                        1,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 2,
+                "slow_cps": 40,
+                "bold": false,
+                "italic": true
+            }
+        },
+        "thoughts": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 26,
+                "color": "#B0B0B0",
+                "outlines": [
+                    [
+                        1,
+                        "#333333",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.5,
+                "line_spacing": 0,
+                "slow_cps": 25,
+                "bold": false,
+                "italic": true
+            }
+        },
+        "shouting": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 32,
+                "color": "#FFFF00",
+                "outlines": [
+                    [
+                        3,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 1.0,
+                "line_spacing": 0,
+                "slow_cps": 60,
+                "bold": true,
+                "italic": false
+            }
+        },
+        "_comment_typewriter": "========== TYPEWRITER STYLES ==========",
+        "typewriter_slow": {
+            "shader": "typewriter",
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FFFFFF",
+                "outlines": [
+                    [
+                        2,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 15,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "typewriter_fast": {
+            "shader": "typewriter",
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FFFFFF",
+                "outlines": [
+                    [
+                        2,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 80,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "_comment_wave": "========== WAVE EFFECTS ==========",
+        "wave_gentle": {
+            "shader": "wave",
+            "shader_params": {
+                "u_wave_amplitude": 2.0,
+                "u_wave_frequency": 4.0
+            },
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#88CCFF",
+                "outlines": [
+                    [
+                        2,
+                        "#003366",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 30,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "wave_dreamy": {
+            "shader": "wave",
+            "shader_params": {
+                "u_wave_amplitude": 3.0,
+                "u_wave_frequency": 2.0
+            },
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 26,
+                "color": "#DDAAFF",
+                "outlines": [
+                    [
+                        2,
+                        "#440066",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.5,
+                "line_spacing": 2,
+                "slow_cps": 20,
+                "bold": false,
+                "italic": true
+            }
+        },
+        "_comment_jitter": "========== JITTER EFFECTS ==========",
+        "jitter_nervous": {
+            "shader": "jitter",
+            "shader_params": {
+                "u_jitter_amount": 1.5
+            },
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FFCCCC",
+                "outlines": [
+                    [
+                        2,
+                        "#660000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 35,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "jitter_terrified": {
+            "shader": "jitter",
+            "shader_params": {
+                "u_jitter_amount": 4.0
+            },
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 30,
+                "color": "#FF8888",
+                "outlines": [
+                    [
+                        3,
+                        "#440000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.5,
+                "line_spacing": 0,
+                "slow_cps": 50,
+                "bold": true,
+                "italic": false
+            }
+        },
+        "_comment_special": "========== SPECIAL CHARACTER STYLES ==========",
+        "whisper": {
+            "shader": "dissolve",
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 22,
+                "color": "#888888",
+                "outlines": [
+                    [
+                        1,
+                        "#222222",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 20,
+                "bold": false,
+                "italic": true
+            }
+        },
+        "villain": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FF4444",
+                "outlines": [
+                    [
+                        2,
+                        "#220000",
+                        0,
+                        0
+                    ],
+                    [
+                        4,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.5,
+                "line_spacing": 0,
+                "slow_cps": 25,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "robot": {
+            "shader": "typewriter",
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 26,
+                "color": "#00FF88",
+                "outlines": [
+                    [
+                        2,
+                        "#003322",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 2.0,
+                "line_spacing": 0,
+                "slow_cps": 50,
+                "bold": false,
+                "italic": false
+            }
+        },
+        "ghost": {
+            "shader": "dissolve",
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 26,
+                "color": "#AACCFF",
+                "outlines": [
+                    [
+                        3,
+                        "#223344",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 2,
+                "slow_cps": 15,
+                "bold": false,
+                "italic": true
+            }
+        },
+        "text_style": {
+            "shader": null,
+            "shader_params": {},
+            "text": {
+                "font": "DejaVuSans.ttf",
+                "size": 28,
+                "color": "#FFFFFF",
+                "outlines": [
+                    [
+                        2,
+                        "#000000",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 30,
+                "bold": false,
+                "italic": false
+            }
+        }
+    }
+}

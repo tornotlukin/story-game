@@ -301,3 +301,234 @@ def parse_shaders(shader_dir: str) -> List[ShaderDefinition]:
     """Parse all shaders in a directory."""
     parser = ShaderParser()
     return parser.parse_directory(shader_dir)
+
+
+# =============================================================================
+# Text Shader Parser
+# =============================================================================
+
+@dataclass
+class TextShaderDefinition:
+    """Complete text shader definition parsed from .rpy file."""
+    name: str  # e.g., "rainbow"
+    category: str = "Uncategorized"
+    description: str = ""
+    file_description: str = ""
+    params: List[ShaderParam] = field(default_factory=list)
+    source_file: str = ""
+    line_number: int = 0
+    is_animated: bool = False
+
+
+class TextShaderParser:
+    """
+    Parses text shader .rpy files to extract text shader definitions.
+
+    Usage:
+        parser = TextShaderParser()
+        shaders = parser.parse_directory("game/text_shader")
+        for shader in shaders:
+            print(f"{shader.name}: {shader.description}")
+    """
+
+    def __init__(self):
+        self.text_shaders: Dict[str, TextShaderDefinition] = {}
+
+    def parse_directory(self, shader_dir: str) -> List[TextShaderDefinition]:
+        """
+        Parse all .rpy files in a directory for text shader definitions.
+
+        Args:
+            shader_dir: Path to text shader directory
+
+        Returns:
+            List of TextShaderDefinition objects
+        """
+        self.text_shaders = {}
+        shader_path = Path(shader_dir)
+
+        if not shader_path.exists():
+            print(f"TextShaderParser: Directory not found: {shader_dir}")
+            return []
+
+        for rpy_file in shader_path.glob("*.rpy"):
+            self._parse_file(str(rpy_file))
+
+        return list(self.text_shaders.values())
+
+    def parse_file(self, filepath: str) -> List[TextShaderDefinition]:
+        """Parse a single .rpy file."""
+        self.text_shaders = {}
+        self._parse_file(filepath)
+        return list(self.text_shaders.values())
+
+    def _parse_file(self, filepath: str):
+        """Internal method to parse a single file."""
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+                lines = content.split('\n')
+        except Exception as e:
+            print(f"TextShaderParser: Error reading {filepath}: {e}")
+            return
+
+        filename = os.path.basename(filepath)
+
+        # File-level metadata
+        file_category = "Custom"
+        file_description = ""
+        file_natural_description = ""
+
+        # Extract natural language description from lines 3-5
+        desc_lines = []
+        for i in range(2, min(5, len(lines))):
+            line = lines[i].strip()
+            if line == "##" or line.startswith("## @") or not line.startswith("##"):
+                break
+            text = line[2:].strip()
+            if text:
+                desc_lines.append(text)
+        file_natural_description = " ".join(desc_lines)
+
+        # Parse file-level annotations
+        for line in lines[:20]:
+            line = line.strip()
+            if line.startswith("## @tool-category:"):
+                file_category = line.split(":", 1)[1].strip()
+            elif line.startswith("## @tool-description:"):
+                file_description = line.split(":", 1)[1].strip()
+
+        # Find text shader definitions
+        current_shader = None
+        current_params = []
+
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+
+            # Check for @textshader annotation
+            if stripped.startswith("# @textshader:"):
+                # Save previous shader if exists
+                if current_shader:
+                    current_shader.params = current_params
+                    self.text_shaders[current_shader.name] = current_shader
+
+                shader_name = stripped.split(":", 1)[1].strip()
+                current_shader = TextShaderDefinition(
+                    name=shader_name,
+                    category=file_category,
+                    description=file_description,
+                    file_description=file_natural_description,
+                    source_file=filename,
+                    line_number=i + 1
+                )
+                current_params = []
+
+            # Check for @param annotation
+            elif stripped.startswith("# @param") and current_shader:
+                param = self._parse_param_line(stripped)
+                if param:
+                    current_params.append(param)
+
+            # Check for @animated annotation
+            elif stripped.startswith("# @animated") and current_shader:
+                current_shader.is_animated = True
+
+            # Check for @description (shader-level)
+            elif stripped.startswith("# @description:") and current_shader:
+                current_shader.description = stripped.split(":", 1)[1].strip()
+
+            # Also detect renpy.register_textshader() calls directly
+            elif 'renpy.register_textshader(' in stripped:
+                shader_name = self._extract_textshader_name(stripped)
+                if shader_name and shader_name not in self.text_shaders:
+                    shader_def = TextShaderDefinition(
+                        name=shader_name,
+                        category=file_category,
+                        description="",
+                        file_description=file_natural_description,
+                        source_file=filename,
+                        line_number=i + 1
+                    )
+                    self.text_shaders[shader_name] = shader_def
+
+        # Save last annotated shader
+        if current_shader:
+            current_shader.params = current_params
+            self.text_shaders[current_shader.name] = current_shader
+
+    def _extract_textshader_name(self, line: str) -> Optional[str]:
+        """Extract text shader name from renpy.register_textshader() call."""
+        match = re.search(r'renpy\.register_textshader\s*\(\s*["\']([^"\']+)["\']', line)
+        if match:
+            return match.group(1)
+        return None
+
+    def _parse_param_line(self, line: str) -> Optional[ShaderParam]:
+        """Parse a @param annotation line (same format as image shaders)."""
+        content = line.replace("# @param", "").strip()
+
+        if ":" not in content:
+            return None
+
+        name_part, attrs_part = content.split(":", 1)
+        name = name_part.strip()
+
+        attrs = {}
+        param_type = "float"
+
+        for attr in attrs_part.split(","):
+            attr = attr.strip()
+            if "=" in attr:
+                key, value = attr.split("=", 1)
+                attrs[key.strip()] = value.strip()
+            else:
+                param_type = attr.strip()
+
+        param = ShaderParam(name=name, param_type=param_type)
+
+        if "default" in attrs:
+            default_str = attrs["default"]
+            if param_type == "color":
+                param.default = default_str
+            elif param_type == "float":
+                try:
+                    param.default = float(default_str)
+                except:
+                    param.default = 0.0
+            elif param_type == "int":
+                try:
+                    param.default = int(default_str)
+                except:
+                    param.default = 0
+            else:
+                param.default = default_str
+
+        if "range" in attrs:
+            range_str = attrs["range"]
+            if "-" in range_str:
+                parts = range_str.split("-")
+                if len(parts) == 2:
+                    try:
+                        param.min_value = float(parts[0])
+                        param.max_value = float(parts[1])
+                    except:
+                        pass
+
+        if "description" in attrs:
+            param.description = attrs["description"]
+
+        return param
+
+    def get_text_shader(self, name: str) -> Optional[TextShaderDefinition]:
+        """Get a text shader definition by name."""
+        return self.text_shaders.get(name)
+
+    def list_available_text_shaders(self) -> List[str]:
+        """Get list of all available text shader names."""
+        return list(self.text_shaders.keys())
+
+
+def parse_text_shaders(shader_dir: str) -> List[TextShaderDefinition]:
+    """Parse all text shaders in a directory."""
+    parser = TextShaderParser()
+    return parser.parse_directory(shader_dir)

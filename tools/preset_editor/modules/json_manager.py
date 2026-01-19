@@ -17,6 +17,7 @@ class UndoState:
     """Snapshot of JSON data for undo/redo."""
     transition_data: Dict
     shader_data: Dict
+    textshader_data: Dict = field(default_factory=dict)
     description: str = ""
 
 
@@ -36,9 +37,11 @@ class JsonManager:
     def __init__(self):
         self.transition_path: str = ""
         self.shader_path: str = ""
+        self.textshader_path: str = ""
 
         self.transition_data: Dict = {}
         self.shader_data: Dict = {}
+        self.textshader_data: Dict = {}
 
         self.undo_stack: List[UndoState] = []
         self.redo_stack: List[UndoState] = []
@@ -46,13 +49,14 @@ class JsonManager:
         self._auto_save = True
         self._on_change_callbacks: List[Callable] = []
 
-    def set_paths(self, transition_path: str, shader_path: str):
+    def set_paths(self, transition_path: str, shader_path: str, textshader_path: str = ""):
         """Set the paths to JSON files."""
         self.transition_path = transition_path
         self.shader_path = shader_path
+        self.textshader_path = textshader_path
 
     def load(self) -> bool:
-        """Load both JSON files."""
+        """Load all JSON files."""
         success = True
 
         if self.transition_path:
@@ -63,6 +67,11 @@ class JsonManager:
         if self.shader_path:
             self.shader_data = self._load_json(self.shader_path)
             if not self.shader_data:
+                success = False
+
+        if self.textshader_path:
+            self.textshader_data = self._load_json(self.textshader_path)
+            if not self.textshader_data:
                 success = False
 
         # Clear undo/redo on load
@@ -87,20 +96,24 @@ class JsonManager:
             print(f"JsonManager: Error loading {filepath}: {e}")
             return {}
 
-    def save(self, which: str = "both") -> bool:
+    def save(self, which: str = "all") -> bool:
         """Save JSON files.
 
         Args:
-            which: "transition", "shader", or "both"
+            which: "transition", "shader", "textshader", or "all"
         """
         success = True
 
-        if which in ("transition", "both") and self.transition_path:
+        if which in ("transition", "all", "both") and self.transition_path:
             if not self._save_json(self.transition_path, self.transition_data):
                 success = False
 
-        if which in ("shader", "both") and self.shader_path:
+        if which in ("shader", "all", "both") and self.shader_path:
             if not self._save_json(self.shader_path, self.shader_data):
+                success = False
+
+        if which in ("textshader", "all") and self.textshader_path:
+            if not self._save_json(self.textshader_path, self.textshader_data):
                 success = False
 
         return success
@@ -150,6 +163,7 @@ class JsonManager:
         state = UndoState(
             transition_data=copy.deepcopy(self.transition_data),
             shader_data=copy.deepcopy(self.shader_data),
+            textshader_data=copy.deepcopy(self.textshader_data),
             description=description
         )
         self.undo_stack.append(state)
@@ -169,7 +183,8 @@ class JsonManager:
         # Push current state to redo
         current = UndoState(
             transition_data=copy.deepcopy(self.transition_data),
-            shader_data=copy.deepcopy(self.shader_data)
+            shader_data=copy.deepcopy(self.shader_data),
+            textshader_data=copy.deepcopy(self.textshader_data)
         )
         self.redo_stack.append(current)
 
@@ -177,6 +192,7 @@ class JsonManager:
         prev = self.undo_stack.pop()
         self.transition_data = prev.transition_data
         self.shader_data = prev.shader_data
+        self.textshader_data = prev.textshader_data
 
         if self._auto_save:
             self.save()
@@ -192,7 +208,8 @@ class JsonManager:
         # Push current state to undo
         current = UndoState(
             transition_data=copy.deepcopy(self.transition_data),
-            shader_data=copy.deepcopy(self.shader_data)
+            shader_data=copy.deepcopy(self.shader_data),
+            textshader_data=copy.deepcopy(self.textshader_data)
         )
         self.undo_stack.append(current)
 
@@ -200,6 +217,7 @@ class JsonManager:
         next_state = self.redo_stack.pop()
         self.transition_data = next_state.transition_data
         self.shader_data = next_state.shader_data
+        self.textshader_data = next_state.textshader_data
 
         if self._auto_save:
             self.save()
@@ -512,6 +530,159 @@ class JsonManager:
                 new_presets[name] = old_presets[name]
 
         self.shader_data["shader_presets"] = new_presets
+
+    # =========================================================================
+    # Text Shader Presets
+    # =========================================================================
+
+    def get_textshader_names(self) -> List[str]:
+        """Get list of text shader preset names (excluding comments)."""
+        presets = self.textshader_data.get("presets", {})
+        if not presets:
+            return []
+        return [k for k in presets.keys() if k and not k.startswith("_")]
+
+    def get_textshader(self, name: str) -> Optional[Dict]:
+        """Get a text shader preset by name."""
+        return self.textshader_data.get("presets", {}).get(name)
+
+    def set_textshader(self, name: str, data: Dict, push_undo: bool = True):
+        """Set/update a text shader preset."""
+        if push_undo:
+            self.push_undo(f"Edit text shader: {name}")
+
+        if "presets" not in self.textshader_data:
+            self.textshader_data["presets"] = {}
+
+        self.textshader_data["presets"][name] = data
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+
+    def add_textshader(self, name: str, data: Dict):
+        """Add a new text shader preset."""
+        self.push_undo(f"Add text shader: {name}")
+
+        if "presets" not in self.textshader_data:
+            self.textshader_data["presets"] = {}
+
+        self.textshader_data["presets"][name] = data
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+
+    def delete_textshader(self, name: str):
+        """Delete a text shader preset."""
+        if name in self.textshader_data.get("presets", {}):
+            self.push_undo(f"Delete text shader: {name}")
+            del self.textshader_data["presets"][name]
+
+            if self._auto_save:
+                self.save("textshader")
+            self._notify_change()
+
+    def delete_textshaders(self, names: List[str]):
+        """Delete multiple text shader presets."""
+        if not names:
+            return
+
+        self.push_undo(f"Delete {len(names)} text shaders")
+
+        for name in names:
+            if name in self.textshader_data.get("presets", {}):
+                del self.textshader_data["presets"][name]
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+
+    def rename_textshader(self, old_name: str, new_name: str) -> bool:
+        """Rename a text shader preset."""
+        presets = self.textshader_data.get("presets", {})
+        if old_name not in presets or new_name in presets:
+            return False
+
+        self.push_undo(f"Rename text shader: {old_name} -> {new_name}")
+
+        presets[new_name] = presets.pop(old_name)
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+        return True
+
+    def duplicate_textshader(self, name: str, new_name: str) -> bool:
+        """Duplicate a text shader preset."""
+        presets = self.textshader_data.get("presets", {})
+        if name not in presets:
+            return False
+
+        self.push_undo(f"Duplicate text shader: {name}")
+
+        presets[new_name] = copy.deepcopy(presets[name])
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+        return True
+
+    def move_textshader(self, name: str, direction: str) -> bool:
+        """Move a text shader in the list order."""
+        names = self.get_textshader_names()
+        if name not in names:
+            return False
+
+        idx = names.index(name)
+
+        if direction == 'top' and idx > 0:
+            names.remove(name)
+            names.insert(0, name)
+        elif direction == 'up' and idx > 0:
+            names[idx], names[idx - 1] = names[idx - 1], names[idx]
+        elif direction == 'down' and idx < len(names) - 1:
+            names[idx], names[idx + 1] = names[idx + 1], names[idx]
+        elif direction == 'bottom' and idx < len(names) - 1:
+            names.remove(name)
+            names.append(name)
+        else:
+            return False
+
+        self.push_undo(f"Move text shader {direction}: {name}")
+        self._reorder_textshaders(names)
+
+        if self._auto_save:
+            self.save("textshader")
+        self._notify_change()
+        return True
+
+    def _reorder_textshaders(self, new_order: List[str]):
+        """Reorder text shaders to match the given list."""
+        old_presets = self.textshader_data.get("presets", {})
+        new_presets = {}
+
+        # Preserve comment keys
+        for key in old_presets:
+            if key.startswith("_"):
+                new_presets[key] = old_presets[key]
+
+        # Add presets in new order
+        for name in new_order:
+            if name in old_presets:
+                new_presets[name] = old_presets[name]
+
+        self.textshader_data["presets"] = new_presets
+
+    def get_unique_textshader_name(self, base: str = "new_text_preset") -> str:
+        """Generate a unique text shader preset name."""
+        existing = self.get_textshader_names()
+        name = base
+        counter = 1
+        while name in existing:
+            name = f"{base}_{counter}"
+            counter += 1
+        return name
 
     # =========================================================================
     # Change Notifications
