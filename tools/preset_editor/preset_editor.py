@@ -3,9 +3,9 @@
 Preset Editor - Dear PyGui tool for managing Ren'Py preset JSON files
 
 Features:
-- Three tabs: Transitions, Shaders, Text Shaders
-- Three modes per tab: Builder, Manager, JSON
-- Export Demo modal for testing presets
+- Four tabs: Transitions, Shaders, Text Shaders, Demo
+- Three modes per preset tab: Builder, Manager, JSON
+- Demo tab for testing preset combinations
 - Shader .rpy file parsing
 - Live JSON updates with undo/redo
 - Multi-select (Ctrl+click, Shift+click)
@@ -38,11 +38,12 @@ from tabs import (
     refresh_shader_ui,
     init_textshader_tab, setup_textshader_tab,
     refresh_textshader_ui,
+    init_demo_tab, setup_demo_tab,
+    refresh_demo_tab,
 )
 
 # Import modal modules
 from modals import (
-    init_demo_modal, show_export_demo_modal,
     init_settings_modal, show_settings_modal,
 )
 
@@ -234,6 +235,7 @@ def refresh_all():
     refresh_transition_ui()
     refresh_shader_ui()
     refresh_textshader_ui()
+    refresh_demo_tab()
     update_status_bar()
 
 
@@ -268,9 +270,6 @@ def setup_ui():
             dpg.add_menu_item(label="Redo", callback=lambda: (app.json_mgr.redo(), refresh_all()),
                             shortcut="Ctrl+Y")
 
-        with dpg.menu(label="Tools"):
-            dpg.add_menu_item(label="Export Demo...", callback=show_export_demo_modal)
-
     # Main window
     with dpg.window(tag="primary_window"):
         # Add spacing below menu bar
@@ -281,6 +280,7 @@ def setup_ui():
             setup_transition_tab(tab_bar)
             setup_shader_tab(tab_bar)
             setup_textshader_tab(tab_bar)
+            setup_demo_tab(tab_bar)
 
         # Status bar at bottom
         dpg.add_separator()
@@ -332,9 +332,9 @@ def main():
     init_transition_tab(app, EditorMode, update_status_bar)
     init_shader_tab(app, EditorMode, update_status_bar)
     init_textshader_tab(app, EditorMode, update_status_bar)
+    init_demo_tab(app, refresh_all)
 
     # Initialize modal modules
-    init_demo_modal(app, refresh_all)
     init_settings_modal(app, refresh_all)
 
     # Build UI

@@ -22,10 +22,12 @@ init python:
 
     # @shader: shader.retro_pixelate
     # @description: Pixelation/mosaic effect with optional smoothing and rectangular pixels
-    # @param u_pixel_w: float, range=2.0-64.0, default=8.0, description=Pixel width in screen pixels
-    # @param u_pixel_h: float, range=2.0-64.0, default=8.0, description=Pixel height in screen pixels (0 = same as width)
+    # @param u_pixel_size: float, range=2.0-64.0, default=8.0, description=Pixel size for square pixels (use this OR u_pixel_w/h)
+    # @param u_pixel_w: float, range=2.0-64.0, default=0.0, description=Pixel width (optional, overrides u_pixel_size)
+    # @param u_pixel_h: float, range=2.0-64.0, default=0.0, description=Pixel height (optional, 0 = same as width)
     # @param u_smooth: float, range=0.0-1.0, default=0.0, description=Smoothing (0 = crisp/aliased, 1 = anti-aliased)
     renpy.register_shader("shader.retro_pixelate", variables="""
+        uniform float u_pixel_size;
         uniform float u_pixel_w;
         uniform float u_pixel_h;
         uniform float u_smooth;
@@ -36,8 +38,9 @@ init python:
     """, vertex_300="""
         v_tex_coord = a_tex_coord;
     """, fragment_300="""
-        // Get pixel dimensions (use width for height if height is 0 or not set)
-        float pixelW = max(2.0, u_pixel_w);
+        // Get pixel dimensions - prefer u_pixel_w/h, fallback to u_pixel_size
+        float baseSize = max(2.0, u_pixel_size);
+        float pixelW = u_pixel_w > 0.0 ? max(2.0, u_pixel_w) : baseSize;
         float pixelH = u_pixel_h > 0.0 ? max(2.0, u_pixel_h) : pixelW;
         vec2 pixelSize = vec2(pixelW, pixelH);
 

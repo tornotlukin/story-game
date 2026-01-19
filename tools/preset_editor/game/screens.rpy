@@ -79,9 +79,13 @@ style namebox:
     background "#333333"
     padding (10, 5, 10, 5)
 
-style say_dialogue:
+style say_what:
     color "#ffffff"
     size 28
+
+style say_who:
+    color "#ffcc00"
+    size 32
 
 style choice_vbox:
     xalign 0.5

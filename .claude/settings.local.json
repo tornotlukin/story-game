@@ -12,7 +12,8 @@
       "Bash(copy:*)",
       "Bash(cmd /c copy \"C:\\\\Work\\\\story-game\\\\game\\\\shader\\\\shader_weather.rpy\" \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\\\\shader\\\\shader_weather.rpy\")",
       "Bash(cmd /c type \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\\\\shader\\\\shader_weather.rpy\")",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(head:*)"
     ]
   }
 }

@@ -37,6 +37,12 @@ from .textshader_tab import (
     add_new_textshader,
 )
 
+from .demo_tab import (
+    init_demo_tab,
+    setup_demo_tab,
+    refresh_demo_tab,
+)
+
 __all__ = [
     # Transition
     'init_transition_tab',
@@ -65,4 +71,8 @@ __all__ = [
     'refresh_textshader_json',
     'switch_textshader_mode',
     'add_new_textshader',
+    # Demo
+    'init_demo_tab',
+    'setup_demo_tab',
+    'refresh_demo_tab',
 ]

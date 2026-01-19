@@ -10,5 +10,9 @@ image bg_demo = im.Scale("images/bg_demo.png", 1080, 1920)
 # Character image
 image char_demo = "images/char_demo.png"
 
+# Dialog box image for demo - scaled to proper dialog dimensions
+# Width: 1000px (leaves margins on 1080 screen), Height: 250px (typical dialog box)
+image dialog_demo = im.Scale("images/dialog_demo.png", 1000, 250)
+
 label start:
     jump preset_demo
