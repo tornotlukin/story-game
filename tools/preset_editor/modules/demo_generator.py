@@ -60,16 +60,12 @@ class DemoItem:
 
             params = self._text_shader_info.get("shader_params", {})
             if params:
-                # Build parameter string: "wave:amplitude=5.0:frequency=2.0"
+                # Build parameter string: "wave:u__amplitude=5.0:u__frequency=2.0"
+                # IMPORTANT: Keep u__ prefix for shader local variables!
+                # Ren'Py only auto-adds single u_, so u__vars must be explicit
                 param_parts = []
                 for key, value in params.items():
-                    # Remove u_ or u__ prefix for cleaner tag syntax
-                    clean_key = key
-                    if clean_key.startswith("u__"):
-                        clean_key = clean_key[3:]
-                    elif clean_key.startswith("u_"):
-                        clean_key = clean_key[2:]
-                    param_parts.append(f"{clean_key}={value}")
+                    param_parts.append(f"{key}={value}")
                 return f"{{shader={shader_name}:{':'.join(param_parts)}}}"
             else:
                 return f"{{shader={shader_name}}}"

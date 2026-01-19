@@ -16,7 +16,7 @@ label preset_demo:
             show dialog_demo at preset_spin_enter(), shader_glitch_light:
                 xalign 0.5
                 yalign 0.9
-            "Sample dialogue text for testing presets."
+            "{shader=wave:u__amplitude=3.0:u__frequency=2.0}Sample dialogue text for testing presets.{/shader}"
             hide dialog_demo with dissolve
             jump preset_demo
 

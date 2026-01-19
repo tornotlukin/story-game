@@ -160,9 +160,9 @@ init -5 python:
             print(f"TextShaderGenerator: Registered {count} text styles")
 
 
-# Global instance
-default textshader_gen = TextShaderGenerator()
-
 # Register all styles at init 1 (after styles are available)
 init 1 python:
-    textshader_gen.register_all_styles()
+    # Create instance and register styles
+    # Instance created here because it needs to be in same scope as register call
+    _ts_gen = TextShaderGenerator()
+    _ts_gen.register_all_styles()
