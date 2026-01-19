@@ -240,15 +240,22 @@ class DemoGenerator:
             lines.append(f'        "{i+1}. {menu_label}":')
 
             if self.apply_to_dialog:
-                # Apply to dialog mode - show dialog image with effects, use native say for text
-                lines.append(f"            show {self.dialog_image} at {at_clause}:")
-                lines.append(f"                xalign 0.5")
-                lines.append(f"                yalign 0.9")
-                # Use Ren'Py's native say statement for text (shows in standard textbox)
+                # Apply to dialog mode - test text shaders on dialogue text
+                # Text shaders are separate from image shaders - they apply to say window text
+                # If transitions/shaders selected, show character with those first
+                has_image_effects = item.transition or item.shader
+
+                if has_image_effects:
+                    # Show character with transition/shader effects
+                    lines.append(f"            show {self.character_image} at {at_clause}")
+
+                # Show dialogue with text shader tags (say statement renders in say window)
                 lines.append(f'            "{dialogue_text}"')
-                lines.append(f"            hide {self.dialog_image} with dissolve")
+
+                if has_image_effects:
+                    lines.append(f"            hide {self.character_image} with dissolve")
             else:
-                # Standard mode - show character with effects
+                # Standard mode - show character with effects, no text shaders
                 lines.append(f"            show {self.character_image} at {at_clause}")
                 lines.append(f'            {self.character_name} "{dialogue_text}"')
                 lines.append(f"            pause 0.5")

@@ -96,5 +96,16 @@ python preset_editor.py
 
 1. Select presets from Transitions, Shaders, and/or Text Shaders columns
 2. Click "Add Selected" to create a demo item
-3. Click "Generate Demo" to create `preset_demo.rpy`
-4. Click "Run in Ren'Py" to test (also cleans `.rpyc` files)
+3. Click "Create Demo" to generate script and launch Ren'Py
+
+**Important**: "Apply to dialog" checkbox controls behavior:
+- **UNCHECKED**: Tests transitions + shaders on character image only. Text shaders column is disabled.
+- **CHECKED**: Tests transitions + shaders on dialog + text shaders on dialogue text.
+
+## Text Shaders vs Image Shaders
+
+These are **completely separate systems** in Ren'Py:
+- **Image/Transform Shaders**: Applied via `shader` transform property to displayables
+- **Text Shaders**: Applied via `textshader` style property or `{shader=name}` tags
+
+See `TEXT_SHADER_NOTES.md` for detailed technical documentation.
