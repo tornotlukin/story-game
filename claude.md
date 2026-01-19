@@ -22,6 +22,22 @@ This is a Ren'Py 8.5.2 interactive fiction project focused on **technical implem
 - **/doc/renpy** - folder location for renpy documentation
 - check out the claude.md file in the /docs folder for doc search methodology
 
+### IMPORTANT: Preset Editor Parity
+
+When making **mechanical/functional changes** to:
+- **Shaders** (`game/shader/*.rpy`)
+- **Presets** (`game/presets/*.rpy`, `game/presets/*.json`)
+- **Transitions** or visual tooling code
+
+**You MUST also update `tools/preset_editor/game/`** with the same changes.
+
+The preset editor has its own copy of shader and preset files for testing. These must stay in sync with the main game folder. Failure to maintain parity will cause the preset editor demo to break or behave differently than the actual game.
+
+**Files that require parity:**
+- `game/shader/*.rpy` ↔ `tools/preset_editor/game/shader/*.rpy`
+- `game/presets/*.rpy` ↔ `tools/preset_editor/game/presets/*.rpy`
+- `game/presets/*.json` ↔ `tools/preset_editor/game/presets/*.json`
+
 ## Directory Structure
 
 ```
