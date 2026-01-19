@@ -215,7 +215,7 @@
             "text": {
                 "font": "DejaVuSans.ttf",
                 "size": 26,
-                "color": "#DDAAFF",
+                "color": "#000000",
                 "outlines": [
                     [
                         2,
@@ -228,7 +228,7 @@
                 "line_spacing": 2,
                 "slow_cps": 20,
                 "bold": false,
-                "italic": true
+                "italic": false
             }
         },
         "jitter_nervous": {

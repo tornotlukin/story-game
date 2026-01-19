@@ -12,6 +12,8 @@ Text shader presets combine:
 """
 
 import dearpygui.dearpygui as dpg
+import os
+from pathlib import Path
 from typing import Any, List
 
 from modules.ui_components import (
@@ -80,6 +82,22 @@ def get_all_text_shaders() -> List[str]:
                 shaders.append(name)
 
     return shaders
+
+
+def get_available_fonts() -> List[str]:
+    """Get list of fonts from the preset editor's game/fonts folder."""
+    fonts = ["DejaVuSans.ttf"]  # Always include Ren'Py default
+
+    # Look for fonts in the preset editor's game folder
+    fonts_dir = Path(__file__).parent.parent / "game" / "fonts"
+    if fonts_dir.exists():
+        for f in fonts_dir.iterdir():
+            if f.suffix.lower() in ('.ttf', '.otf'):
+                font_name = f.name
+                if font_name not in fonts:
+                    fonts.append(font_name)
+
+    return sorted(fonts)
 
 
 # =============================================================================
@@ -296,36 +314,35 @@ def refresh_textshader_builder_content():
         )
     dpg.add_separator(parent=parent)
 
-    # Shader selection
-    dpg.add_text("Text Shader Effect", parent=parent, color=(150, 200, 255))
+    # Shader info (read-only display, use "Create from shader" to change)
     current_shader = preset.get("shader")
-    shader_value = current_shader if current_shader else "(none)"
-    all_shaders = get_all_text_shaders()
-    dpg.add_combo(
-        label="Shader",
-        items=all_shaders,
-        default_value=shader_value,
-        callback=textshader_shader_callback,
-        user_data=name,
-        width=200,
-        parent=parent
-    )
-
-    # Shader params (if shader is set)
     shader_params = preset.get("shader_params", {})
-    if current_shader and shader_params:
-        dpg.add_text("Shader Parameters", parent=parent, color=(150, 150, 150))
-        for param_name, param_value in shader_params.items():
-            if isinstance(param_value, float):
-                dpg.add_input_float(
-                    label=param_name,
-                    default_value=param_value,
-                    callback=textshader_shader_param_callback,
-                    user_data=(name, param_name),
-                    step=0.1,
-                    width=150,
-                    parent=parent
-                )
+    if current_shader:
+        dpg.add_text(f"Shader: {current_shader}", parent=parent, color=(150, 200, 255))
+        if shader_params:
+            dpg.add_text("Shader Parameters", parent=parent, color=(150, 150, 150))
+            for param_name, param_value in shader_params.items():
+                if isinstance(param_value, float):
+                    dpg.add_input_float(
+                        label=param_name,
+                        default_value=param_value,
+                        callback=textshader_shader_param_callback,
+                        user_data=(name, param_name),
+                        step=0.1,
+                        width=150,
+                        parent=parent
+                    )
+                elif isinstance(param_value, str):
+                    dpg.add_input_text(
+                        label=param_name,
+                        default_value=param_value,
+                        callback=textshader_shader_param_str_callback,
+                        user_data=(name, param_name),
+                        width=150,
+                        parent=parent
+                    )
+    else:
+        dpg.add_text("Shader: (none)", parent=parent, color=(150, 150, 150))
 
     # Text styling section
     dpg.add_separator(parent=parent)
@@ -333,13 +350,19 @@ def refresh_textshader_builder_content():
 
     text_props = preset.get("text", {})
 
-    # Font
-    dpg.add_input_text(
+    # Font dropdown
+    available_fonts = get_available_fonts()
+    current_font = text_props.get("font", "DejaVuSans.ttf")
+    # Ensure current font is in list even if not found in folder
+    if current_font not in available_fonts:
+        available_fonts.append(current_font)
+    dpg.add_combo(
         label="Font",
-        default_value=text_props.get("font", "DejaVuSans.ttf"),
+        items=available_fonts,
+        default_value=current_font,
         callback=textshader_text_callback,
         user_data=(name, "font"),
-        width=200,
+        width=250,
         parent=parent
     )
 
@@ -680,6 +703,19 @@ def textshader_shader_param_callback(sender, app_data, user_data):
         if "shader_params" not in preset:
             preset["shader_params"] = {}
         preset["shader_params"][param] = _clean_float(app_data)
+        _app.json_mgr.set_textshader(name, preset)
+        if _update_status_bar:
+            _update_status_bar()
+
+
+def textshader_shader_param_str_callback(sender, app_data, user_data):
+    """Handle string shader parameters (like vec2 values: "1.5, 1.5")."""
+    if user_data:
+        name, param = user_data
+        preset = _app.json_mgr.get_textshader(name) or {}
+        if "shader_params" not in preset:
+            preset["shader_params"] = {}
+        preset["shader_params"][param] = app_data
         _app.json_mgr.set_textshader(name, preset)
         if _update_status_bar:
             _update_status_bar()

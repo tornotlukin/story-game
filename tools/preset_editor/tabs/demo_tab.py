@@ -55,7 +55,7 @@ def setup_demo_tab(parent):
                 dpg.add_input_int(
                     tag="demo_width_input",
                     default_value=1080,
-                    width=80,
+                    width=90,
                     min_value=320,
                     max_value=3840,
                     callback=_on_demo_size_change
@@ -65,7 +65,7 @@ def setup_demo_tab(parent):
                 dpg.add_input_int(
                     tag="demo_height_input",
                     default_value=1920,
-                    width=80,
+                    width=90,
                     min_value=240,
                     max_value=2160,
                     callback=_on_demo_size_change
@@ -88,22 +88,6 @@ def setup_demo_tab(parent):
                     default_value="Sample dialogue text for testing presets.",
                     width=500,
                     callback=_on_sample_text_change
-                )
-
-            dpg.add_spacer(height=5)
-
-            # Generate/Run buttons row
-            with dpg.group(horizontal=True):
-                dpg.add_button(
-                    label="Generate Demo",
-                    callback=_generate_demo,
-                    width=120
-                )
-                dpg.add_spacer(width=10)
-                dpg.add_button(
-                    label="Run in Ren'Py",
-                    callback=_run_demo,
-                    width=120
                 )
 
         dpg.add_separator()
@@ -155,7 +139,13 @@ def setup_demo_tab(parent):
                     dpg.add_button(
                         label="Clear All",
                         callback=_clear_all,
-                        width=80
+                        width=70
+                    )
+                    dpg.add_spacer(width=5)
+                    dpg.add_button(
+                        label="Create Demo",
+                        callback=_create_demo,
+                        width=90
                     )
 
 
@@ -243,20 +233,41 @@ def _refresh_textshader_list():
 
     dpg.delete_item("demo_textshader_list", children_only=True)
 
+    # Check if text shaders are enabled (only when Apply to dialog is checked)
+    apply_to_dialog = _app.demo_gen.apply_to_dialog
+
+    if not apply_to_dialog:
+        # Show disabled message when not in dialog mode
+        dpg.add_text("(Enable 'Apply to dialog'", parent="demo_textshader_list",
+                    color=(128, 128, 128))
+        dpg.add_text(" to use text shaders)", parent="demo_textshader_list",
+                    color=(128, 128, 128))
+        dpg.add_separator(parent="demo_textshader_list")
+
     names = _app.json_mgr.get_textshader_names()
 
     for name in names:
         is_selected = name in _textshader_selected
         prefix = "[*] " if is_selected else "    "
-        item_id = dpg.add_selectable(
-            label=f"{prefix}{name}",
-            default_value=is_selected,
-            callback=_on_textshader_select,
-            user_data=name,
-            width=230,
-            parent="demo_textshader_list"
-        )
-        apply_selection_theme(item_id, is_selected)
+
+        if apply_to_dialog:
+            # Normal interactive mode
+            item_id = dpg.add_selectable(
+                label=f"{prefix}{name}",
+                default_value=is_selected,
+                callback=_on_textshader_select,
+                user_data=name,
+                width=230,
+                parent="demo_textshader_list"
+            )
+            apply_selection_theme(item_id, is_selected)
+        else:
+            # Grayed out display-only mode
+            dpg.add_text(
+                f"    {name}",
+                parent="demo_textshader_list",
+                color=(100, 100, 100)
+            )
 
 
 def _refresh_demo_items():
@@ -367,7 +378,12 @@ def _add_selected(sender=None, app_data=None, user_data=None):
     # Get first selected from each column (or None)
     trans = _trans_selected[0] if _trans_selected else None
     shader = _shader_selected[0] if _shader_selected else None
-    textshader = _textshader_selected[0] if _textshader_selected else None
+
+    # Only include text shader when "Apply to dialog" is checked
+    apply_to_dialog = _app.demo_gen.apply_to_dialog
+    textshader = None
+    if apply_to_dialog and _textshader_selected:
+        textshader = _textshader_selected[0]
 
     if not trans and not shader and not textshader:
         if _app.status_bar:
@@ -431,7 +447,13 @@ def _on_demo_size_change(sender, app_data, user_data=None):
 
 def _on_apply_to_dialog_change(sender, app_data, user_data=None):
     """Handle apply to dialog checkbox change."""
+    global _textshader_selected
     _app.demo_gen.apply_to_dialog = app_data
+    # Clear text shader selection when disabled
+    if not app_data:
+        _textshader_selected = []
+    # Refresh text shader list to show enabled/disabled state
+    _refresh_textshader_list()
 
 
 def _on_sample_text_change(sender, app_data, user_data=None):
@@ -495,8 +517,8 @@ def _clean_compiled_files():
     return count
 
 
-def _run_demo(sender=None, app_data=None, user_data=None):
-    """Generate and run the demo in Ren'Py."""
+def _create_demo(sender=None, app_data=None, user_data=None):
+    """Generate the demo script and run it in Ren'Py."""
     # First generate
     _generate_demo()
 
