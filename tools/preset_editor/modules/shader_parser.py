@@ -2,19 +2,27 @@
 shader_parser.py - Parse shader .rpy files for shader definitions
 
 Reads structured comments in shader .rpy files to extract:
-- Shader names
+- Shader names (both image shaders and text shaders)
 - Parameter definitions (type, range, default, description)
 - Category and description metadata
 
-Comment Syntax:
+Comment Syntax for Image Shaders:
     ## @tool-category: Glow
     ## @tool-description: Adds glowing aura effects
 
     # @shader: shader.glow
     # @param u_glow_color: color, default=#FFFFFF, description=Glow color
     # @param u_outer_strength: float, range=0.0-2.0, default=0.6
-    # @param u_scale: float, range=0.5-2.0, default=1.0
     renpy.register_shader("shader.glow", ...)
+
+Comment Syntax for Text Shaders:
+    ## @tool-category: Text Effects
+    ## @tool-description: Per-character text effects
+
+    # @textshader: rainbow
+    # @param u_speed: float, range=0.1-5.0, default=1.0, description=Color cycle speed
+    # @param u_saturation: float, range=0.0-1.0, default=1.0
+    renpy.register_textshader("rainbow", ...)
 """
 
 import os
