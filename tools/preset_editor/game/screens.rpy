@@ -3,20 +3,24 @@
 # Disable quit confirmation - just quit directly
 define config.quit_action = Quit(confirm=False)
 
-# Basic say screen
+# Enable text shaders with a default
+define config.default_textshader = "dissolve"
+
+# Basic say screen - uses style_prefix for proper styling
 screen say(who, what):
     style_prefix "say"
 
     window:
         id "window"
 
-        if who is not None:
-            window:
-                id "namebox"
-                style "namebox"
+        vbox:
+            spacing 10
+
+            if who is not None:
                 text who id "who"
 
-        text what id "what"
+            text what id "what"
+
 
 # Basic choice screen
 screen choice(items):
@@ -26,6 +30,7 @@ screen choice(items):
         for i in items:
             textbutton i.caption action i.action
 
+
 # Basic input screen
 screen input(prompt):
     style_prefix "input"
@@ -34,6 +39,7 @@ screen input(prompt):
         vbox:
             text prompt
             input id "input"
+
 
 # Confirm screen (for quit, etc)
 screen confirm(message, yes_action, no_action):
@@ -55,6 +61,7 @@ screen confirm(message, yes_action, no_action):
                 textbutton "Yes" action yes_action
                 textbutton "No" action no_action
 
+
 # Skip indicator
 screen skip_indicator():
     pass
@@ -63,30 +70,40 @@ screen skip_indicator():
 screen ctc():
     pass
 
-## Styles
 
-style window:
+################################################################################
+## Styles
+################################################################################
+
+# Say window
+style say_window:
     xalign 0.5
     xfill True
     yalign 1.0
     ysize 280
-    background "#000000aa"
-    padding (40, 20, 40, 20)
+    background "#000000cc"
+    padding (40, 30, 40, 30)
 
+# Say text (dialogue)
+style say_what:
+    color "#ffffff"
+    size 28
+    outlines [(2, "#000000", 0, 0)]
+
+# Say who (character name)
+style say_who:
+    color "#ffcc00"
+    size 32
+    bold True
+
+# Namebox style
 style namebox:
     xpos 40
     ypos -40
     background "#333333"
     padding (10, 5, 10, 5)
 
-style say_what:
-    color "#ffffff"
-    size 28
-
-style say_who:
-    color "#ffcc00"
-    size 32
-
+# Choice styles
 style choice_vbox:
     xalign 0.5
     yalign 0.5

@@ -209,6 +209,11 @@ class AppState:
         self.shader_selection.update_items(self.json_mgr.get_shader_names())
         self.textshader_selection.update_items(self.json_mgr.get_textshader_names())
 
+        # Set presets path for demo generator (for text shader lookup)
+        if self.textshader_presets_path:
+            presets_folder = str(Path(self.textshader_presets_path).parent)
+            self.demo_gen.set_presets_path(presets_folder)
+
         # Parse shader .rpy files
         if self.shader_folder and Path(self.shader_folder).exists():
             self.shader_parser.parse_directory(self.shader_folder)

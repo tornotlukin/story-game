@@ -4,10 +4,11 @@ demo_generator.py - Generate Ren'Py test scripts for presets
 Creates menu-based demo scripts that test preset combinations.
 """
 
+import json
 import os
 from pathlib import Path
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, field
+from typing import List, Optional, Dict, Any
 
 
 @dataclass
@@ -16,6 +17,8 @@ class DemoItem:
     transition: Optional[str] = None
     shader: Optional[str] = None
     text_shader: Optional[str] = None
+    # Store resolved shader info for text shader tag generation
+    _text_shader_info: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def display_name(self) -> str:
@@ -39,18 +42,46 @@ class DemoItem:
             parts.append(f"shader_{self.shader}")
         return ", ".join(parts) if parts else "center"
 
-    @property
-    def text_tag(self) -> Optional[str]:
-        """Get the text shader tag for styled text."""
-        if self.text_shader:
-            return f"{{={self.text_shader}}}"
-        return None
+    def get_text_shader_tag(self) -> Optional[str]:
+        """Get the text shader tag string for Ren'Py.
+
+        Uses {shader=name:param=value} syntax.
+        If _text_shader_info is populated, uses the resolved shader name and params.
+        Otherwise falls back to using the preset name directly.
+        """
+        if not self.text_shader:
+            return None
+
+        # Check if we have resolved shader info
+        if self._text_shader_info:
+            shader_name = self._text_shader_info.get("shader")
+            if not shader_name:
+                return None
+
+            params = self._text_shader_info.get("shader_params", {})
+            if params:
+                # Build parameter string: "wave:amplitude=5.0:frequency=2.0"
+                param_parts = []
+                for key, value in params.items():
+                    # Remove u_ or u__ prefix for cleaner tag syntax
+                    clean_key = key
+                    if clean_key.startswith("u__"):
+                        clean_key = clean_key[3:]
+                    elif clean_key.startswith("u_"):
+                        clean_key = clean_key[2:]
+                    param_parts.append(f"{clean_key}={value}")
+                return f"{{shader={shader_name}:{':'.join(param_parts)}}}"
+            else:
+                return f"{{shader={shader_name}}}"
+
+        # Fallback: use preset name directly (might work if registered as textshader)
+        return f"{{shader={self.text_shader}}}"
 
     @property
     def text_tag_close(self) -> Optional[str]:
         """Get the closing text shader tag."""
         if self.text_shader:
-            return f"{{/={self.text_shader}}}"
+            return "{/shader}"
         return None
 
     def is_empty(self) -> bool:
@@ -83,6 +114,37 @@ class DemoGenerator:
         self.screen_height = 1920
         self.sample_text = "Sample dialogue text for testing presets."
         self.apply_to_dialog = False
+        self._textshader_presets: Dict[str, Any] = {}
+        self._presets_path: Optional[str] = None
+
+    def set_presets_path(self, path: str):
+        """Set the path to the presets folder for loading textshader presets."""
+        self._presets_path = path
+        self._load_textshader_presets()
+
+    def _load_textshader_presets(self):
+        """Load textshader presets from JSON file."""
+        if not self._presets_path:
+            return
+
+        json_path = Path(self._presets_path) / "textshader_presets.json"
+        if json_path.exists():
+            try:
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                self._textshader_presets = data.get("presets", {})
+            except Exception as e:
+                print(f"DemoGenerator: Error loading textshader presets: {e}")
+
+    def _resolve_text_shader_info(self, preset_name: str) -> Dict[str, Any]:
+        """Look up a textshader preset and return its shader info."""
+        if preset_name in self._textshader_presets:
+            preset = self._textshader_presets[preset_name]
+            return {
+                "shader": preset.get("shader"),
+                "shader_params": preset.get("shader_params", {})
+            }
+        return {}
 
     def add_item(
         self,
@@ -167,9 +229,17 @@ class DemoGenerator:
             menu_label = item.display_name.replace('"', '\\"')
             at_clause = item.at_clause
 
-            # For now, use plain text - text shader styles need to be generated
-            # TODO: Generate styles from textshader_presets.json or use a different approach
-            dialogue_text = self.sample_text
+            # Resolve text shader info from presets if available
+            if item.text_shader and not item._text_shader_info:
+                item._text_shader_info = self._resolve_text_shader_info(item.text_shader)
+
+            # Build dialogue text with text shader tag if specified
+            # Uses {shader=name:params}text{/shader} syntax for Ren'Py text shaders
+            text_tag = item.get_text_shader_tag()
+            if text_tag:
+                dialogue_text = f"{text_tag}{self.sample_text}{item.text_tag_close}"
+            else:
+                dialogue_text = self.sample_text
 
             lines.append(f'        "{i+1}. {menu_label}":')
 
