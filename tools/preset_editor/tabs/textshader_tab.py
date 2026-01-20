@@ -19,7 +19,7 @@ from typing import Any, List
 
 from modules.ui_components import (
     apply_selection_theme, hex_to_rgb, rgba_to_hex,
-    show_confirm_dialog
+    show_confirm_dialog, add_color_edit_with_hex
 )
 
 
@@ -378,17 +378,16 @@ def refresh_textshader_builder_content():
         parent=parent
     )
 
-    # Color
+    # Color (with hex input)
     color_hex = text_props.get("color", "#FFFFFF")
-    rgb = hex_to_rgb(color_hex)
-    dpg.add_color_edit(
+    add_color_edit_with_hex(
         label="Color",
-        default_value=[rgb[0], rgb[1], rgb[2], 255],
+        default_value=color_hex,
         callback=textshader_text_color_callback,
         user_data=(name, "color"),
-        no_alpha=True,
-        width=150,
-        parent=parent
+        parent=parent,
+        color_width=150,
+        hex_width=80
     )
 
     # Kerning
@@ -408,6 +407,28 @@ def refresh_textshader_builder_content():
         default_value=text_props.get("line_spacing", 0),
         callback=textshader_text_callback,
         user_data=(name, "line_spacing"),
+        width=150,
+        parent=parent
+    )
+
+    # Text alignment (0.0=left, 0.5=center, 1.0=right)
+    dpg.add_combo(
+        label="Text Align",
+        items=["Left (0.0)", "Center (0.5)", "Right (1.0)"],
+        default_value=_align_to_label(text_props.get("text_align", 0.0)),
+        callback=_on_text_align_change,
+        user_data=(name, "text_align"),
+        width=150,
+        parent=parent
+    )
+
+    # Horizontal position of text block
+    dpg.add_combo(
+        label="X Align",
+        items=["Left (0.0)", "Center (0.5)", "Right (1.0)"],
+        default_value=_align_to_label(text_props.get("xalign", 0.0)),
+        callback=_on_text_align_change,
+        user_data=(name, "xalign"),
         width=150,
         parent=parent
     )
@@ -476,19 +497,18 @@ def refresh_textshader_builder_content():
             )
             print(f"[DEBUG] Created outline size widget (in parent): {outline_size_widget}")
 
-            # Group only for color and delete button
+            # Group for color (with hex input) and delete button
             outline_group = dpg.add_group(horizontal=True, parent=parent)
-            # Color
+            # Color (with hex input)
             outline_color = outline[1] if len(outline) > 1 else "#000000"
-            outline_rgb = hex_to_rgb(outline_color)
-            dpg.add_color_edit(
+            add_color_edit_with_hex(
                 label=f"##outline_color_{name}_{i}",
-                default_value=[outline_rgb[0], outline_rgb[1], outline_rgb[2], 255],
+                default_value=outline_color,
                 callback=textshader_outline_color_callback,
                 user_data=(name, i),
-                no_alpha=True,
-                width=100,
-                parent=outline_group
+                parent=outline_group,
+                color_width=100,
+                hex_width=75
             )
             dpg.add_button(
                 label="X",
@@ -680,6 +700,8 @@ def textshader_builder_create_new():
             "outlines": [[2, "#000000", 0, 0]],
             "kerning": 0.0,
             "line_spacing": 0,
+            "text_align": 0.0,
+            "xalign": 0.0,
             "slow_cps": 30,
             "bold": False,
             "italic": False
@@ -707,6 +729,8 @@ def add_new_textshader():
             "outlines": [[2, "#000000", 0, 0]],
             "kerning": 0.0,
             "line_spacing": 0,
+            "text_align": 0.0,
+            "xalign": 0.0,
             "slow_cps": 30,
             "bold": False,
             "italic": False
@@ -759,6 +783,39 @@ def textshader_shader_param_str_callback(sender, app_data, user_data):
             _update_status_bar()
 
 
+def _align_to_label(value: float) -> str:
+    """Convert alignment float to combo label."""
+    if value <= 0.25:
+        return "Left (0.0)"
+    elif value <= 0.75:
+        return "Center (0.5)"
+    else:
+        return "Right (1.0)"
+
+
+def _label_to_align(label: str) -> float:
+    """Convert combo label to alignment float."""
+    if "0.5" in label or "Center" in label:
+        return 0.5
+    elif "1.0" in label or "Right" in label:
+        return 1.0
+    else:
+        return 0.0
+
+
+def _on_text_align_change(sender, app_data, user_data):
+    """Handle text alignment combo changes."""
+    if user_data:
+        name, prop = user_data
+        preset = _app.json_mgr.get_textshader(name) or {}
+        if "text" not in preset:
+            preset["text"] = {}
+        preset["text"][prop] = _label_to_align(app_data)
+        _app.json_mgr.set_textshader(name, preset)
+        if _update_status_bar:
+            _update_status_bar()
+
+
 def textshader_text_callback(sender, app_data, user_data):
     print(f"[DEBUG] textshader_text_callback: sender={sender}, app_data={app_data}, user_data={user_data}")
     if user_data:
@@ -785,12 +842,14 @@ def textshader_text_bool_callback(sender, app_data, user_data):
 
 
 def textshader_text_color_callback(sender, app_data, user_data):
+    """Handle text color changes. app_data is hex string from add_color_edit_with_hex."""
     if user_data:
         name, prop = user_data
         preset = _app.json_mgr.get_textshader(name) or {}
         if "text" not in preset:
             preset["text"] = {}
-        preset["text"][prop] = rgba_to_hex(app_data)
+        # app_data is already a hex string from add_color_edit_with_hex
+        preset["text"][prop] = app_data
         _app.json_mgr.set_textshader(name, preset)
         if _update_status_bar:
             _update_status_bar()
@@ -842,6 +901,7 @@ def textshader_outline_callback(sender, app_data, user_data):
 
 
 def textshader_outline_color_callback(sender, app_data, user_data):
+    """Handle outline color changes. app_data is hex string from add_color_edit_with_hex."""
     if user_data:
         name, outline_idx = user_data
         preset = _app.json_mgr.get_textshader(name) or {}
@@ -857,7 +917,8 @@ def textshader_outline_color_callback(sender, app_data, user_data):
         while len(outline) < 2:
             defaults = [1, "#000000", 0, 0]
             outline.append(defaults[len(outline)])
-        outline[1] = rgba_to_hex(app_data)
+        # app_data is already a hex string from add_color_edit_with_hex
+        outline[1] = app_data
         _app.json_mgr.set_textshader(name, preset)
         if _update_status_bar:
             _update_status_bar()

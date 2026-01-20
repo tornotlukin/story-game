@@ -120,6 +120,14 @@ init -5 python:
             if "line_spacing" in text_config:
                 props["line_spacing"] = text_config["line_spacing"]
 
+            # Text alignment (0.0=left, 0.5=center, 1.0=right)
+            if "text_align" in text_config:
+                props["text_align"] = text_config["text_align"]
+
+            # Horizontal position of text block
+            if "xalign" in text_config:
+                props["xalign"] = text_config["xalign"]
+
             # Slow CPS (for slow_cps style property)
             if "slow_cps" in text_config and text_config["slow_cps"] > 0:
                 props["slow_cps"] = text_config["slow_cps"]

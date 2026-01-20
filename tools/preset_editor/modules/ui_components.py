@@ -55,6 +55,137 @@ def rgba_to_hex(rgba: List[float]) -> str:
     return rgb_to_hex((r, g, b))
 
 
+def is_valid_hex(hex_str: str) -> bool:
+    """Check if a string is a valid hex color."""
+    hex_str = hex_str.lstrip('#')
+    if len(hex_str) != 6:
+        return False
+    try:
+        int(hex_str, 16)
+        return True
+    except ValueError:
+        return False
+
+
+# Track color widget pairs for syncing (color_edit_id -> hex_input_id and vice versa)
+_color_widget_pairs: dict = {}
+
+
+def add_color_edit_with_hex(
+    label: str,
+    default_value: str,
+    callback: Callable[[Any, Any, Any], None],
+    user_data: Any = None,
+    parent: int = 0,
+    color_width: int = 150,
+    hex_width: int = 80
+) -> Tuple[int, int]:
+    """
+    Add a color edit widget with an adjacent hex input field.
+
+    Both widgets stay in sync - editing one updates the other.
+
+    Args:
+        label: Label for the color edit (hex input uses ##hidden label)
+        default_value: Initial hex color string (#RRGGBB)
+        callback: Called when color changes. Receives (sender, hex_color_str, user_data)
+        user_data: Passed to callback
+        parent: Parent widget ID
+        color_width: Width of color picker
+        hex_width: Width of hex input field
+
+    Returns:
+        Tuple of (color_edit_id, hex_input_id)
+    """
+    rgb = hex_to_rgb(default_value)
+    hex_value = default_value if default_value.startswith('#') else f"#{default_value}"
+
+    # Generate unique tag base for this pair
+    import time
+    tag_base = f"color_pair_{int(time.time() * 1000000)}"
+
+    group_id = dpg.add_group(horizontal=True, parent=parent)
+
+    # Color edit widget
+    color_edit_id = dpg.add_color_edit(
+        label=label,
+        default_value=[rgb[0], rgb[1], rgb[2], 255],
+        no_alpha=True,
+        width=color_width,
+        parent=group_id,
+        tag=f"{tag_base}_color"
+    )
+
+    # Hex input widget
+    hex_input_id = dpg.add_input_text(
+        label=f"##{tag_base}_hex",
+        default_value=hex_value,
+        width=hex_width,
+        parent=group_id,
+        tag=f"{tag_base}_hex"
+    )
+
+    # Store the pair relationship
+    _color_widget_pairs[color_edit_id] = {
+        'hex_input': hex_input_id,
+        'callback': callback,
+        'user_data': user_data
+    }
+    _color_widget_pairs[hex_input_id] = {
+        'color_edit': color_edit_id,
+        'callback': callback,
+        'user_data': user_data
+    }
+
+    def on_color_change(sender, app_data):
+        """Handle color picker change - update hex input and call user callback."""
+        hex_color = rgba_to_hex(app_data)
+        pair_info = _color_widget_pairs.get(sender, {})
+        hex_input = pair_info.get('hex_input')
+
+        # Update hex input without triggering its callback
+        if hex_input and dpg.does_item_exist(hex_input):
+            dpg.set_value(hex_input, hex_color)
+
+        # Call user callback with hex string
+        user_callback = pair_info.get('callback')
+        if user_callback:
+            user_callback(sender, hex_color, pair_info.get('user_data'))
+
+    def on_hex_change(sender, app_data):
+        """Handle hex input change - update color picker and call user callback."""
+        hex_str = app_data.strip()
+
+        # Validate and normalize
+        if not hex_str.startswith('#'):
+            hex_str = f"#{hex_str}"
+
+        if not is_valid_hex(hex_str):
+            return  # Invalid hex, don't update
+
+        pair_info = _color_widget_pairs.get(sender, {})
+        color_edit = pair_info.get('color_edit')
+
+        # Update color picker
+        if color_edit and dpg.does_item_exist(color_edit):
+            rgb = hex_to_rgb(hex_str)
+            dpg.set_value(color_edit, [rgb[0], rgb[1], rgb[2], 255])
+
+        # Normalize the hex input to uppercase
+        dpg.set_value(sender, hex_str.upper())
+
+        # Call user callback with hex string
+        user_callback = pair_info.get('callback')
+        if user_callback:
+            user_callback(sender, hex_str.upper(), pair_info.get('user_data'))
+
+    # Set callbacks
+    dpg.set_item_callback(color_edit_id, on_color_change)
+    dpg.set_item_callback(hex_input_id, on_hex_change)
+
+    return color_edit_id, hex_input_id
+
+
 # =============================================================================
 # Preset List Item
 # =============================================================================

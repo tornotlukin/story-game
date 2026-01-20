@@ -12,6 +12,8 @@
             "outlines": "List of outlines: [[size, color, x_offset, y_offset], ...]",
             "kerning": "Letter spacing adjustment in pixels",
             "line_spacing": "Extra space between lines in pixels",
+            "text_align": "Text alignment: 0.0 (left), 0.5 (center), 1.0 (right)",
+            "xalign": "Horizontal position of text block: 0.0 (left), 0.5 (center), 1.0 (right)",
             "slow_cps": "Characters per second for typewriter effect (0 = instant)",
             "bold": "true/false",
             "italic": "true/false"
@@ -38,6 +40,8 @@
             "outlines": [],
             "kerning": 0.0,
             "line_spacing": 0,
+            "text_align": 0.0,
+            "xalign": 0.0,
             "slow_cps": 0,
             "bold": false,
             "italic": false
@@ -357,7 +361,7 @@
             "text": {
                 "font": "DejaVuSans.ttf",
                 "size": 26,
-                "color": "#AACCFF",
+                "color": "#000000",
                 "outlines": [
                     [
                         3,
@@ -379,11 +383,11 @@
             "text": {
                 "font": "CalSans-Regular.ttf",
                 "size": 37,
-                "color": "#000000",
+                "color": "#420505",
                 "outlines": [
                     [
                         2,
-                        "#010101",
+                        "#FFFFFF",
                         0,
                         0
                     ]

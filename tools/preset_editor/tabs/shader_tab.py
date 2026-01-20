@@ -12,7 +12,7 @@ from typing import Any
 
 from modules.ui_components import (
     apply_selection_theme, hex_to_rgb, rgba_to_hex,
-    show_confirm_dialog
+    show_confirm_dialog, add_color_edit_with_hex
 )
 
 
@@ -318,15 +318,15 @@ def refresh_shader_builder_content():
             param_type = shader_param_defs[key].param_type
 
         if param_type == "color" or (isinstance(value, str) and value.startswith("#")):
-            rgb = hex_to_rgb(value) if isinstance(value, str) else (255, 255, 255)
-            dpg.add_color_edit(
+            hex_value = value if isinstance(value, str) else "#FFFFFF"
+            add_color_edit_with_hex(
                 label=key,
-                default_value=[rgb[0], rgb[1], rgb[2], 255],
+                default_value=hex_value,
                 callback=shader_param_color_callback,
                 user_data=(name, key),
-                no_alpha=True,
                 parent=parent,
-                width=150
+                color_width=150,
+                hex_width=80
             )
         elif isinstance(value, float) or param_type == "float":
             dpg.add_input_float(
@@ -554,10 +554,11 @@ def shader_param_callback(sender, app_data, user_data):
 
 
 def shader_param_color_callback(sender, app_data, user_data):
+    """Handle shader color parameter changes. app_data is hex string from add_color_edit_with_hex."""
     if user_data:
         name, param = user_data
-        hex_color = rgba_to_hex(app_data)
-        shader_update_param(name, param, hex_color)
+        # app_data is already a hex string from add_color_edit_with_hex
+        shader_update_param(name, param, app_data)
 
 
 def shader_rename_callback(sender, app_data, user_data):
