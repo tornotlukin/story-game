@@ -378,6 +378,8 @@ def shader_builder_select_callback(sender, app_data, user_data):
 
 def shader_builder_select(name: str):
     ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    old_selection = list(_app.shader_selection.selected)
+
     if ctrl:
         if name in _app.shader_selection.selected:
             _app.shader_selection.selected.remove(name)
@@ -385,8 +387,13 @@ def shader_builder_select(name: str):
             _app.shader_selection.selected.append(name)
     else:
         _app.shader_selection.selected = [name]
+
     refresh_shader_builder_list()
-    refresh_shader_builder_content()
+
+    # Only refresh content if selection actually changed
+    # This prevents destroying widgets before their callbacks fire
+    if _app.shader_selection.selected != old_selection:
+        refresh_shader_builder_content()
 
 
 # =============================================================================
@@ -570,6 +577,7 @@ def shader_update_name_button_callback(sender, app_data, user_data):
 
 def shader_update_param(name: str, param: str, value):
     """Update a shader parameter value."""
+    print(f"[DEBUG] shader_update_param: name={name}, param={param}, value={value}")
     if not param or param == "null":
         return
 

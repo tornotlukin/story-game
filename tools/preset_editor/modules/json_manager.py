@@ -141,14 +141,21 @@ class JsonManager:
 
     def _save_json(self, filepath: str, data: Dict) -> bool:
         """Save data to a JSON file."""
+        print(f"[DEBUG] _save_json called: filepath={filepath}")
         try:
             # Clean invalid keys before saving
             data = self._clean_params(data)
+
+            # Debug: show what's being saved for a specific preset
+            if "presets" in data and "wavy gravy" in data.get("presets", {}):
+                wg = data["presets"]["wavy gravy"]
+                print(f"[DEBUG] wavy gravy outlines: {wg.get('text', {}).get('outlines', 'NOT FOUND')}")
 
             # Ensure parent directory exists
             Path(filepath).parent.mkdir(parents=True, exist_ok=True)
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
+            print(f"[DEBUG] _save_json SUCCESS: {filepath}")
             return True
         except Exception as e:
             print(f"JsonManager: Error saving {filepath}: {e}")
@@ -405,6 +412,7 @@ class JsonManager:
 
     def set_shader(self, name: str, data: Dict, push_undo: bool = True):
         """Set/update a shader preset."""
+        print(f"[DEBUG] set_shader called: name={name}, auto_save={self._auto_save}, path={self.shader_path}")
         if push_undo:
             self.push_undo(f"Edit shader: {name}")
 
@@ -414,7 +422,8 @@ class JsonManager:
         self.shader_data["shader_presets"][name] = data
 
         if self._auto_save:
-            self.save("shader")
+            result = self.save("shader")
+            print(f"[DEBUG] save('shader') returned: {result}")
         self._notify_change()
 
     def add_shader(self, name: str, data: Dict):
@@ -548,6 +557,7 @@ class JsonManager:
 
     def set_textshader(self, name: str, data: Dict, push_undo: bool = True):
         """Set/update a text shader preset."""
+        print(f"[DEBUG] set_textshader called: name={name}, auto_save={self._auto_save}, path={self.textshader_path}")
         if push_undo:
             self.push_undo(f"Edit text shader: {name}")
 
@@ -557,7 +567,8 @@ class JsonManager:
         self.textshader_data["presets"][name] = data
 
         if self._auto_save:
-            self.save("textshader")
+            result = self.save("textshader")
+            print(f"[DEBUG] save('textshader') returned: {result}")
         self._notify_change()
 
     def add_textshader(self, name: str, data: Dict):

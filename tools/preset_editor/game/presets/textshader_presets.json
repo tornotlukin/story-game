@@ -357,7 +357,7 @@
             "text": {
                 "font": "DejaVuSans.ttf",
                 "size": 26,
-                "color": "#AACCFF",
+                "color": "#000000",
                 "outlines": [
                     [
                         3,
@@ -383,7 +383,7 @@
                 "outlines": [
                     [
                         2,
-                        "#010101",
+                        "#000000",
                         0,
                         0
                     ]

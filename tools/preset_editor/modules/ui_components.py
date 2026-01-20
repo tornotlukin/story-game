@@ -34,8 +34,25 @@ def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
 
 
 def rgba_to_hex(rgba: List[float]) -> str:
-    """Convert RGBA list (0-255) to hex color string."""
-    return rgb_to_hex((int(rgba[0]), int(rgba[1]), int(rgba[2])))
+    """Convert RGBA list to hex color string.
+
+    DearPyGui color_edit returns values as 0.0-1.0 floats (or 0-255 ints).
+    This function handles both cases by detecting the range.
+    """
+    r, g, b = rgba[0], rgba[1], rgba[2]
+
+    # If all values are <= 1.0, assume 0.0-1.0 range and scale to 0-255
+    # (A pure white would be [1.0, 1.0, 1.0] which still satisfies this)
+    if all(v <= 1.0 for v in [r, g, b]):
+        r = int(r * 255)
+        g = int(g * 255)
+        b = int(b * 255)
+    else:
+        r = int(r)
+        g = int(g)
+        b = int(b)
+
+    return rgb_to_hex((r, g, b))
 
 
 # =============================================================================

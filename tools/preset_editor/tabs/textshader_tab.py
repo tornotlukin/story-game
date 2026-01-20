@@ -13,6 +13,7 @@ Text shader presets combine:
 
 import dearpygui.dearpygui as dpg
 import os
+import time
 from pathlib import Path
 from typing import Any, List
 
@@ -441,35 +442,65 @@ def refresh_textshader_builder_content():
     dpg.add_separator(parent=parent)
     dpg.add_text("Outlines", parent=parent, color=(150, 255, 150))
     outlines = text_props.get("outlines", [])
+    print(f"[DEBUG] Creating outline widgets for '{name}': {len(outlines)} outlines")
 
     for i, outline in enumerate(outlines):
-        with dpg.group(horizontal=True, parent=parent):
-            dpg.add_text(f"  [{i}]")
-            # Size
-            dpg.add_input_int(
-                label=f"##outline_size_{i}",
-                default_value=outline[0] if len(outline) > 0 else 1,
-                callback=textshader_outline_callback,
-                user_data=(name, i, 0),
-                width=60
+        outline_val = outline[0] if len(outline) > 0 else 1
+        print(f"[DEBUG] Creating outline[{i}] widget with value={outline_val}")
+        try:
+            # Define callback inline, capturing user_data
+            def make_outline_size_callback(preset_name, outline_idx):
+                def callback(sender, app_data, user_data):
+                    print(f"[OUTLINE SIZE CALLBACK] sender={sender}, value={app_data}, preset={preset_name}, idx={outline_idx}")
+                    preset = _app.json_mgr.get_textshader(preset_name) or {}
+                    if "text" not in preset:
+                        preset["text"] = {}
+                    if "outlines" not in preset["text"]:
+                        preset["text"]["outlines"] = []
+                    while len(preset["text"]["outlines"]) <= outline_idx:
+                        preset["text"]["outlines"].append([1, "#000000", 0, 0])
+                    preset["text"]["outlines"][outline_idx][0] = app_data
+                    _app.json_mgr.set_textshader(preset_name, preset)
+                    print(f"[OUTLINE SIZE CALLBACK] Saved! New outlines: {preset['text']['outlines']}")
+                return callback
+
+            # TEST: Put size widget DIRECTLY in parent, not in a group
+            outline_size_widget = dpg.add_input_int(
+                label=f"Outline {i} Size",
+                default_value=outline_val,
+                callback=make_outline_size_callback(name, i),
+                width=100,
+                min_value=0,
+                max_value=20,
+                parent=parent  # Direct parent, not group!
             )
+            print(f"[DEBUG] Created outline size widget (in parent): {outline_size_widget}")
+
+            # Group only for color and delete button
+            outline_group = dpg.add_group(horizontal=True, parent=parent)
             # Color
             outline_color = outline[1] if len(outline) > 1 else "#000000"
             outline_rgb = hex_to_rgb(outline_color)
             dpg.add_color_edit(
-                label=f"##outline_color_{i}",
+                label=f"##outline_color_{name}_{i}",
                 default_value=[outline_rgb[0], outline_rgb[1], outline_rgb[2], 255],
                 callback=textshader_outline_color_callback,
                 user_data=(name, i),
                 no_alpha=True,
-                width=100
+                width=100,
+                parent=outline_group
             )
             dpg.add_button(
                 label="X",
                 callback=textshader_remove_outline_callback,
                 user_data=(name, i),
-                width=25
+                width=25,
+                parent=outline_group
             )
+        except Exception as e:
+            print(f"[DEBUG] ERROR creating outline widget: {e}")
+            import traceback
+            traceback.print_exc()
 
     dpg.add_button(
         label="+ Add Outline",
@@ -508,6 +539,8 @@ def textshader_builder_select_callback(sender, app_data, user_data):
 
 def textshader_builder_select(name: str):
     ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    old_selection = list(_app.textshader_selection.selected)
+
     if ctrl:
         if name in _app.textshader_selection.selected:
             _app.textshader_selection.selected.remove(name)
@@ -515,8 +548,13 @@ def textshader_builder_select(name: str):
             _app.textshader_selection.selected.append(name)
     else:
         _app.textshader_selection.selected = [name]
+
     refresh_textshader_builder_list()
-    refresh_textshader_builder_content()
+
+    # Only refresh content if selection actually changed
+    # This prevents destroying widgets before their callbacks fire
+    if _app.textshader_selection.selected != old_selection:
+        refresh_textshader_builder_content()
 
 
 # =============================================================================
@@ -722,6 +760,7 @@ def textshader_shader_param_str_callback(sender, app_data, user_data):
 
 
 def textshader_text_callback(sender, app_data, user_data):
+    print(f"[DEBUG] textshader_text_callback: sender={sender}, app_data={app_data}, user_data={user_data}")
     if user_data:
         name, prop = user_data
         preset = _app.json_mgr.get_textshader(name) or {}
@@ -757,7 +796,29 @@ def textshader_text_color_callback(sender, app_data, user_data):
             _update_status_bar()
 
 
+def _outline_deactivated_handler(sender, app_data, user_data):
+    """Handler for outline input deactivation (backup mechanism via item_handler_registry)."""
+    print(f"[DEBUG] _outline_deactivated_handler CALLED! sender={sender}")
+    # Get the current value from the widget
+    try:
+        current_value = dpg.get_value(sender)
+        print(f"[DEBUG]   current_value from widget: {current_value}, user_data={user_data}")
+        # Call the main callback with the value
+        textshader_outline_callback(sender, current_value, user_data)
+    except Exception as e:
+        print(f"[DEBUG]   ERROR in _outline_deactivated_handler: {e}")
+
+
 def textshader_outline_callback(sender, app_data, user_data):
+    """Callback for outline size changes. Triggers on deactivation (focus loss) or spinner arrows."""
+    print(f"[DEBUG] textshader_outline_callback CALLED!")
+    print(f"[DEBUG]   sender={sender}, app_data={app_data}, user_data={user_data}")
+    if user_data is None:
+        print(f"[DEBUG]   user_data is None, returning early")
+        return
+    if not user_data:
+        print(f"[DEBUG]   user_data is falsy: {repr(user_data)}, returning early")
+        return
     if user_data:
         name, outline_idx, prop_idx = user_data
         preset = _app.json_mgr.get_textshader(name) or {}

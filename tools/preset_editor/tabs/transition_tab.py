@@ -440,6 +440,8 @@ def trans_builder_select_callback(sender, app_data, user_data):
 def trans_builder_select(name: str):
     """Select a preset in builder mode."""
     ctrl = dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)
+    old_selection = list(_app.trans_selection.selected)
+
     if ctrl:
         if name in _app.trans_selection.selected:
             _app.trans_selection.selected.remove(name)
@@ -447,8 +449,13 @@ def trans_builder_select(name: str):
             _app.trans_selection.selected.append(name)
     else:
         _app.trans_selection.selected = [name]
+
     refresh_transition_builder_list()
-    refresh_transition_builder_content()
+
+    # Only refresh content if selection actually changed
+    # This prevents destroying widgets before their callbacks fire
+    if _app.trans_selection.selected != old_selection:
+        refresh_transition_builder_content()
 
 
 # =============================================================================

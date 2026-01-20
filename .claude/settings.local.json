@@ -14,7 +14,9 @@
       "Bash(cmd /c type \"C:\\\\Work\\\\story-game\\\\tools\\\\preset_editor\\\\game\\\\shader\\\\shader_weather.rpy\")",
       "Bash(dir:*)",
       "Bash(head:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(fc:*)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }
