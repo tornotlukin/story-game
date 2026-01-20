@@ -5,7 +5,11 @@ Handles the Demo tab for testing preset combinations:
 - Three preset columns: Transitions, Shaders, Text Shaders
 - Demo Items column for queued combinations
 - Generate and Run in Ren'Py functionality
-- Apply to dialog mode for dialog box + text styling
+
+Three testing modes (mutually exclusive checkboxes):
+- Both OFF: Character/Image testing (transitions + shaders on character)
+- Apply to text ON: Shader on black rect dialog + text shader on text
+- Apply to dialog ON: Shader on dialog artwork + text shader on text
 """
 
 import dearpygui.dearpygui as dpg
@@ -73,20 +77,27 @@ def setup_demo_tab(parent):
 
             dpg.add_spacer(height=5)
 
-            # Apply to dialog + sample text row
+            # Mode checkboxes row (mutually exclusive)
             with dpg.group(horizontal=True):
+                dpg.add_checkbox(
+                    label="Apply to text",
+                    tag="demo_apply_to_text",
+                    default_value=False,
+                    callback=_on_apply_to_text_change
+                )
+                dpg.add_spacer(width=20)
                 dpg.add_checkbox(
                     label="Apply to dialog",
                     tag="demo_apply_to_dialog",
                     default_value=False,
                     callback=_on_apply_to_dialog_change
                 )
-                dpg.add_spacer(width=20)
+                dpg.add_spacer(width=30)
                 dpg.add_text("Sample Text:")
                 dpg.add_input_text(
                     tag="demo_sample_text",
                     default_value="Sample dialogue text for testing presets.",
-                    width=500,
+                    width=400,
                     callback=_on_sample_text_change
                 )
 
@@ -170,6 +181,8 @@ def _sync_ui_from_app():
         dpg.set_value("demo_height_input", _app.demo_height)
     if dpg.does_item_exist("demo_sample_text"):
         dpg.set_value("demo_sample_text", _app.demo_gen.sample_text)
+    if dpg.does_item_exist("demo_apply_to_text"):
+        dpg.set_value("demo_apply_to_text", _app.demo_gen.apply_to_text)
     if dpg.does_item_exist("demo_apply_to_dialog"):
         dpg.set_value("demo_apply_to_dialog", _app.demo_gen.apply_to_dialog)
 
@@ -233,12 +246,15 @@ def _refresh_textshader_list():
 
     dpg.delete_item("demo_textshader_list", children_only=True)
 
-    # Check if text shaders are enabled (only when Apply to dialog is checked)
-    apply_to_dialog = _app.demo_gen.apply_to_dialog
+    # Text shaders are enabled when EITHER checkbox is checked
+    # Both modes support text shaders on dialogue text
+    text_shaders_enabled = _app.demo_gen.apply_to_text or _app.demo_gen.apply_to_dialog
 
-    if not apply_to_dialog:
-        # Show disabled message when not in dialog mode
-        dpg.add_text("(Enable 'Apply to dialog'", parent="demo_textshader_list",
+    if not text_shaders_enabled:
+        # Show disabled message when in character mode
+        dpg.add_text("(Enable 'Apply to text'", parent="demo_textshader_list",
+                    color=(128, 128, 128))
+        dpg.add_text(" or 'Apply to dialog'", parent="demo_textshader_list",
                     color=(128, 128, 128))
         dpg.add_text(" to use text shaders)", parent="demo_textshader_list",
                     color=(128, 128, 128))
@@ -250,7 +266,7 @@ def _refresh_textshader_list():
         is_selected = name in _textshader_selected
         prefix = "[*] " if is_selected else "    "
 
-        if apply_to_dialog:
+        if text_shaders_enabled:
             # Normal interactive mode
             item_id = dpg.add_selectable(
                 label=f"{prefix}{name}",
@@ -379,10 +395,10 @@ def _add_selected(sender=None, app_data=None, user_data=None):
     trans = _trans_selected[0] if _trans_selected else None
     shader = _shader_selected[0] if _shader_selected else None
 
-    # Only include text shader when "Apply to dialog" is checked
-    apply_to_dialog = _app.demo_gen.apply_to_dialog
+    # Only include text shader when either text/dialog mode is enabled
+    text_shaders_enabled = _app.demo_gen.apply_to_text or _app.demo_gen.apply_to_dialog
     textshader = None
-    if apply_to_dialog and _textshader_selected:
+    if text_shaders_enabled and _textshader_selected:
         textshader = _textshader_selected[0]
 
     if not trans and not shader and not textshader:
@@ -445,13 +461,46 @@ def _on_demo_size_change(sender, app_data, user_data=None):
         _app.demo_gen.screen_height = _app.demo_height
 
 
+def _on_apply_to_text_change(sender, app_data, user_data=None):
+    """Handle apply to text checkbox change.
+
+    Mutually exclusive with apply_to_dialog - only one can be on at a time.
+    """
+    global _textshader_selected
+    _app.demo_gen.apply_to_text = app_data
+
+    # If turning on, turn off the other checkbox
+    if app_data and _app.demo_gen.apply_to_dialog:
+        _app.demo_gen.apply_to_dialog = False
+        if dpg.does_item_exist("demo_apply_to_dialog"):
+            dpg.set_value("demo_apply_to_dialog", False)
+
+    # Clear text shader selection when both are off
+    if not _app.demo_gen.apply_to_text and not _app.demo_gen.apply_to_dialog:
+        _textshader_selected = []
+
+    # Refresh text shader list to show enabled/disabled state
+    _refresh_textshader_list()
+
+
 def _on_apply_to_dialog_change(sender, app_data, user_data=None):
-    """Handle apply to dialog checkbox change."""
+    """Handle apply to dialog checkbox change.
+
+    Mutually exclusive with apply_to_text - only one can be on at a time.
+    """
     global _textshader_selected
     _app.demo_gen.apply_to_dialog = app_data
-    # Clear text shader selection when disabled
-    if not app_data:
+
+    # If turning on, turn off the other checkbox
+    if app_data and _app.demo_gen.apply_to_text:
+        _app.demo_gen.apply_to_text = False
+        if dpg.does_item_exist("demo_apply_to_text"):
+            dpg.set_value("demo_apply_to_text", False)
+
+    # Clear text shader selection when both are off
+    if not _app.demo_gen.apply_to_text and not _app.demo_gen.apply_to_dialog:
         _textshader_selected = []
+
     # Refresh text shader list to show enabled/disabled state
     _refresh_textshader_list()
 

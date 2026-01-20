@@ -223,14 +223,20 @@
         "pixelate_light": {
             "shader": "shader.retro_pixelate",
             "params": {
-                "u_pixel_size": 4.0
+                "u_pixel_size": 4.0,
+                "u_pixel_w": 0.0,
+                "u_pixel_h": 0.0,
+                "u_smooth": 0.0
             }
         },
 
         "pixelate_heavy": {
             "shader": "shader.retro_pixelate",
             "params": {
-                "u_pixel_size": 16.0
+                "u_pixel_size": 16.0,
+                "u_pixel_w": 0.0,
+                "u_pixel_h": 0.0,
+                "u_smooth": 0.0
             }
         },
 

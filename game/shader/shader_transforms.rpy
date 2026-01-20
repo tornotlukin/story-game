@@ -395,25 +395,38 @@ transform color_adjust(brightness=0.0, contrast=1.0, saturation=1.0):
 ################################################################################
 
 # Pixelate - mesh True required for shaders!
+# All uniforms must be set: u_pixel_size, u_pixel_w, u_pixel_h, u_smooth
 transform pixelate_light:
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 4.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
 
 transform pixelate_medium:
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 8.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
 
 transform pixelate_heavy:
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 16.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
 
 transform pixelate_extreme:
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 32.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
 
 # Scanlines
 transform scanlines_subtle:
@@ -501,10 +514,13 @@ transform glitch_heavy:
     repeat
 
 # Parameterized pixelate
-transform pixelate_custom(size=8.0):
+transform pixelate_custom(size=8.0, w=0.0, h=0.0, smooth=0.0):
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size size
+    u_pixel_w w
+    u_pixel_h h
+    u_smooth smooth
 
 
 ################################################################################
@@ -628,6 +644,9 @@ transform pixelate_in(duration=0.5):
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 2.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
     linear duration u_pixel_size 64.0
 
 # Pixelate transition (out)
@@ -635,6 +654,9 @@ transform pixelate_out(duration=0.5):
     mesh True
     shader "shader.retro_pixelate"
     u_pixel_size 64.0
+    u_pixel_w 0.0
+    u_pixel_h 0.0
+    u_smooth 0.0
     linear duration u_pixel_size 2.0
 
 # Blur in
