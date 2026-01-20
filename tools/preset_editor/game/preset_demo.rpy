@@ -12,12 +12,12 @@ label preset_demo:
     menu preset_demo_menu:
         "Select a preset to demo:"
 
-        "1. T:spin_enter + S:glitch_light + TS:wavy gravy":
-            $ demo_dialog_background = "images/dialog_demo.png"
-            $ demo_dialog_transform = shader_glitch_light
-            "{color=#420505}{font=CalSans-Regular.ttf}{size=37}{shader=wave}Sample dialogue text for testing presets.{/shader}{/size}{/font}{/color}"
-            $ demo_dialog_transform = None
-            $ demo_dialog_background = None
+        "1. T:spin_enter + S:shake_heavy + TS:wave_dreamy":
+            $ dialog_background = "images/dialog_demo.png"
+            $ dialog_shader = shader_shake_heavy
+            "{color=#000000}{size=26}{shader=wave:_amplitude=3.0:_frequency=2.0}Sample dialogue text for testing presets.{/shader}{/size}{/color}"
+            $ dialog_shader = null_transform
+            $ dialog_background = None
             jump preset_demo
 
         "Exit Demo":

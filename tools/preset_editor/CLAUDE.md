@@ -24,16 +24,65 @@ The Preset Editor is a DearPyGui-based tool for creating and testing Ren'Py pres
 | Element | How It Works |
 |---------|--------------|
 | **Character image** | `show char at transition(), shader_transform` |
-| **Dialog box** | Say screen's `window` with `at transform` for shaders |
+| **Dialog box** | Say screen's `window` with `at dialog_shader` variable |
+| **Dialog background** | Say screen checks `dialog_background` variable |
 | **Dialog text** | `{shader=name:params}text{/shader}` tags in say statement |
 | **Transitions** | Standard `with transition` or `at transition()` |
 
 ### Demo Generation Rules
 
 - **Characters**: Use `show character at preset_name(), shader_name`
-- **Dialog shaders**: Set `demo_dialog_transform` variable, say screen applies it to window
+- **Dialog shaders**: Set `dialog_shader` variable (defaults to `null_transform`)
+- **Dialog backgrounds**: Set `dialog_background` variable (defaults to `None`)
 - **Text shaders**: Inline `{shader=...}` tags in the dialogue string
 - **Never**: Create fake overlay images to represent UI elements
+
+### Required screens.rpy Setup
+
+For dialog shader support, the game's screens.rpy needs:
+
+```renpy
+# Null transform - does nothing, used as default
+transform null_transform:
+    pass
+
+# Dialog shader - set to apply shaders to dialog window
+default dialog_shader = null_transform
+
+# Dialog background - set for custom artwork
+default dialog_background = None
+
+screen say(who, what):
+    style_prefix "say"
+
+    window:
+        id "window"
+        at dialog_shader
+
+        if dialog_background:
+            background dialog_background
+
+        vbox:
+            if who is not None:
+                text who id "who"
+            text what id "what"
+```
+
+### Usage in Scripts
+
+```renpy
+# Apply shader to dialog box
+$ dialog_shader = shader_glow_blue
+"This dialog has a glow effect"
+$ dialog_shader = null_transform
+
+# Custom dialog artwork with shader
+$ dialog_background = "images/fancy_dialog.png"
+$ dialog_shader = shader_wave_gentle
+"Fancy dialog with wave effect"
+$ dialog_shader = null_transform
+$ dialog_background = None
+```
 
 ## IMPORTANT: Game Folder Parity
 

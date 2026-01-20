@@ -60,12 +60,14 @@ class DemoItem:
 
             params = self._text_shader_info.get("shader_params", {})
             if params:
-                # Build parameter string: "wave:u__amplitude=5.0:u__frequency=2.0"
-                # IMPORTANT: Keep u__ prefix for shader local variables!
-                # Ren'Py only auto-adds single u_, so u__vars must be explicit
+                # Build parameter string: "wave:_amplitude=5.0:_frequency=2.0"
+                # Ren'Py automatically prefixes params with "u_" when processing text shader tags
+                # So u__amplitude in the shader becomes _amplitude in the tag
                 param_parts = []
                 for key, value in params.items():
-                    param_parts.append(f"{key}={value}")
+                    # Strip u_ prefix since Ren'Py adds it automatically
+                    clean_key = key[2:] if key.startswith("u_") else key
+                    param_parts.append(f"{clean_key}={value}")
                 return f"{{shader={shader_name}:{':'.join(param_parts)}}}"
             else:
                 return f"{{shader={shader_name}}}"
@@ -261,8 +263,8 @@ class DemoGenerator:
 
         IMPORTANT: Generated code must match real Ren'Py game patterns.
         - Characters: show at transition(), shader_transform
-        - Dialog shaders: set demo_dialog_transform variable
-        - Dialog background: set demo_dialog_background variable
+        - Dialog shaders: Character with screen="say_shader", set current_dialog_shader
+        - Dialog artwork: Character with screen="say_dialog_art_shader"
         - Text shaders: {shader=...} tags in dialogue string
 
         Three modes (mutually exclusive):
@@ -339,41 +341,36 @@ class DemoGenerator:
             lines.append(f'        "{i+1}. {menu_label}":')
 
             if self.apply_to_text:
-                # Apply to Text Mode
-                # - Shaders applied to say screen window (black rect) via demo_dialog_transform
-                # - Text shaders applied via {shader=...} tags in dialogue
+                # Apply to Text Mode - shader on dialog window (black rect)
 
-                # Set dialog box shader if specified
+                # Set dialog shader if specified
                 if item.shader:
-                    lines.append(f"            $ demo_dialog_transform = shader_{item.shader}")
+                    lines.append(f"            $ dialog_shader = shader_{item.shader}")
 
                 # Show dialogue with text shader tags
                 lines.append(f'            "{dialogue_text}"')
 
-                # Reset dialog transform
+                # Reset dialog shader
                 if item.shader:
-                    lines.append(f"            $ demo_dialog_transform = None")
+                    lines.append(f"            $ dialog_shader = null_transform")
 
             elif self.apply_to_dialog:
-                # Apply to Dialog Mode
-                # - Dialog artwork as window background via demo_dialog_background
-                # - Shaders applied to dialog artwork via demo_dialog_transform
-                # - Text shaders applied via {shader=...} tags in dialogue
+                # Apply to Dialog Mode - shader on dialog artwork
 
                 # Set dialog background to artwork
-                lines.append(f'            $ demo_dialog_background = "images/dialog_demo.png"')
+                lines.append(f'            $ dialog_background = "images/dialog_demo.png"')
 
-                # Set dialog box shader if specified
+                # Set dialog shader if specified
                 if item.shader:
-                    lines.append(f"            $ demo_dialog_transform = shader_{item.shader}")
+                    lines.append(f"            $ dialog_shader = shader_{item.shader}")
 
                 # Show dialogue with text shader tags
                 lines.append(f'            "{dialogue_text}"')
 
-                # Reset dialog transform and background
+                # Reset dialog shader and background
                 if item.shader:
-                    lines.append(f"            $ demo_dialog_transform = None")
-                lines.append(f"            $ demo_dialog_background = None")
+                    lines.append(f"            $ dialog_shader = null_transform")
+                lines.append(f"            $ dialog_background = None")
 
             else:
                 # Character/Image Testing Mode

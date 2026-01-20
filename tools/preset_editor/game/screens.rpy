@@ -6,33 +6,34 @@ define config.quit_action = Quit(confirm=False)
 # Enable text shaders with a default
 define config.default_textshader = "dissolve"
 
-# Dynamic dialog box transform - set this variable to apply shaders to the dialog window
-# Example: $ demo_dialog_transform = shader_glow_blue
-# Reset:   $ demo_dialog_transform = None
-default demo_dialog_transform = None
+# Null transform - does nothing, used as default when no shader is active
+transform null_transform:
+    pass
 
-# Dynamic dialog box background - set to use custom artwork instead of black rect
-# Example: $ demo_dialog_background = "images/dialog_demo.png"
-# Reset:   $ demo_dialog_background = None (uses default black rect)
-default demo_dialog_background = None
+# Dialog shader transform - set this to apply shaders to the dialog window
+# Usage in script:
+#     $ dialog_shader = shader_glow_blue
+#     "This text has a glowing dialog box"
+#     $ dialog_shader = null_transform
+default dialog_shader = null_transform
 
-# Basic say screen - uses style_prefix for proper styling
-# Supports:
-# - Dynamic shader transform on the dialog window via demo_dialog_transform
-# - Dynamic window background via demo_dialog_background
+# Dialog background - set to use custom artwork instead of default style
+# Usage in script:
+#     $ dialog_background = "images/dialog_art.png"
+#     "This text has custom dialog artwork"
+#     $ dialog_background = None
+default dialog_background = None
+
+# Say screen with optional dialog shader and background support
 screen say(who, what):
     style_prefix "say"
 
     window:
         id "window"
+        at dialog_shader
 
-        # Use custom background if set, otherwise style default applies
-        if demo_dialog_background:
-            background demo_dialog_background
-
-        # Apply shader transform to dialog window if set
-        if demo_dialog_transform:
-            at demo_dialog_transform
+        if dialog_background:
+            background dialog_background
 
         vbox:
             spacing 10

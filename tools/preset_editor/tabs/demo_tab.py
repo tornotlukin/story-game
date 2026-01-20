@@ -521,38 +521,78 @@ def _generate_export_code() -> str:
     lines = []
     lines.append("# Exported from Preset Editor")
     lines.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    lines.append("")
-    lines.append("label exported_presets:")
-    lines.append("")
+    lines.append("#")
 
     sample_text = _app.demo_gen.sample_text or "Sample dialogue text."
     apply_to_text = _app.demo_gen.apply_to_text
     apply_to_dialog = _app.demo_gen.apply_to_dialog
 
+    # Check if any items use dialog shaders
+    uses_dialog_shader = any(item.shader for item in _app.demo_gen.items) and (apply_to_text or apply_to_dialog)
+
+    # Add setup instructions if dialog shaders are used
+    if uses_dialog_shader:
+        lines.append("# SETUP REQUIRED: Add this to your screens.rpy for dialog shader support:")
+        lines.append("#")
+        lines.append("# transform null_transform:")
+        lines.append("#     pass")
+        lines.append("#")
+        lines.append("# default dialog_shader = null_transform")
+        if apply_to_dialog:
+            lines.append("# default dialog_background = None")
+        lines.append("#")
+        lines.append("# Then modify your say screen's window to include:")
+        lines.append("#     window:")
+        lines.append("#         at dialog_shader")
+        if apply_to_dialog:
+            lines.append("#         if dialog_background:")
+            lines.append("#             background dialog_background")
+        lines.append("#")
+
+    lines.append("")
+    lines.append("label exported_presets:")
+    lines.append("")
+
     for i, item in enumerate(_app.demo_gen.items):
         lines.append(f"    # Item {i+1}: {item.display_name}")
 
-        # Generate show statement
-        at_clause = item.at_clause
-        if at_clause and at_clause != "center":
-            lines.append(f"    show eileen at {at_clause}")
+        if apply_to_text or apply_to_dialog:
+            # Dialog shader mode
+
+            # Set dialog background if in dialog art mode
+            if apply_to_dialog:
+                lines.append('    $ dialog_background = "images/your_dialog_art.png"')
+
+            # Set dialog shader if specified
+            if item.shader:
+                lines.append(f"    $ dialog_shader = shader_{item.shader}")
+
+            # Build dialogue text with text shader tags
+            if item.text_shader:
+                style_open = item.get_text_style_open_tags()
+                style_close = item.get_text_style_close_tags()
+                shader_tag = item.get_text_shader_tag() or ""
+                shader_close = item.text_tag_close or ""
+                dialogue = f'{style_open}{shader_tag}{sample_text}{shader_close}{style_close}'
+            else:
+                dialogue = sample_text
+
+            lines.append(f'    "{dialogue}"')
+
+            # Reset
+            if item.shader:
+                lines.append("    $ dialog_shader = null_transform")
+            if apply_to_dialog:
+                lines.append("    $ dialog_background = None")
+
         else:
-            lines.append("    show eileen")
+            # Character/image mode
+            at_clause = item.at_clause
+            if at_clause and at_clause != "center":
+                lines.append(f"    show eileen at {at_clause}")
+            else:
+                lines.append("    show eileen")
 
-        # Generate dialogue with text shader if applicable
-        if item.text_shader and (apply_to_text or apply_to_dialog):
-            # Get text styling tags
-            style_open = item.get_text_style_open_tags()
-            style_close = item.get_text_style_close_tags()
-
-            # Get shader tag
-            shader_tag = item.get_text_shader_tag() or ""
-            shader_close = item.text_tag_close or ""
-
-            # Build the dialogue line
-            dialogue = f'{style_open}{shader_tag}{sample_text}{shader_close}{style_close}'
-            lines.append(f'    e "{dialogue}"')
-        else:
             lines.append(f'    e "{sample_text}"')
 
         lines.append("")
