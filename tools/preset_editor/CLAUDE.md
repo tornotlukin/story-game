@@ -7,6 +7,34 @@ The Preset Editor is a DearPyGui-based tool for creating and testing Ren'Py pres
 - **Shaders** - Visual effect presets (glow, blur, distortion, etc.)
 - **Text Shaders** - Text styling and animation presets
 
+## CRITICAL: Real Game Parity
+
+**The demo system MUST generate code identical to how it would work in the actual Ren'Py game.**
+
+### Principles
+
+1. **No Fake Representations** - Never create workaround images or screens to simulate effects. If testing a dialog box shader, apply it to the actual say screen window.
+
+2. **Use Real Ren'Py Patterns** - The generated demo code should be copy-pasteable into a real game script and work identically.
+
+3. **Test What You Ship** - The preset editor exists to preview exactly what the player will see. Any deviation makes the tool unreliable.
+
+### How Effects Are Applied in Real Games
+
+| Element | How It Works |
+|---------|--------------|
+| **Character image** | `show char at transition(), shader_transform` |
+| **Dialog box** | Say screen's `window` with `at transform` for shaders |
+| **Dialog text** | `{shader=name:params}text{/shader}` tags in say statement |
+| **Transitions** | Standard `with transition` or `at transition()` |
+
+### Demo Generation Rules
+
+- **Characters**: Use `show character at preset_name(), shader_name`
+- **Dialog shaders**: Set `demo_dialog_transform` variable, say screen applies it to window
+- **Text shaders**: Inline `{shader=...}` tags in the dialogue string
+- **Never**: Create fake overlay images to represent UI elements
+
 ## IMPORTANT: Game Folder Parity
 
 The preset editor has its own `game/` folder for testing demos. This folder contains copies of shader and preset files from the main game.

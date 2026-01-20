@@ -6,12 +6,22 @@ define config.quit_action = Quit(confirm=False)
 # Enable text shaders with a default
 define config.default_textshader = "dissolve"
 
+# Dynamic dialog box transform - set this variable to apply shaders to the dialog window
+# Example: $ demo_dialog_transform = shader_glow_blue
+# Reset:   $ demo_dialog_transform = None
+default demo_dialog_transform = None
+
 # Basic say screen - uses style_prefix for proper styling
+# Supports dynamic shader transform on the dialog window via demo_dialog_transform
 screen say(who, what):
     style_prefix "say"
 
     window:
         id "window"
+
+        # Apply shader transform to dialog window if set
+        if demo_dialog_transform:
+            at demo_dialog_transform
 
         vbox:
             spacing 10
