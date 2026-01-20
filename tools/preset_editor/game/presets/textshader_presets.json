@@ -379,11 +379,11 @@
             "text": {
                 "font": "CalSans-Regular.ttf",
                 "size": 37,
-                "color": "#000000",
+                "color": "#420505",
                 "outlines": [
                     [
                         2,
-                        "#000000",
+                        "#FFFFFF",
                         0,
                         0
                     ]

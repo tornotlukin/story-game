@@ -12,10 +12,10 @@ label preset_demo:
     menu preset_demo_menu:
         "Select a preset to demo:"
 
-        "1. T:spin_enter + S:pixelate_light + TS:wavy gravy":
+        "1. T:spin_enter + S:glitch_light + TS:wavy gravy":
             $ demo_dialog_background = "images/dialog_demo.png"
-            $ demo_dialog_transform = shader_pixelate_light
-            "{shader=wave}Sample dialogue text for testing presets.{/shader}"
+            $ demo_dialog_transform = shader_glitch_light
+            "{color=#420505}{font=CalSans-Regular.ttf}{size=37}{shader=wave}Sample dialogue text for testing presets.{/shader}{/size}{/font}{/color}"
             $ demo_dialog_transform = None
             $ demo_dialog_background = None
             jump preset_demo

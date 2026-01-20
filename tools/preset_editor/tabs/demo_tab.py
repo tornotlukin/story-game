@@ -147,30 +147,34 @@ def setup_demo_tab(parent):
 
             dpg.add_spacer(width=10)
 
-            # Column 4: Demo Items
+            # Column 4: Demo Items (wider to show more content)
             with dpg.group():
                 dpg.add_text("DEMO ITEMS")
                 dpg.add_separator()
-                with dpg.child_window(tag="demo_items_list", width=300, height=360):
+                with dpg.child_window(tag="demo_items_list", width=380, height=340):
                     pass
                 dpg.add_spacer(height=5)
                 with dpg.group(horizontal=True):
                     dpg.add_button(
                         label="Add Selected",
                         callback=_add_selected,
-                        width=100
+                        width=95
                     )
-                    dpg.add_spacer(width=5)
                     dpg.add_button(
                         label="Clear All",
                         callback=_clear_all,
                         width=70
                     )
-                    dpg.add_spacer(width=5)
+                with dpg.group(horizontal=True):
+                    dpg.add_button(
+                        label="Export Code",
+                        callback=_export_code,
+                        width=95
+                    )
                     dpg.add_button(
                         label="Create Demo",
                         callback=_create_demo,
-                        width=90
+                        width=95
                     )
 
 
@@ -458,6 +462,105 @@ def _clear_all(sender=None, app_data=None, user_data=None):
 
     if _app.status_bar:
         _app.status_bar.set_status("Demo items cleared", (100, 200, 100))
+
+
+def _export_code(sender=None, app_data=None, user_data=None):
+    """Export Ren'Py code for all demo items to a text file."""
+    if not _app.demo_gen.items:
+        if _app.status_bar:
+            _app.status_bar.set_status("No demo items to export", (255, 200, 100))
+        return
+
+    # Create file dialog for save
+    def _on_file_selected(sender, app_data):
+        """Handle file selection from save dialog."""
+        if not app_data or "file_path_name" not in app_data:
+            return
+
+        file_path = app_data["file_path_name"]
+
+        # Ensure .txt extension
+        if not file_path.lower().endswith(".txt"):
+            file_path += ".txt"
+
+        # Generate the code
+        code = _generate_export_code()
+
+        # Write to file
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(code)
+
+            if _app.status_bar:
+                _app.status_bar.set_status(f"Code exported to: {file_path}", (100, 200, 100))
+        except Exception as e:
+            if _app.status_bar:
+                _app.status_bar.set_status(f"Export failed: {e}", (255, 100, 100))
+
+    # Create and show file dialog
+    if dpg.does_item_exist("export_file_dialog"):
+        dpg.delete_item("export_file_dialog")
+
+    with dpg.file_dialog(
+        tag="export_file_dialog",
+        directory_selector=False,
+        show=True,
+        callback=_on_file_selected,
+        default_filename="preset_export.txt",
+        width=600,
+        height=400
+    ):
+        dpg.add_file_extension(".txt", color=(0, 255, 0, 255))
+        dpg.add_file_extension(".*", color=(150, 150, 150, 255))
+
+
+def _generate_export_code() -> str:
+    """Generate the exportable Ren'Py code from all demo items."""
+    from datetime import datetime
+
+    lines = []
+    lines.append("# Exported from Preset Editor")
+    lines.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    lines.append("")
+    lines.append("label exported_presets:")
+    lines.append("")
+
+    sample_text = _app.demo_gen.sample_text or "Sample dialogue text."
+    apply_to_text = _app.demo_gen.apply_to_text
+    apply_to_dialog = _app.demo_gen.apply_to_dialog
+
+    for i, item in enumerate(_app.demo_gen.items):
+        lines.append(f"    # Item {i+1}: {item.display_name}")
+
+        # Generate show statement
+        at_clause = item.at_clause
+        if at_clause and at_clause != "center":
+            lines.append(f"    show eileen at {at_clause}")
+        else:
+            lines.append("    show eileen")
+
+        # Generate dialogue with text shader if applicable
+        if item.text_shader and (apply_to_text or apply_to_dialog):
+            # Get text styling tags
+            style_open = item.get_text_style_open_tags()
+            style_close = item.get_text_style_close_tags()
+
+            # Get shader tag
+            shader_tag = item.get_text_shader_tag() or ""
+            shader_close = item.text_tag_close or ""
+
+            # Build the dialogue line
+            dialogue = f'{style_open}{shader_tag}{sample_text}{shader_close}{style_close}'
+            lines.append(f'    e "{dialogue}"')
+        else:
+            lines.append(f'    e "{sample_text}"')
+
+        lines.append("")
+
+    lines.append("    return")
+    lines.append("")
+
+    return "\n".join(lines)
 
 
 # =============================================================================
