@@ -53,7 +53,7 @@ def setup_transition_tab(parent):
             dpg.add_text("Mode:")
             dpg.add_radio_button(
                 items=["Builder", "Manager", "JSON"],
-                default_value="Manager",
+                default_value="Builder",
                 horizontal=True,
                 callback=lambda s, a: switch_transition_mode(_EditorMode[a.upper()])
             )
@@ -63,7 +63,7 @@ def setup_transition_tab(parent):
         dpg.add_separator()
 
         # Builder panel
-        with dpg.group(horizontal=True, tag="trans_builder_panel", show=False):
+        with dpg.group(horizontal=True, tag="trans_builder_panel", show=True):
             with dpg.group():
                 dpg.add_text("Preset List")
                 dpg.add_separator()
@@ -74,7 +74,7 @@ def setup_transition_tab(parent):
                 dpg.add_text("Select a preset to edit")
 
         # Manager panel
-        with dpg.group(tag="trans_manager_panel", show=True):
+        with dpg.group(tag="trans_manager_panel", show=False):
             with dpg.child_window(height=-30, tag="trans_manager_list"):
                 pass
 

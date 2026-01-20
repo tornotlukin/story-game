@@ -91,9 +91,9 @@ class AppState:
         self.demo_gen = DemoGenerator()
 
         # UI state
-        self.transition_mode = EditorMode.MANAGER
-        self.shader_mode = EditorMode.MANAGER
-        self.textshader_mode = EditorMode.MANAGER
+        self.transition_mode = EditorMode.BUILDER
+        self.shader_mode = EditorMode.BUILDER
+        self.textshader_mode = EditorMode.BUILDER
 
         # Selection managers
         self.trans_selection = SelectionManager([])

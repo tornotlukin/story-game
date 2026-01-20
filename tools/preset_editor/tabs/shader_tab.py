@@ -55,7 +55,7 @@ def setup_shader_tab(parent):
             dpg.add_text("Mode:")
             dpg.add_radio_button(
                 items=["Builder", "Manager", "JSON"],
-                default_value="Manager",
+                default_value="Builder",
                 horizontal=True,
                 callback=lambda s, a: switch_shader_mode(_EditorMode[a.upper()])
             )
@@ -65,7 +65,7 @@ def setup_shader_tab(parent):
         dpg.add_separator()
 
         # Builder panel
-        with dpg.group(tag="shader_builder_panel", show=False):
+        with dpg.group(tag="shader_builder_panel", show=True):
             # Top: Create new preset from shader
             with dpg.group(horizontal=True):
                 dpg.add_text("Create from shader:")
@@ -93,7 +93,7 @@ def setup_shader_tab(parent):
                     dpg.add_text("Select a preset to edit")
 
         # Manager panel
-        with dpg.group(tag="shader_manager_panel", show=True):
+        with dpg.group(tag="shader_manager_panel", show=False):
             with dpg.child_window(height=-30, tag="shader_manager_list"):
                 pass
 

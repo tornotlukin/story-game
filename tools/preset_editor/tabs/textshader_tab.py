@@ -111,7 +111,7 @@ def setup_textshader_tab(parent):
             dpg.add_text("Mode:")
             dpg.add_radio_button(
                 items=["Builder", "Manager", "JSON"],
-                default_value="Manager",
+                default_value="Builder",
                 horizontal=True,
                 callback=lambda s, a: switch_textshader_mode(_EditorMode[a.upper()])
             )
@@ -121,7 +121,7 @@ def setup_textshader_tab(parent):
         dpg.add_separator()
 
         # Builder panel
-        with dpg.group(tag="textshader_builder_panel", show=False):
+        with dpg.group(tag="textshader_builder_panel", show=True):
             # Top: Create new preset from text shader
             with dpg.group(horizontal=True):
                 dpg.add_text("Create from shader:")
@@ -149,7 +149,7 @@ def setup_textshader_tab(parent):
                     dpg.add_text("Select a preset to edit")
 
         # Manager panel
-        with dpg.group(tag="textshader_manager_panel", show=True):
+        with dpg.group(tag="textshader_manager_panel", show=False):
             with dpg.child_window(height=-30, tag="textshader_manager_list"):
                 pass
 
@@ -765,9 +765,16 @@ def textshader_outline_callback(sender, app_data, user_data):
             preset["text"] = {}
         if "outlines" not in preset["text"]:
             preset["text"]["outlines"] = []
+        # Ensure outline array has enough entries
         while len(preset["text"]["outlines"]) <= outline_idx:
             preset["text"]["outlines"].append([1, "#000000", 0, 0])
-        preset["text"]["outlines"][outline_idx][prop_idx] = app_data
+        # Ensure this specific outline has enough elements for prop_idx
+        outline = preset["text"]["outlines"][outline_idx]
+        while len(outline) <= prop_idx:
+            # Extend with defaults: [size, color, x_offset, y_offset]
+            defaults = [1, "#000000", 0, 0]
+            outline.append(defaults[len(outline)] if len(outline) < 4 else 0)
+        outline[prop_idx] = app_data
         _app.json_mgr.set_textshader(name, preset)
         if _update_status_bar:
             _update_status_bar()
@@ -781,9 +788,15 @@ def textshader_outline_color_callback(sender, app_data, user_data):
             preset["text"] = {}
         if "outlines" not in preset["text"]:
             preset["text"]["outlines"] = []
+        # Ensure outline array has enough entries
         while len(preset["text"]["outlines"]) <= outline_idx:
             preset["text"]["outlines"].append([1, "#000000", 0, 0])
-        preset["text"]["outlines"][outline_idx][1] = rgba_to_hex(app_data)
+        # Ensure this specific outline has at least 2 elements for color (index 1)
+        outline = preset["text"]["outlines"][outline_idx]
+        while len(outline) < 2:
+            defaults = [1, "#000000", 0, 0]
+            outline.append(defaults[len(outline)])
+        outline[1] = rgba_to_hex(app_data)
         _app.json_mgr.set_textshader(name, preset)
         if _update_status_bar:
             _update_status_bar()

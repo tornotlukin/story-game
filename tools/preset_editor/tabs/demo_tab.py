@@ -28,6 +28,7 @@ from modules.demo_generator import DemoItem
 
 _app = None  # Reference to AppState
 _refresh_all = None  # Callback to refresh all UI
+_initialized = False  # Track if already initialized
 
 # Local selection state for the three columns
 _trans_selected: List[str] = []
@@ -37,9 +38,22 @@ _textshader_selected: List[str] = []
 
 def init_demo_tab(app_state, refresh_callback):
     """Initialize module with app state reference."""
-    global _app, _refresh_all
+    global _app, _refresh_all, _initialized
     _app = app_state
     _refresh_all = refresh_callback
+
+    # Register for data change notifications to refresh demo lists
+    # when presets are edited in other tabs (only register once)
+    if not _initialized:
+        _app.json_mgr.on_change(_on_data_change)
+        _initialized = True
+
+
+def _on_data_change():
+    """Callback when JSON data changes - refresh demo preset lists."""
+    _refresh_trans_list()
+    _refresh_shader_list()
+    _refresh_textshader_list()
 
 
 # =============================================================================

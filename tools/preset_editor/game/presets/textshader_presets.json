@@ -372,6 +372,28 @@
                 "bold": false,
                 "italic": true
             }
+        },
+        "wavy gravy": {
+            "shader": "wave",
+            "shader_params": {},
+            "text": {
+                "font": "CalSans-Regular.ttf",
+                "size": 37,
+                "color": "#000000",
+                "outlines": [
+                    [
+                        2,
+                        "#010101",
+                        0,
+                        0
+                    ]
+                ],
+                "kerning": 0.0,
+                "line_spacing": 0,
+                "slow_cps": 30,
+                "bold": false,
+                "italic": false
+            }
         }
     }
 }
