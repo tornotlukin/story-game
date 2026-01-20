@@ -80,6 +80,63 @@ class DemoItem:
             return "{/shader}"
         return None
 
+    def get_text_style_open_tags(self) -> str:
+        """Get opening text style tags for color, font, size from the preset.
+
+        Returns Ren'Py text tags like {color=#000000}{font=...}{size=37}
+        """
+        if not self._text_shader_info:
+            return ""
+
+        text_props = self._text_shader_info.get("text", {})
+        if not text_props:
+            return ""
+
+        tags = []
+
+        # Color tag
+        color = text_props.get("color")
+        if color:
+            tags.append(f"{{color={color}}}")
+
+        # Font tag
+        font = text_props.get("font")
+        if font and font != "DejaVuSans.ttf":  # Only if not default
+            tags.append(f"{{font={font}}}")
+
+        # Size tag
+        size = text_props.get("size")
+        if size and size != 28:  # Only if not default
+            tags.append(f"{{size={size}}}")
+
+        return "".join(tags)
+
+    def get_text_style_close_tags(self) -> str:
+        """Get closing text style tags (in reverse order of opening)."""
+        if not self._text_shader_info:
+            return ""
+
+        text_props = self._text_shader_info.get("text", {})
+        if not text_props:
+            return ""
+
+        tags = []
+
+        # Close in reverse order: size, font, color
+        size = text_props.get("size")
+        if size and size != 28:
+            tags.append("{/size}")
+
+        font = text_props.get("font")
+        if font and font != "DejaVuSans.ttf":
+            tags.append("{/font}")
+
+        color = text_props.get("color")
+        if color:
+            tags.append("{/color}")
+
+        return "".join(tags)
+
     def is_empty(self) -> bool:
         """Check if the item has no presets."""
         return not self.transition and not self.shader and not self.text_shader
@@ -141,12 +198,13 @@ class DemoGenerator:
                 print(f"DemoGenerator: Error loading textshader presets: {e}")
 
     def _resolve_text_shader_info(self, preset_name: str) -> Dict[str, Any]:
-        """Look up a textshader preset and return its shader info."""
+        """Look up a textshader preset and return its shader info AND text styling."""
         if preset_name in self._textshader_presets:
             preset = self._textshader_presets[preset_name]
             return {
                 "shader": preset.get("shader"),
-                "shader_params": preset.get("shader_params", {})
+                "shader_params": preset.get("shader_params", {}),
+                "text": preset.get("text", {})  # Include text styling
             }
         return {}
 
@@ -214,6 +272,13 @@ class DemoGenerator:
 
         Returns the script content as a string.
         """
+        # Reload presets to pick up any changes made in the editor
+        self._load_textshader_presets()
+
+        # Clear cached shader info on items so they get re-resolved
+        for item in self.items:
+            item._text_shader_info = {}
+
         if not self.items:
             return self._generate_empty_script()
 
@@ -256,11 +321,18 @@ class DemoGenerator:
             if item.text_shader and not item._text_shader_info:
                 item._text_shader_info = self._resolve_text_shader_info(item.text_shader)
 
-            # Build dialogue text with text shader tag if specified
-            # Uses {shader=name:params}text{/shader} syntax for Ren'Py text shaders
+            # Build dialogue text with text styling AND shader tags
+            # Order: {color}{font}{size}{shader}text{/shader}{/size}{/font}{/color}
+            style_open = item.get_text_style_open_tags()
+            style_close = item.get_text_style_close_tags()
             text_tag = item.get_text_shader_tag()
+
             if text_tag:
-                dialogue_text = f"{text_tag}{self.sample_text}{item.text_tag_close}"
+                # Has shader effect + styling
+                dialogue_text = f"{style_open}{text_tag}{self.sample_text}{item.text_tag_close}{style_close}"
+            elif style_open:
+                # Has styling only (no shader)
+                dialogue_text = f"{style_open}{self.sample_text}{style_close}"
             else:
                 dialogue_text = self.sample_text
 
