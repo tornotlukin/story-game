@@ -382,8 +382,8 @@
             "shader_params": {},
             "text": {
                 "font": "CalSans-Regular.ttf",
-                "size": 37,
-                "color": "#420505",
+                "size": 64,
+                "color": "#0A0935",
                 "outlines": [
                     [
                         2,

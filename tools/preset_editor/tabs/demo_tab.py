@@ -413,6 +413,15 @@ def _add_selected(sender=None, app_data=None, user_data=None):
     trans = _trans_selected[0] if _trans_selected else None
     shader = _shader_selected[0] if _shader_selected else None
 
+    # Determine target based on checkbox state
+    # "apply to dialog" checked → dialog target (uses dialog artwork)
+    # "apply to text" checked → dialog target (uses default say screen)
+    # neither checked → character target
+    if _app.demo_gen.apply_to_dialog or _app.demo_gen.apply_to_text:
+        target = "dialog"
+    else:
+        target = "character"
+
     # Only include text shader when either text/dialog mode is enabled
     text_shaders_enabled = _app.demo_gen.apply_to_text or _app.demo_gen.apply_to_dialog
     textshader = None
@@ -424,10 +433,15 @@ def _add_selected(sender=None, app_data=None, user_data=None):
             _app.status_bar.set_status("No presets selected", (255, 200, 100))
         return
 
+    # Use dialog background only when "apply to dialog" is checked
+    use_dialog_bg = _app.demo_gen.apply_to_dialog
+
     success = _app.demo_gen.add_item(
         transition=trans,
         shader=shader,
-        text_shader=textshader
+        text_shader=textshader,
+        target=target,
+        use_dialog_background=use_dialog_bg
     )
 
     if success:
@@ -524,27 +538,26 @@ def _generate_export_code() -> str:
     lines.append("#")
 
     sample_text = _app.demo_gen.sample_text or "Sample dialogue text."
-    apply_to_text = _app.demo_gen.apply_to_text
-    apply_to_dialog = _app.demo_gen.apply_to_dialog
 
-    # Check if any items use dialog shaders
-    uses_dialog_shader = any(item.shader for item in _app.demo_gen.items) and (apply_to_text or apply_to_dialog)
+    # Check if any items target dialog (need setup instructions)
+    has_dialog_items = any(item.target == "dialog" for item in _app.demo_gen.items)
+    has_dialog_background = any(item.use_dialog_background for item in _app.demo_gen.items)
 
-    # Add setup instructions if dialog shaders are used
-    if uses_dialog_shader:
+    # Add setup instructions if dialog mode is used
+    if has_dialog_items:
         lines.append("# SETUP REQUIRED: Add this to your screens.rpy for dialog shader support:")
         lines.append("#")
         lines.append("# transform null_transform:")
         lines.append("#     pass")
         lines.append("#")
         lines.append("# default dialog_shader = null_transform")
-        if apply_to_dialog:
+        if has_dialog_background:
             lines.append("# default dialog_background = None")
         lines.append("#")
         lines.append("# Then modify your say screen's window to include:")
         lines.append("#     window:")
         lines.append("#         at dialog_shader")
-        if apply_to_dialog:
+        if has_dialog_background:
             lines.append("#         if dialog_background:")
             lines.append("#             background dialog_background")
         lines.append("#")
@@ -554,13 +567,13 @@ def _generate_export_code() -> str:
     lines.append("")
 
     for i, item in enumerate(_app.demo_gen.items):
-        lines.append(f"    # Item {i+1}: {item.display_name}")
+        lines.append(f"    # Item {i+1}: {item.display_name} (target: {item.target})")
 
-        if apply_to_text or apply_to_dialog:
-            # Dialog shader mode
+        if item.target == "dialog":
+            # Dialog mode - shader on dialog + text shader on text
 
-            # Set dialog background if in dialog art mode
-            if apply_to_dialog:
+            # Set dialog background (only if use_dialog_background is True)
+            if item.use_dialog_background:
                 lines.append('    $ dialog_background = "images/your_dialog_art.png"')
 
             # Set dialog shader if specified
@@ -582,11 +595,11 @@ def _generate_export_code() -> str:
             # Reset
             if item.shader:
                 lines.append("    $ dialog_shader = null_transform")
-            if apply_to_dialog:
+            if item.use_dialog_background:
                 lines.append("    $ dialog_background = None")
 
         else:
-            # Character/image mode
+            # Character mode - transitions/shaders on character image
             at_clause = item.at_clause
             if at_clause and at_clause != "center":
                 lines.append(f"    show eileen at {at_clause}")
@@ -644,6 +657,7 @@ def _on_apply_to_dialog_change(sender, app_data, user_data=None):
     """Handle apply to dialog checkbox change.
 
     Mutually exclusive with apply_to_text - only one can be on at a time.
+    When checked, new items will target dialog (using dialog artwork).
     """
     global _textshader_selected
     _app.demo_gen.apply_to_dialog = app_data
