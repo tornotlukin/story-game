@@ -43,6 +43,12 @@ from .demo_tab import (
     refresh_demo_tab,
 )
 
+from .gameconfig_tab import (
+    init_gameconfig_tab,
+    setup_gameconfig_tab,
+    refresh_gameconfig_tab,
+)
+
 __all__ = [
     # Transition
     'init_transition_tab',
@@ -75,4 +81,8 @@ __all__ = [
     'init_demo_tab',
     'setup_demo_tab',
     'refresh_demo_tab',
+    # Game Config
+    'init_gameconfig_tab',
+    'setup_gameconfig_tab',
+    'refresh_gameconfig_tab',
 ]

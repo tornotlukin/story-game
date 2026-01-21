@@ -3,9 +3,10 @@
 Preset Editor - Dear PyGui tool for managing Ren'Py preset JSON files
 
 Features:
-- Four tabs: Transitions, Shaders, Text Shaders, Demo
+- Five tabs: Transitions, Shaders, Text Shaders, Demo, Game Config
 - Three modes per preset tab: Builder, Manager, JSON
 - Demo tab for testing preset combinations
+- Game Config tab for baseline Ren'Py settings (exports theme.rpy)
 - Shader .rpy file parsing
 - Live JSON updates with undo/redo
 - Multi-select (Ctrl+click, Shift+click)
@@ -40,6 +41,8 @@ from tabs import (
     refresh_textshader_ui,
     init_demo_tab, setup_demo_tab,
     refresh_demo_tab,
+    init_gameconfig_tab, setup_gameconfig_tab,
+    refresh_gameconfig_tab,
 )
 
 # Import modal modules
@@ -286,6 +289,7 @@ def setup_ui():
             setup_shader_tab(tab_bar)
             setup_textshader_tab(tab_bar)
             setup_demo_tab(tab_bar)
+            setup_gameconfig_tab(tab_bar)
 
         # Status bar at bottom
         dpg.add_separator()
@@ -338,6 +342,7 @@ def main():
     init_shader_tab(app, EditorMode, update_status_bar)
     init_textshader_tab(app, EditorMode, update_status_bar)
     init_demo_tab(app, refresh_all)
+    init_gameconfig_tab(app, refresh_all)
 
     # Initialize modal modules
     init_settings_modal(app, refresh_all)

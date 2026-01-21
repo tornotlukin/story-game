@@ -94,6 +94,18 @@ define config.window_hide_transition = Dissolve(0.2)
 ## Window icon
 define config.window_icon = None
 
+## Quit behavior - show confirm dialog when clicking X button
+define config.quit_action = Quit(confirm=True)
+
+## Custom quit confirmation message (overrides default "Are you sure you want to quit?")
+define gui.QUIT = _("Are you sure you want to quit?\n\nAny unsaved progress will be lost.")
+
+## FIX: Disable transitions for confirm dialogs
+## Workaround for GitHub issue #972 - window close button can cause flash/miss
+## when transitions are enabled on confirm screens
+define config.enter_yesno_transition = None
+define config.exit_yesno_transition = None
+
 
 ################################################################################
 ## Dialogue Settings
@@ -112,6 +124,21 @@ default preferences.afm_time = 15
 
 ## Image layers (bottom to top)
 define config.layers = ['master', 'transient', 'screens', 'overlay']
+
+
+################################################################################
+## Graphics / Renderer
+################################################################################
+
+## Prefer ANGLE2 renderer on Windows (more stable with window events)
+## Users can override with Shift+G during gameplay
+## Options: "auto", "gl", "angle", "gles", "gl2", "angle2", "gles2"
+default preferences.renderer = "auto"
+
+## Mouse focus clickthrough - if true, clicks that focus the window are also
+## processed as game clicks. Set to False to prevent X button click from
+## advancing dialogue.
+define config.mouse_focus_clickthrough = False
 
 
 ################################################################################

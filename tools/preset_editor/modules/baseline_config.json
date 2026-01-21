@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "Game configuration for Ren'Py project",
+    "generated": "2026-01-21 15:29:53"
+  },
+  "project": {
+    "name": "TEST NAME GAME",
+    "version": "0.1.0",
+    "build_name": "MyStoryGame",
+    "save_directory": "mystorygame-saves"
+  },
+  "screen": {
+    "width": 1920,
+    "height": 1080,
+    "physical_width": 960,
+    "physical_height": 540
+  },
+  "colors": {
+    "accent": "#0099ccff",
+    "hover": "#66c1e0ff",
+    "idle": "#888888ff",
+    "idle_small": "#aaaaaaff",
+    "selected": "#ffffffff",
+    "insensitive": "#8888887f",
+    "text": "#ffffffff",
+    "interface_text": "#ffffffff",
+    "muted": "#003d51ff",
+    "hover_muted": "#005b7aff"
+  },
+  "fonts": {
+    "text": "Jua-Regular.ttf",
+    "name": "Jua-Regular.ttf",
+    "interface": "CalSans-Regular.ttf"
+  },
+  "font_sizes": {
+    "text": 48,
+    "name": 30,
+    "interface": 28,
+    "label": 30,
+    "notify": 20,
+    "title": 60
+  },
+  "dialogue": {
+    "textbox_height": 185,
+    "textbox_yalign": 0.5,
+    "text_xpos": 268,
+    "text_ypos": 50,
+    "text_width": 744,
+    "text_xalign": 0.0
+  },
+  "namebox": {
+    "xpos": 240,
+    "ypos": 0,
+    "xalign": 0.0,
+    "width": null,
+    "height": null
+  },
+  "menu_backgrounds": {
+    "main_menu": "gui/main_menu.png",
+    "game_menu": "gui/game_menu.png"
+  },
+  "text_speed": {
+    "cps": 40,
+    "afm_time": 15
+  },
+  "window_behavior": {
+    "quit_confirm": true,
+    "quit_message": "Are you sure you want to quit?\n\nAny unsaved progress will be lost."
+  },
+  "ui_details": {
+    "bar_size": 22,
+    "scrollbar_size": 11,
+    "slider_size": 22,
+    "button_width": null,
+    "button_height": null,
+    "button_text_idle_color": null,
+    "button_text_hover_color": null,
+    "button_text_selected_color": null,
+    "button_text_insensitive_color": null
+  },
+  "choice_buttons": {
+    "width": 667,
+    "height": null,
+    "text_idle_color": "#888888ff",
+    "text_hover_color": "#ffffffff",
+    "text_insensitive_color": "#8888887f",
+    "spacing": 19
+  }
+}

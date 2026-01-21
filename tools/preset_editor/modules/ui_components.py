@@ -24,6 +24,21 @@ def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     return (255, 255, 255)
 
 
+def hex_to_rgba(hex_color: str) -> Tuple[int, int, int, int]:
+    """Convert hex color (#RRGGBB or #RRGGBBAA) to RGBA tuple (0-255).
+
+    If no alpha is provided, defaults to 255 (fully opaque).
+    """
+    hex_color = hex_color.lstrip('#')
+    if len(hex_color) >= 6:
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        a = int(hex_color[6:8], 16) if len(hex_color) >= 8 else 255
+        return (r, g, b, a)
+    return (255, 255, 255, 255)
+
+
 def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
     """Convert RGB tuple (0-255) to hex color string."""
     return "#{:02X}{:02X}{:02X}".format(
@@ -33,32 +48,54 @@ def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
     )
 
 
-def rgba_to_hex(rgba: List[float]) -> str:
+def rgba_to_hex_with_alpha(rgba: Tuple[int, int, int, int]) -> str:
+    """Convert RGBA tuple (0-255) to 8-digit hex color string (#RRGGBBAA)."""
+    return "#{:02X}{:02X}{:02X}{:02X}".format(
+        int(min(255, max(0, rgba[0]))),
+        int(min(255, max(0, rgba[1]))),
+        int(min(255, max(0, rgba[2]))),
+        int(min(255, max(0, rgba[3])))
+    )
+
+
+def rgba_to_hex(rgba: List[float], include_alpha: bool = False) -> str:
     """Convert RGBA list to hex color string.
 
     DearPyGui color_edit returns values as 0.0-1.0 floats (or 0-255 ints).
     This function handles both cases by detecting the range.
+
+    Args:
+        rgba: List of [r, g, b] or [r, g, b, a] values
+        include_alpha: If True, output 8-digit hex (#RRGGBBAA)
+
+    Returns:
+        Hex color string (#RRGGBB or #RRGGBBAA)
     """
     r, g, b = rgba[0], rgba[1], rgba[2]
+    a = rgba[3] if len(rgba) > 3 else 1.0
 
-    # If all values are <= 1.0, assume 0.0-1.0 range and scale to 0-255
-    # (A pure white would be [1.0, 1.0, 1.0] which still satisfies this)
+    # If all RGB values are <= 1.0, assume 0.0-1.0 range and scale to 0-255
     if all(v <= 1.0 for v in [r, g, b]):
         r = int(r * 255)
         g = int(g * 255)
         b = int(b * 255)
+        a = int(a * 255) if a <= 1.0 else int(a)
     else:
         r = int(r)
         g = int(g)
         b = int(b)
+        a = int(a)
 
-    return rgb_to_hex((r, g, b))
+    if include_alpha:
+        return rgba_to_hex_with_alpha((r, g, b, a))
+    else:
+        return rgb_to_hex((r, g, b))
 
 
 def is_valid_hex(hex_str: str) -> bool:
-    """Check if a string is a valid hex color."""
+    """Check if a string is a valid hex color (6 or 8 digit)."""
     hex_str = hex_str.lstrip('#')
-    if len(hex_str) != 6:
+    if len(hex_str) not in (6, 8):
         return False
     try:
         int(hex_str, 16)

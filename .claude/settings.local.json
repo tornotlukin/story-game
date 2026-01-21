@@ -16,7 +16,9 @@
       "Bash(head:*)",
       "WebFetch(domain:github.com)",
       "Bash(fc:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "WebFetch(domain:www.renpy.org)",
+      "WebFetch(domain:lemmasoft.renai.us)"
     ]
   }
 }

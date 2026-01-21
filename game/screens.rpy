@@ -82,6 +82,34 @@ style frame:
 ################################################################################
 
 
+## Dialog Box System ###########################################################
+##
+## Per-character dialog boxes. Characters can have unique dialog artwork.
+## Files: gui/dialog/{character_tag}.png, falls back to gui/dialog/default.png
+
+init python:
+    def get_dialog_image(who):
+        """
+        Get the dialog box image path for the current speaker.
+
+        Checks for character-specific dialog at gui/dialog/{name}.png
+        Falls back to gui/dialog/default.png
+
+        Args:
+            who: Character display name (e.g., "Novy")
+
+        Returns:
+            Path to dialog image
+        """
+        if who:
+            # Convert display name to filename (lowercase, spaces to underscores)
+            name = who.lower().replace(" ", "_").replace("'", "")
+            path = f"gui/dialog/{name}.png"
+            if renpy.loadable(path):
+                return path
+        return "gui/dialog/default.png"
+
+
 ## Say screen ##################################################################
 ##
 ## The say screen is used to display dialogue to the player. It takes two
@@ -94,6 +122,8 @@ style frame:
 ## and id "window" to apply style properties.
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#say
+##
+## MODIFIED: Uses per-character dialog boxes via get_dialog_image()
 
 screen say(who, what):
 
@@ -101,11 +131,14 @@ screen say(who, what):
     fixed:
         fit_first "height"
 
+        ## Dialog window with per-character background
         window:
             id "window"
+            style "window"
+            background Image(get_dialog_image(who), xalign=0.5, yalign=1.0)
             text what id "what"
 
-        ## Namebox is now outside the window, positioned relative to screen
+        ## Namebox - uniform across all characters
         if who is not None:
             window:
                 id "namebox"
@@ -137,8 +170,7 @@ style window:
     xfill True
     yalign gui.textbox_yalign
     ysize gui.textbox_height
-
-    background Image("gui/textbox.png", xalign=0.5, yalign=1.0)
+    ## Background is set dynamically in say screen via get_dialog_image()
 
 style namebox:
     xpos gui.name_xpos
@@ -264,7 +296,8 @@ screen quick_menu():
 init python:
     config.overlay_screens.append("quick_menu")
 
-default quick_menu = True
+## Quick menu disabled - set to True to show Back/Skip/Auto/Menu at bottom
+default quick_menu = False
 
 style quick_menu is hbox
 style quick_button is default
@@ -1189,7 +1222,8 @@ style confirm_button is gui_medium_button
 style confirm_button_text is gui_medium_button_text
 
 style confirm_frame:
-    background Frame([ "gui/confirm_frame.png", "gui/frame.png"], gui.confirm_frame_borders, tile=gui.frame_tile)
+    ## Uses system dialog artwork for consistent look
+    background Frame("gui/dialog/system.png", gui.confirm_frame_borders, tile=gui.frame_tile)
     padding gui.confirm_frame_borders.padding
     xalign .5
     yalign .5
@@ -1541,7 +1575,8 @@ screen quick_menu():
 
 style window:
     variant "small"
-    background "gui/phone/textbox.png"
+    ## Background is set dynamically in say screen via get_dialog_image()
+    ## For mobile-specific dialog images, create gui/dialog/phone/ variants
 
 style radio_button:
     variant "small"
