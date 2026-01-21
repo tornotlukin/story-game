@@ -318,7 +318,7 @@ def refresh_shader_builder_content():
             param_type = shader_param_defs[key].param_type
 
         if param_type == "color" or (isinstance(value, str) and value.startswith("#")):
-            hex_value = value if isinstance(value, str) else "#FFFFFF"
+            hex_value = value if isinstance(value, str) else "#FFFFFFFF"
             add_color_edit_with_hex(
                 label=key,
                 default_value=hex_value,
@@ -326,7 +326,7 @@ def refresh_shader_builder_content():
                 user_data=(name, key),
                 parent=parent,
                 color_width=150,
-                hex_width=80
+                include_alpha=True
             )
         elif isinstance(value, float) or param_type == "float":
             dpg.add_input_float(

@@ -115,7 +115,8 @@ def add_color_edit_with_hex(
     user_data: Any = None,
     parent: int = 0,
     color_width: int = 150,
-    hex_width: int = 80
+    hex_width: int = 80,
+    include_alpha: bool = False
 ) -> Tuple[int, int]:
     """
     Add a color edit widget with an adjacent hex input field.
@@ -124,18 +125,22 @@ def add_color_edit_with_hex(
 
     Args:
         label: Label for the color edit (hex input uses ##hidden label)
-        default_value: Initial hex color string (#RRGGBB)
+        default_value: Initial hex color string (#RRGGBB or #RRGGBBAA)
         callback: Called when color changes. Receives (sender, hex_color_str, user_data)
         user_data: Passed to callback
         parent: Parent widget ID
         color_width: Width of color picker
-        hex_width: Width of hex input field
+        hex_width: Width of hex input field (auto-adjusted for alpha if not specified)
+        include_alpha: If True, show alpha bar and output 8-digit hex
 
     Returns:
         Tuple of (color_edit_id, hex_input_id)
     """
-    rgb = hex_to_rgb(default_value)
+    rgba = hex_to_rgba(default_value)
     hex_value = default_value if default_value.startswith('#') else f"#{default_value}"
+
+    # Auto-adjust hex width for alpha if using default
+    actual_hex_width = hex_width if hex_width != 80 else (90 if include_alpha else 80)
 
     # Generate unique tag base for this pair
     import time
@@ -146,8 +151,9 @@ def add_color_edit_with_hex(
     # Color edit widget
     color_edit_id = dpg.add_color_edit(
         label=label,
-        default_value=[rgb[0], rgb[1], rgb[2], 255],
-        no_alpha=True,
+        default_value=[rgba[0], rgba[1], rgba[2], rgba[3]],
+        no_alpha=not include_alpha,
+        alpha_bar=include_alpha,
         width=color_width,
         parent=group_id,
         tag=f"{tag_base}_color"
@@ -156,38 +162,42 @@ def add_color_edit_with_hex(
     # Hex input widget
     hex_input_id = dpg.add_input_text(
         label=f"##{tag_base}_hex",
-        default_value=hex_value,
-        width=hex_width,
+        default_value=hex_value.upper(),
+        width=actual_hex_width,
+        hint="#RRGGBBAA" if include_alpha else "#RRGGBB",
         parent=group_id,
         tag=f"{tag_base}_hex"
     )
 
-    # Store the pair relationship
+    # Store the pair relationship (including alpha setting)
     _color_widget_pairs[color_edit_id] = {
         'hex_input': hex_input_id,
         'callback': callback,
-        'user_data': user_data
+        'user_data': user_data,
+        'include_alpha': include_alpha
     }
     _color_widget_pairs[hex_input_id] = {
         'color_edit': color_edit_id,
         'callback': callback,
-        'user_data': user_data
+        'user_data': user_data,
+        'include_alpha': include_alpha
     }
 
     def on_color_change(sender, app_data):
         """Handle color picker change - update hex input and call user callback."""
-        hex_color = rgba_to_hex(app_data)
         pair_info = _color_widget_pairs.get(sender, {})
+        use_alpha = pair_info.get('include_alpha', False)
+        hex_color = rgba_to_hex(app_data, include_alpha=use_alpha)
         hex_input = pair_info.get('hex_input')
 
         # Update hex input without triggering its callback
         if hex_input and dpg.does_item_exist(hex_input):
-            dpg.set_value(hex_input, hex_color)
+            dpg.set_value(hex_input, hex_color.upper())
 
         # Call user callback with hex string
         user_callback = pair_info.get('callback')
         if user_callback:
-            user_callback(sender, hex_color, pair_info.get('user_data'))
+            user_callback(sender, hex_color.upper(), pair_info.get('user_data'))
 
     def on_hex_change(sender, app_data):
         """Handle hex input change - update color picker and call user callback."""
@@ -203,10 +213,10 @@ def add_color_edit_with_hex(
         pair_info = _color_widget_pairs.get(sender, {})
         color_edit = pair_info.get('color_edit')
 
-        # Update color picker
+        # Update color picker (use rgba to handle both 6 and 8 digit hex)
         if color_edit and dpg.does_item_exist(color_edit):
-            rgb = hex_to_rgb(hex_str)
-            dpg.set_value(color_edit, [rgb[0], rgb[1], rgb[2], 255])
+            rgba = hex_to_rgba(hex_str)
+            dpg.set_value(color_edit, [rgba[0], rgba[1], rgba[2], rgba[3]])
 
         # Normalize the hex input to uppercase
         dpg.set_value(sender, hex_str.upper())

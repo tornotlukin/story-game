@@ -378,8 +378,8 @@ def refresh_textshader_builder_content():
         parent=parent
     )
 
-    # Color (with hex input)
-    color_hex = text_props.get("color", "#FFFFFF")
+    # Color (with hex input and alpha)
+    color_hex = text_props.get("color", "#FFFFFFFF")
     add_color_edit_with_hex(
         label="Color",
         default_value=color_hex,
@@ -387,7 +387,7 @@ def refresh_textshader_builder_content():
         user_data=(name, "color"),
         parent=parent,
         color_width=150,
-        hex_width=80
+        include_alpha=True
     )
 
     # Kerning
@@ -497,10 +497,10 @@ def refresh_textshader_builder_content():
             )
             print(f"[DEBUG] Created outline size widget (in parent): {outline_size_widget}")
 
-            # Group for color (with hex input) and delete button
+            # Group for color (with hex input and alpha) and delete button
             outline_group = dpg.add_group(horizontal=True, parent=parent)
-            # Color (with hex input)
-            outline_color = outline[1] if len(outline) > 1 else "#000000"
+            # Color (with hex input and alpha)
+            outline_color = outline[1] if len(outline) > 1 else "#000000FF"
             add_color_edit_with_hex(
                 label=f"##outline_color_{name}_{i}",
                 default_value=outline_color,
@@ -508,7 +508,7 @@ def refresh_textshader_builder_content():
                 user_data=(name, i),
                 parent=outline_group,
                 color_width=100,
-                hex_width=75
+                include_alpha=True
             )
             dpg.add_button(
                 label="X",

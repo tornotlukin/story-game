@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "1.0",
     "description": "Game configuration for Ren'Py project",
-    "generated": "2026-01-21 15:29:53"
+    "generated": "2026-01-21 15:52:08"
   },
   "project": {
     "name": "TEST NAME GAME",
@@ -17,15 +17,15 @@
     "physical_height": 540
   },
   "colors": {
-    "accent": "#0099ccff",
+    "accent": "#ff0000ff",
     "hover": "#66c1e0ff",
-    "idle": "#888888ff",
+    "idle": "#ff9000ff",
     "idle_small": "#aaaaaaff",
     "selected": "#ffffffff",
     "insensitive": "#8888887f",
-    "text": "#ffffffff",
-    "interface_text": "#ffffffff",
-    "muted": "#003d51ff",
+    "text": "#ff0000ff",
+    "interface_text": "#1eff00ff",
+    "muted": "#0007ffff",
     "hover_muted": "#005b7aff"
   },
   "fonts": {
