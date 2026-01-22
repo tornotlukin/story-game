@@ -3,6 +3,10 @@
 ## Tests: quit functionality, dialog boxes, basic navigation
 
 label start:
+    # Jump to theme test - comment this out to run normal game
+    jump theme_test_start
+
+label start_original:
     scene bg_welcome with dissolve
 
     "Welcome to the Paradigm Project test game."

@@ -1,191 +1,209 @@
-## options.rpy - Game configuration
+﻿## This file contains options that can be changed to customize your game.
 ##
-## Ren'Py configuration options. Controls game metadata,
-## build settings, and engine behavior.
+## Lines beginning with two '#' marks are comments, and you shouldn't uncomment
+## them. Lines beginning with a single '#' mark are commented-out code, and you
+## may want to uncomment them when appropriate.
+
+
+## Basics ######################################################################
+
+## A human-readable name of the game. This is used to set the default window
+## title, and shows up in the interface and error reports.
 ##
-## Related files: ui/gui.rpy
+## The _() surrounding the string marks it as eligible for translation.
 
-################################################################################
-## Game Metadata
-################################################################################
+define config.name = _("original_renpy_project")
 
-## Game title shown in window title bar
-define config.name = _("My Story Game")
 
-## Short name for save directories (no spaces or special characters)
-define build.name = "MyStoryGame"
+## Determines if the title given above is shown on the main menu screen. Set
+## this to False to hide the title.
 
-## Version number
-define config.version = "0.1.0"
-
-## Credits text shown on About screen
-define gui.about = _("")
-
-## GUI flag - indicates custom GUI is in use
 define gui.show_name = True
 
 
-################################################################################
-## Sound & Music
-################################################################################
+## The version of the game.
 
-## Main volume mixer
+define config.version = "1.0"
+
+
+## Text that is placed on the game's about screen. Place the text between the
+## triple-quotes, and leave a blank line between paragraphs.
+
+define gui.about = _p("""
+""")
+
+
+## A short name for the game used for executables and directories in the built
+## distribution. This must be ASCII-only, and must not contain spaces, colons,
+## or semicolons.
+
+define build.name = "original_renpy_project"
+
+
+## Sounds and music ############################################################
+
+## These three variables control, among other things, which mixers are shown
+## to the player by default. Setting one of these to False will hide the
+## appropriate mixer.
+
 define config.has_sound = True
 define config.has_music = True
 define config.has_voice = True
 
-## Sample sounds for preferences screen
-define config.sample_sound = None
-define config.sample_voice = None
 
-## Music to play on main menu
-define config.main_menu_music = None
+## To allow the user to play a test sound on the sound or voice channel,
+## uncomment a line below and use it to set a sample sound to play.
 
-
-################################################################################
-## Screen Dimensions
-################################################################################
-
-## Base resolution (vertical/portrait mode)
-define config.screen_width = 1080
-define config.screen_height = 1920
-
-## Window size (for windowed mode)
-define config.physical_width = 540
-define config.physical_height = 960
+# define config.sample_sound = "sample-sound.ogg"
+# define config.sample_voice = "sample-voice.ogg"
 
 
-################################################################################
-## Save/Load Configuration
-################################################################################
+## Uncomment the following line to set an audio file that will be played while
+## the player is at the main menu. This file will continue playing into the
+## game, until it is stopped or another file is played.
 
-## Directory for saves (relative to Ren'Py save location)
-define config.save_directory = "mystorygame-saves"
-
+# define config.main_menu_music = "main-menu-theme.ogg"
 
 
-################################################################################
-## Transitions
-################################################################################
+## Transitions #################################################################
+##
+## These variables set transitions that are used when certain events occur.
+## Each variable should be set to a transition, or None to indicate that no
+## transition should be used.
 
-## Default transitions
+## Entering or exiting the game menu.
+
 define config.enter_transition = dissolve
 define config.exit_transition = dissolve
 
-## Transition between main/game menu and game
+
+## Between screens of the game menu.
+
 define config.intra_transition = dissolve
 
 
-## After load transition
-define config.after_load_transition = dissolve
+## A transition that is used after a game has been loaded.
 
-## End game transition
-define config.end_game_transition = fade
+define config.after_load_transition = None
 
 
-################################################################################
-## Window Behavior
-################################################################################
+## Used when entering the main menu after the game has ended.
 
-## Show dialogue window before dialogue
-define config.window_show_transition = Dissolve(0.2)
-define config.window_hide_transition = Dissolve(0.2)
-
-## Window icon
-define config.window_icon = None
-
-## Quit behavior - show confirm dialog when clicking X button
-define config.quit_action = Quit(confirm=True)
-
-## Custom quit confirmation message (overrides default "Are you sure you want to quit?")
-define gui.QUIT = _("Are you sure you want to quit?\n\nAny unsaved progress will be lost.")
-
-## FIX: Disable transitions for confirm dialogs
-## Workaround for GitHub issue #972 - window close button can cause flash/miss
-## when transitions are enabled on confirm screens
-define config.enter_yesno_transition = None
-define config.exit_yesno_transition = None
+define config.end_game_transition = None
 
 
-################################################################################
-## Dialogue Settings
-################################################################################
+## A variable to set the transition used when the game starts does not exist.
+## Instead, use a with statement after showing the initial scene.
 
-## Default text speed (characters per second, 0 for instant)
-default preferences.text_cps = 40
 
-## Auto-forward time
+## Window management ###########################################################
+##
+## This controls when the dialogue window is displayed. If "show", it is always
+## displayed. If "hide", it is only displayed when dialogue is present. If
+## "auto", the window is hidden before scene statements and shown again once
+## dialogue is displayed.
+##
+## After the game has started, this can be changed with the "window show",
+## "window hide", and "window auto" statements.
+
+define config.window = "auto"
+
+
+## Transitions used to show and hide the dialogue window
+
+define config.window_show_transition = Dissolve(.2)
+define config.window_hide_transition = Dissolve(.2)
+
+
+## Preference defaults #########################################################
+
+## Controls the default text speed. The default, 0, is infinite, while any other
+## number is the number of characters per second to type out.
+
+default preferences.text_cps = 0
+
+
+## The default auto-forward delay. Larger numbers lead to longer waits, with 0
+## to 30 being the valid range.
+
 default preferences.afm_time = 15
 
 
-################################################################################
-## Layers
-################################################################################
+## Save directory ##############################################################
+##
+## Controls the platform-specific place Ren'Py will place the save files for
+## this game. The save files will be placed in:
+##
+## Windows: %APPDATA\RenPy\<config.save_directory>
+##
+## Macintosh: $HOME/Library/RenPy/<config.save_directory>
+##
+## Linux: $HOME/.renpy/<config.save_directory>
+##
+## This generally should not be changed, and if it is, should always be a
+## literal string, not an expression.
 
-## Image layers (bottom to top)
-define config.layers = ['master', 'transient', 'screens', 'overlay']
-
-
-################################################################################
-## Graphics / Renderer
-################################################################################
-
-## Prefer ANGLE2 renderer on Windows (more stable with window events)
-## Users can override with Shift+G during gameplay
-## Options: "auto", "gl", "angle", "gles", "gl2", "angle2", "gles2"
-default preferences.renderer = "auto"
-
-## Mouse focus clickthrough - if true, clicks that focus the window are also
-## processed as game clicks. Set to False to prevent X button click from
-## advancing dialogue.
-define config.mouse_focus_clickthrough = False
+define config.save_directory = "original_renpy_project-1769097284"
 
 
-################################################################################
-## Developer Tools
-################################################################################
+## Icon ########################################################################
+##
+## The icon displayed on the taskbar or dock.
 
-## Enable developer console (Shift+O)
-## Set to False to avoid director screen issues
-define config.developer = False
-
-## Console access
-define config.console = False
+define config.window_icon = "gui/window_icon.png"
 
 
-################################################################################
-## Build Configuration
-################################################################################
+## Build configuration #########################################################
+##
+## This section controls how Ren'Py turns your project into distribution files.
 
 init python:
 
-    ## File patterns to include in distributions
+    ## The following functions take file patterns. File patterns are case-
+    ## insensitive, and matched against the path relative to the base directory,
+    ## with and without a leading /. If multiple patterns match, the first is
+    ## used.
+    ##
+    ## In a pattern:
+    ##
+    ## / is the directory separator.
+    ##
+    ## * matches all characters, except the directory separator.
+    ##
+    ## ** matches all characters, including the directory separator.
+    ##
+    ## For example, "*.txt" matches txt files in the base directory, "game/
+    ## **.ogg" matches ogg files in the game directory or any of its
+    ## subdirectories, and "**.psd" matches psd files anywhere in the project.
+
+    ## Classify files as None to exclude them from the built distributions.
+
     build.classify('**~', None)
     build.classify('**.bak', None)
     build.classify('**/.**', None)
     build.classify('**/#**', None)
     build.classify('**/thumbs.db', None)
-    build.classify('**.rpy', None)
-    build.classify('**.rpyc', 'archive')
-    build.classify('**.png', 'archive')
-    build.classify('**.jpg', 'archive')
-    build.classify('**.webp', 'archive')
-    build.classify('**.ogg', 'archive')
-    build.classify('**.opus', 'archive')
-    build.classify('**.mp3', 'archive')
 
-    ## Documentation to include
+    ## To archive files, classify them as 'archive'.
+
+    # build.classify('game/**.png', 'archive')
+    # build.classify('game/**.jpg', 'archive')
+
+    ## Files matching documentation patterns are duplicated in a mac app build,
+    ## so they appear in both the app and the zip file.
+
     build.documentation('*.html')
     build.documentation('*.txt')
 
 
-################################################################################
-## Mobile Configuration
-################################################################################
+## A Google Play license key is required to perform in-app purchases. It can be
+## found in the Google Play developer console, under "Monetize" > "Monetization
+## Setup" > "Licensing".
 
-## Enable mobile variants
-define config.variants = ['touch', 'small', 'medium', 'large', 'tablet', 'phone']
+# define build.google_play_key = "..."
 
-## Mobile gestures (maps gesture patterns to events)
-## Example: "n_s_w_e_w_e" maps to "progress_screen"
-define config.gestures = {}
+
+## The username and project name associated with an itch.io project, separated
+## by a slash.
+
+# define build.itch_project = "renpytom/test-project"

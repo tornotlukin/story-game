@@ -19,8 +19,23 @@ This is a Ren'Py 8.5.2 interactive fiction project focused on **technical implem
 - **Easy scanning** - humans and LLMs should quickly understand any file
 
 ### Documentation Reference
-- **/doc/renpy** - folder location for renpy documentation
-- check out the claude.md file in the /docs folder for doc search methodology
+- **`docs/renpy_file_org.md`** - **CRITICAL: Read this before creating/modifying .rpy files**
+  - Standard Ren'Py project structure
+  - What each file does (gui.rpy, options.rpy, screens.rpy, etc.)
+  - Style system and inheritance rules
+  - Positioning/layout syntax (avoid common mistakes)
+  - Common gotchas and solutions
+- **`docs/original_renpy_project/`** - **Fresh Ren'Py project from launcher (DO NOT MODIFY)**
+  - Use as comparison baseline when debugging or modifying .rpy files
+  - Contains unmodified: gui.rpy, screens.rpy, options.rpy, script.rpy, gui/ assets
+  - Compare your changes against original to spot issues
+- **`docs/game_config_targets.md`** - **Preset Editor File Targets**
+  - Maps every configurable property to its target file
+  - Line patterns for parsing/modifying properties
+  - Data types, default values, editor labels
+  - Used by preset_editor Game Config tab
+- **`docs/renpy/`** - Full Ren'Py 8.x HTML documentation
+- **`docs/CLAUDE.md`** - HTML doc search methodology
 
 ### IMPORTANT: Preset Editor Parity
 
@@ -46,7 +61,14 @@ story-game/                         # Project root
 ├── claude.md                       # Development guide (this file)
 ├── README.md                       # User-facing documentation
 ├── docs/                           # Reference documentation
-│   └── renpy/                      # Ren'Py 8.x HTML documentation
+│   ├── renpy/                      # Ren'Py 8.x HTML documentation
+│   ├── renpy_file_org.md           # Ren'Py project structure guide
+│   └── original_renpy_project/     # Fresh Ren'Py project (DO NOT MODIFY)
+│       ├── gui.rpy                 # Original GUI variables
+│       ├── screens.rpy             # Original screen definitions
+│       ├── options.rpy             # Original config
+│       ├── script.rpy              # Original entry point
+│       └── gui/                    # Original GUI assets
 │
 └── game/                           # Ren'Py game folder (all game code)
     │

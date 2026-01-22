@@ -18,7 +18,8 @@
       "Bash(fc:*)",
       "Bash(powershell -Command:*)",
       "WebFetch(domain:www.renpy.org)",
-      "WebFetch(domain:lemmasoft.renai.us)"
+      "WebFetch(domain:lemmasoft.renai.us)",
+      "Bash(del \"C:\\\\Work\\\\story-game\\\\game\\\\theme_test.rpyc\")"
     ]
   }
 }
