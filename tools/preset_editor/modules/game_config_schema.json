@@ -1,0 +1,1683 @@
+{
+    "_meta": {
+        "version": "1.0.0",
+        "description": "Game Config tab schema for preset_editor",
+        "target_files": {
+            "gui": "game/gui.rpy",
+            "options": "game/options.rpy"
+        }
+    },
+
+    "categories": [
+        {
+            "id": "project",
+            "label": "Project Info",
+            "icon": "info",
+            "description": "Game identity and build settings"
+        },
+        {
+            "id": "dimensions",
+            "label": "Screen Dimensions",
+            "icon": "monitor",
+            "description": "Virtual and physical screen sizes"
+        },
+        {
+            "id": "colors",
+            "label": "Colors",
+            "icon": "palette",
+            "description": "UI color scheme"
+        },
+        {
+            "id": "fonts",
+            "label": "Fonts",
+            "icon": "type",
+            "description": "Font families and sizes"
+        },
+        {
+            "id": "dialogue",
+            "label": "Dialogue Box",
+            "icon": "message-square",
+            "description": "Textbox and dialogue layout"
+        },
+        {
+            "id": "namebox",
+            "label": "Name Box",
+            "icon": "user",
+            "description": "Character name display"
+        },
+        {
+            "id": "choices",
+            "label": "Choice Buttons",
+            "icon": "list",
+            "description": "Menu choice appearance"
+        },
+        {
+            "id": "buttons",
+            "label": "Buttons",
+            "icon": "square",
+            "description": "General button styling"
+        },
+        {
+            "id": "ui_elements",
+            "label": "UI Elements",
+            "icon": "sliders",
+            "description": "Bars, scrollbars, and sliders"
+        },
+        {
+            "id": "backgrounds",
+            "label": "Backgrounds",
+            "icon": "image",
+            "description": "Menu background images"
+        },
+        {
+            "id": "text_speed",
+            "label": "Text Speed",
+            "icon": "zap",
+            "description": "Text display timing"
+        },
+        {
+            "id": "history",
+            "label": "History Screen",
+            "icon": "clock",
+            "description": "Dialogue history layout"
+        },
+        {
+            "id": "nvl",
+            "label": "NVL Mode",
+            "icon": "file-text",
+            "description": "Novel mode layout"
+        },
+        {
+            "id": "spacing",
+            "label": "Spacing & Layout",
+            "icon": "layout",
+            "description": "UI spacing and positioning"
+        },
+        {
+            "id": "frames",
+            "label": "Frames & Borders",
+            "icon": "box",
+            "description": "Frame styling"
+        },
+        {
+            "id": "transitions",
+            "label": "Transitions",
+            "icon": "shuffle",
+            "description": "Screen transition effects"
+        },
+        {
+            "id": "audio",
+            "label": "Audio",
+            "icon": "volume-2",
+            "description": "Sound settings"
+        },
+        {
+            "id": "touch",
+            "label": "Touch & Input",
+            "icon": "smartphone",
+            "description": "Touch targets and input configuration"
+        }
+    ],
+
+    "properties": [
+        {
+            "id": "config.name",
+            "label": "Game Name",
+            "category": "project",
+            "file": "options",
+            "pattern": "define config.name = ",
+            "type": "string",
+            "default": "My Visual Novel",
+            "description": "Displayed in window title and menus",
+            "enabled": true,
+            "translatable": true
+        },
+        {
+            "id": "config.version",
+            "label": "Version",
+            "category": "project",
+            "file": "options",
+            "pattern": "define config.version = ",
+            "type": "string",
+            "default": "1.0",
+            "description": "Game version string",
+            "enabled": true
+        },
+        {
+            "id": "build.name",
+            "label": "Build Name",
+            "category": "project",
+            "file": "options",
+            "pattern": "define build.name = ",
+            "type": "string",
+            "default": "MyVisualNovel",
+            "description": "Used for distribution filenames (ASCII only, no spaces)",
+            "enabled": true,
+            "validation": {
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "message": "ASCII letters, numbers, underscore, hyphen only"
+            }
+        },
+        {
+            "id": "config.save_directory",
+            "label": "Save Directory",
+            "category": "project",
+            "file": "options",
+            "pattern": "define config.save_directory = ",
+            "type": "string",
+            "default": "MyVisualNovel-1234567890",
+            "description": "Unique folder name for save files",
+            "enabled": true
+        },
+        {
+            "id": "gui.init_width",
+            "label": "Virtual Width",
+            "category": "dimensions",
+            "file": "gui",
+            "pattern": "gui.init(",
+            "pattern_type": "function_arg",
+            "arg_index": 0,
+            "type": "int",
+            "default": 1920,
+            "description": "Game canvas width in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 640,
+                "max": 7680
+            }
+        },
+        {
+            "id": "gui.init_height",
+            "label": "Virtual Height",
+            "category": "dimensions",
+            "file": "gui",
+            "pattern": "gui.init(",
+            "pattern_type": "function_arg",
+            "arg_index": 1,
+            "type": "int",
+            "default": 1080,
+            "description": "Game canvas height in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 480,
+                "max": 4320
+            }
+        },
+        {
+            "id": "gui.accent_color",
+            "label": "Accent Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.accent_color = ",
+            "type": "color",
+            "default": "#0099cc",
+            "description": "Primary accent for labels and highlights",
+            "enabled": true
+        },
+        {
+            "id": "gui.idle_color",
+            "label": "Idle Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.idle_color = ",
+            "type": "color",
+            "default": "#888888",
+            "description": "Unhovered text buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.idle_small_color",
+            "label": "Idle Small Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.idle_small_color = ",
+            "type": "color",
+            "default": "#aaaaaa",
+            "description": "Small text (brighter for readability)",
+            "enabled": true
+        },
+        {
+            "id": "gui.hover_color",
+            "label": "Hover Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.hover_color = ",
+            "type": "color",
+            "default": "#66c1e0",
+            "description": "Hovered buttons and bars",
+            "enabled": true
+        },
+        {
+            "id": "gui.selected_color",
+            "label": "Selected Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.selected_color = ",
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Currently selected items",
+            "enabled": true
+        },
+        {
+            "id": "gui.insensitive_color",
+            "label": "Insensitive Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.insensitive_color = ",
+            "type": "color",
+            "default": "#8888887f",
+            "description": "Disabled/unavailable items",
+            "enabled": true,
+            "supports_alpha": true
+        },
+        {
+            "id": "gui.muted_color",
+            "label": "Muted Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.muted_color = ",
+            "type": "color",
+            "default": "#003d51",
+            "description": "Unfilled bar portions",
+            "enabled": true
+        },
+        {
+            "id": "gui.hover_muted_color",
+            "label": "Hover Muted Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.hover_muted_color = ",
+            "type": "color",
+            "default": "#005b7a",
+            "description": "Unfilled bar portions when hovered",
+            "enabled": true
+        },
+        {
+            "id": "gui.text_color",
+            "label": "Text Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.text_color = ",
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Main dialogue text",
+            "enabled": true
+        },
+        {
+            "id": "gui.interface_text_color",
+            "label": "Interface Text Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.interface_text_color = ",
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Menu and UI text",
+            "enabled": true
+        },
+        {
+            "id": "gui.dialogue_text_color",
+            "label": "Dialogue Text Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.dialogue_text_color = ",
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Dialogue box text (if different from text_color)",
+            "enabled": true
+        },
+        {
+            "id": "gui.name_text_color",
+            "label": "Name Text Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.name_text_color = ",
+            "type": "color",
+            "default": "#cc6699",
+            "description": "Default character name color",
+            "enabled": true
+        },
+        {
+            "id": "gui.frame_color",
+            "label": "Frame Color",
+            "category": "colors",
+            "file": "gui",
+            "pattern": "define gui.frame_color = ",
+            "type": "color",
+            "default": "#1a1a1a",
+            "description": "Frame background color",
+            "enabled": true
+        },
+        {
+            "id": "gui.bar_color",
+            "label": "Bar Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.bar_color = ",
+            "type": "color",
+            "default": "#404040",
+            "description": "Unfilled bar color",
+            "enabled": true
+        },
+        {
+            "id": "gui.bar_full_color",
+            "label": "Bar Full Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.bar_full_color = ",
+            "type": "color",
+            "default": "#cc6699",
+            "description": "Filled bar color",
+            "enabled": true
+        },
+        {
+            "id": "gui.scrollbar_color",
+            "label": "Scrollbar Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.scrollbar_color = ",
+            "type": "color",
+            "default": "#555555",
+            "description": "Scrollbar idle color",
+            "enabled": true
+        },
+        {
+            "id": "gui.scrollbar_hover_color",
+            "label": "Scrollbar Hover Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.scrollbar_hover_color = ",
+            "type": "color",
+            "default": "#777777",
+            "description": "Scrollbar hover color",
+            "enabled": true
+        },
+        {
+            "id": "gui.slider_color",
+            "label": "Slider Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.slider_color = ",
+            "type": "color",
+            "default": "#555555",
+            "description": "Slider idle color",
+            "enabled": true
+        },
+        {
+            "id": "gui.slider_hover_color",
+            "label": "Slider Hover Color",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.slider_hover_color = ",
+            "type": "color",
+            "default": "#777777",
+            "description": "Slider hover color",
+            "enabled": true
+        },
+        {
+            "id": "gui.text_font",
+            "label": "Text Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.text_font = ",
+            "type": "font",
+            "default": "DejaVuSans.ttf",
+            "description": "Main dialogue font",
+            "enabled": true
+        },
+        {
+            "id": "gui.name_text_font",
+            "label": "Name Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.name_text_font = ",
+            "type": "font",
+            "default": "DejaVuSans.ttf",
+            "description": "Character name font",
+            "enabled": true
+        },
+        {
+            "id": "gui.interface_text_font",
+            "label": "Interface Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.interface_text_font = ",
+            "type": "font",
+            "default": "DejaVuSans.ttf",
+            "description": "Menu and UI font",
+            "enabled": true
+        },
+        {
+            "id": "gui.text_size",
+            "label": "Text Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.text_size = ",
+            "type": "int",
+            "default": 33,
+            "description": "Dialogue text size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.name_text_size",
+            "label": "Name Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.name_text_size = ",
+            "type": "int",
+            "default": 45,
+            "description": "Character name size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.interface_text_size",
+            "label": "Interface Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.interface_text_size = ",
+            "type": "int",
+            "default": 33,
+            "description": "Menu/UI text size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.label_text_size",
+            "label": "Label Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.label_text_size = ",
+            "type": "int",
+            "default": 36,
+            "description": "Section label size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.notify_text_size",
+            "label": "Notify Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.notify_text_size = ",
+            "type": "int",
+            "default": 24,
+            "description": "Notification text size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.title_text_size",
+            "label": "Title Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.title_text_size = ",
+            "type": "int",
+            "default": 75,
+            "description": "Title/heading size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 16,
+                "max": 144
+            }
+        },
+        {
+            "id": "gui.prompt_text_size",
+            "label": "Prompt Size",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.prompt_text_size = ",
+            "type": "int",
+            "default": 28,
+            "description": "Input prompt text size in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 72
+            }
+        },
+        {
+            "id": "gui.system_font",
+            "label": "System Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.system_font = ",
+            "type": "font",
+            "default": "CalSans-Regular.ttf",
+            "description": "Font for system notifications",
+            "enabled": true
+        },
+        {
+            "id": "gui.glyph_font",
+            "label": "Glyph Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.glyph_font = ",
+            "type": "font",
+            "default": "DejaVuSans.ttf",
+            "description": "Font for special characters/icons",
+            "enabled": true
+        },
+        {
+            "id": "gui.mono_font",
+            "label": "Monospace Font",
+            "category": "fonts",
+            "file": "gui",
+            "pattern": "define gui.mono_font = ",
+            "type": "font",
+            "default": "DejaVuSansMono.ttf",
+            "description": "Monospace font for typewriter effect",
+            "enabled": true
+        },
+        {
+            "id": "gui.textbox_height",
+            "label": "Textbox Height",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.textbox_height = ",
+            "type": "int",
+            "default": 278,
+            "description": "Height of dialogue box in pixels",
+            "enabled": true,
+            "validation": {
+                "min": 100,
+                "max": 600
+            }
+        },
+        {
+            "id": "gui.textbox_yalign",
+            "label": "Textbox Y Align",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.textbox_yalign = ",
+            "type": "float",
+            "default": 1.0,
+            "description": "Vertical position (0.0=top, 0.5=center, 1.0=bottom)",
+            "enabled": true,
+            "validation": {
+                "min": 0.0,
+                "max": 1.0
+            }
+        },
+        {
+            "id": "gui.dialogue_xpos",
+            "label": "Dialogue X Position",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.dialogue_xpos = ",
+            "type": "int",
+            "default": 402,
+            "description": "Dialogue text X offset from textbox left",
+            "enabled": true
+        },
+        {
+            "id": "gui.dialogue_ypos",
+            "label": "Dialogue Y Position",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.dialogue_ypos = ",
+            "type": "int",
+            "default": 75,
+            "description": "Dialogue text Y offset from textbox top",
+            "enabled": true
+        },
+        {
+            "id": "gui.dialogue_width",
+            "label": "Dialogue Width",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.dialogue_width = ",
+            "type": "int",
+            "default": 1116,
+            "description": "Maximum width of dialogue text",
+            "enabled": true
+        },
+        {
+            "id": "gui.dialogue_text_xalign",
+            "label": "Dialogue Text Align",
+            "category": "dialogue",
+            "file": "gui",
+            "pattern": "define gui.dialogue_text_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Text alignment (0.0=left, 0.5=center, 1.0=right)",
+            "enabled": true,
+            "validation": {
+                "min": 0.0,
+                "max": 1.0
+            }
+        },
+        {
+            "id": "gui.name_xpos",
+            "label": "Name X Position",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.name_xpos = ",
+            "type": "int",
+            "default": 360,
+            "description": "Name text X offset from textbox left",
+            "enabled": true
+        },
+        {
+            "id": "gui.name_ypos",
+            "label": "Name Y Position",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.name_ypos = ",
+            "type": "int",
+            "default": 0,
+            "description": "Name text Y offset from textbox top",
+            "enabled": true
+        },
+        {
+            "id": "gui.name_xalign",
+            "label": "Name X Align",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.name_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Name alignment (0.0=left, 0.5=center, 1.0=right)",
+            "enabled": true,
+            "validation": {
+                "min": 0.0,
+                "max": 1.0
+            }
+        },
+        {
+            "id": "gui.namebox_width",
+            "label": "Namebox Width",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.namebox_width = ",
+            "type": "int_or_none",
+            "default": null,
+            "description": "Width of name box (None = auto-size)",
+            "enabled": true
+        },
+        {
+            "id": "gui.namebox_height",
+            "label": "Namebox Height",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.namebox_height = ",
+            "type": "int_or_none",
+            "default": null,
+            "description": "Height of name box (None = auto-size)",
+            "enabled": true
+        },
+        {
+            "id": "gui.namebox_borders",
+            "label": "Namebox Borders",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.namebox_borders = ",
+            "type": "borders",
+            "default": [5, 5, 5, 5],
+            "description": "Name box padding (left, top, right, bottom)",
+            "enabled": true
+        },
+        {
+            "id": "gui.namebox_tile",
+            "label": "Namebox Tile",
+            "category": "namebox",
+            "file": "gui",
+            "pattern": "define gui.namebox_tile = ",
+            "type": "bool",
+            "default": false,
+            "description": "Tile namebox background instead of scaling",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_width",
+            "label": "Choice Button Width",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_width = ",
+            "type": "int",
+            "default": 1185,
+            "description": "Width of choice buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_height",
+            "label": "Choice Button Height",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_height = ",
+            "type": "int_or_none",
+            "default": null,
+            "description": "Height of choice buttons (None = auto)",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_spacing",
+            "label": "Choice Spacing",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_spacing = ",
+            "type": "int",
+            "default": 33,
+            "description": "Space between choice buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_text_idle_color",
+            "label": "Choice Idle Color",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_text_idle_color = ",
+            "type": "color",
+            "default": "#888888",
+            "description": "Choice button text when idle",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_text_hover_color",
+            "label": "Choice Hover Color",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_text_hover_color = ",
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Choice button text when hovered",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_text_insensitive_color",
+            "label": "Choice Insensitive Color",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_text_insensitive_color = ",
+            "type": "color",
+            "default": "#8888887f",
+            "description": "Choice button text when disabled",
+            "enabled": true,
+            "supports_alpha": true
+        },
+        {
+            "id": "gui.choice_button_borders",
+            "label": "Choice Button Borders",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_borders = ",
+            "type": "borders",
+            "default": [150, 8, 150, 8],
+            "description": "Choice button padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.choice_button_text_xalign",
+            "label": "Choice Text Align",
+            "category": "choices",
+            "file": "gui",
+            "pattern": "define gui.choice_button_text_xalign = ",
+            "type": "float",
+            "default": 0.5,
+            "description": "Choice text alignment",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_width",
+            "label": "Button Width",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_width = ",
+            "type": "int_or_none",
+            "default": null,
+            "description": "Default button width (None = auto)",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_height",
+            "label": "Button Height",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_height = ",
+            "type": "int_or_none",
+            "default": null,
+            "description": "Default button height (None = auto)",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_borders",
+            "label": "Button Borders",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_borders = ",
+            "type": "borders",
+            "default": [6, 6, 6, 6],
+            "description": "Button padding (left, top, right, bottom)",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_text_idle_color",
+            "label": "Button Idle Color",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_text_idle_color = ",
+            "type": "color_or_ref",
+            "default": "gui.idle_color",
+            "description": "Button text when idle",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_text_hover_color",
+            "label": "Button Hover Color",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_text_hover_color = ",
+            "type": "color_or_ref",
+            "default": "gui.hover_color",
+            "description": "Button text when hovered",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_text_selected_color",
+            "label": "Button Selected Color",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_text_selected_color = ",
+            "type": "color_or_ref",
+            "default": "gui.selected_color",
+            "description": "Button text when selected",
+            "enabled": true
+        },
+        {
+            "id": "gui.button_text_insensitive_color",
+            "label": "Button Insensitive Color",
+            "category": "buttons",
+            "file": "gui",
+            "pattern": "define gui.button_text_insensitive_color = ",
+            "type": "color_or_ref",
+            "default": "gui.insensitive_color",
+            "description": "Button text when disabled",
+            "enabled": true
+        },
+        {
+            "id": "gui.bar_size",
+            "label": "Bar Size",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.bar_size = ",
+            "type": "int",
+            "default": 38,
+            "description": "Height of horizontal bars / width of vertical bars",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 100
+            }
+        },
+        {
+            "id": "gui.scrollbar_size",
+            "label": "Scrollbar Size",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.scrollbar_size = ",
+            "type": "int",
+            "default": 18,
+            "description": "Width of scrollbars",
+            "enabled": true,
+            "validation": {
+                "min": 4,
+                "max": 50
+            }
+        },
+        {
+            "id": "gui.slider_size",
+            "label": "Slider Size",
+            "category": "ui_elements",
+            "file": "gui",
+            "pattern": "define gui.slider_size = ",
+            "type": "int",
+            "default": 38,
+            "description": "Height of slider tracks",
+            "enabled": true,
+            "validation": {
+                "min": 8,
+                "max": 100
+            }
+        },
+        {
+            "id": "gui.main_menu_background",
+            "label": "Main Menu Background",
+            "category": "backgrounds",
+            "file": "gui",
+            "pattern": "define gui.main_menu_background = ",
+            "type": "image_path",
+            "default": "gui/main_menu.png",
+            "description": "Background image for main menu",
+            "enabled": true
+        },
+        {
+            "id": "gui.game_menu_background",
+            "label": "Game Menu Background",
+            "category": "backgrounds",
+            "file": "gui",
+            "pattern": "define gui.game_menu_background = ",
+            "type": "image_path",
+            "default": "gui/game_menu.png",
+            "description": "Background image for in-game menus",
+            "enabled": true
+        },
+        {
+            "id": "preferences.text_cps",
+            "label": "Text Speed (CPS)",
+            "category": "text_speed",
+            "file": "options",
+            "pattern": "default preferences.text_cps = ",
+            "type": "int",
+            "default": 0,
+            "description": "Characters per second (0 = instant)",
+            "enabled": true,
+            "validation": {
+                "min": 0,
+                "max": 200
+            }
+        },
+        {
+            "id": "preferences.afm_time",
+            "label": "Auto-Forward Time",
+            "category": "text_speed",
+            "file": "options",
+            "pattern": "default preferences.afm_time = ",
+            "type": "int",
+            "default": 15,
+            "description": "Auto-forward delay (0-30)",
+            "enabled": true,
+            "validation": {
+                "min": 0,
+                "max": 30
+            }
+        },
+        {
+            "id": "gui.history_height",
+            "label": "History Entry Height",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_height = ",
+            "type": "int_or_none",
+            "default": 210,
+            "description": "Height of history entries (None = variable)",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_spacing",
+            "label": "History Spacing",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_spacing = ",
+            "type": "int",
+            "default": 0,
+            "description": "Space between history entries",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_name_xpos",
+            "label": "History Name X Pos",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_name_xpos = ",
+            "type": "int",
+            "default": 233,
+            "description": "Name X position in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_name_ypos",
+            "label": "History Name Y Pos",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_name_ypos = ",
+            "type": "int",
+            "default": 0,
+            "description": "Name Y position in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_name_width",
+            "label": "History Name Width",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_name_width = ",
+            "type": "int",
+            "default": 233,
+            "description": "Name text width in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_name_xalign",
+            "label": "History Name Align",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_name_xalign = ",
+            "type": "float",
+            "default": 1.0,
+            "description": "Name alignment in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_text_xpos",
+            "label": "History Text X Pos",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_text_xpos = ",
+            "type": "int",
+            "default": 255,
+            "description": "Text X position in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_text_ypos",
+            "label": "History Text Y Pos",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_text_ypos = ",
+            "type": "int",
+            "default": 3,
+            "description": "Text Y position in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_text_width",
+            "label": "History Text Width",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_text_width = ",
+            "type": "int",
+            "default": 1110,
+            "description": "Text width in history",
+            "enabled": true
+        },
+        {
+            "id": "gui.history_text_xalign",
+            "label": "History Text Align",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define gui.history_text_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Text alignment in history",
+            "enabled": true
+        },
+        {
+            "id": "config.history_length",
+            "label": "History Length",
+            "category": "history",
+            "file": "gui",
+            "pattern": "define config.history_length = ",
+            "type": "int",
+            "default": 250,
+            "description": "Number of dialogue entries to keep",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_borders",
+            "label": "NVL Borders",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_borders = ",
+            "type": "borders",
+            "default": [0, 15, 0, 30],
+            "description": "NVL window padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_height",
+            "label": "NVL Entry Height",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_height = ",
+            "type": "int_or_none",
+            "default": 173,
+            "description": "Height of NVL entries (None = variable)",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_spacing",
+            "label": "NVL Spacing",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_spacing = ",
+            "type": "int",
+            "default": 15,
+            "description": "Space between NVL entries",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_name_xpos",
+            "label": "NVL Name X Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_name_xpos = ",
+            "type": "int",
+            "default": 645,
+            "description": "Name X position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_name_ypos",
+            "label": "NVL Name Y Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_name_ypos = ",
+            "type": "int",
+            "default": 0,
+            "description": "Name Y position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_name_width",
+            "label": "NVL Name Width",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_name_width = ",
+            "type": "int",
+            "default": 225,
+            "description": "Name width in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_name_xalign",
+            "label": "NVL Name Align",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_name_xalign = ",
+            "type": "float",
+            "default": 1.0,
+            "description": "Name alignment in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_text_xpos",
+            "label": "NVL Text X Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_text_xpos = ",
+            "type": "int",
+            "default": 675,
+            "description": "Text X position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_text_ypos",
+            "label": "NVL Text Y Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_text_ypos = ",
+            "type": "int",
+            "default": 12,
+            "description": "Text Y position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_text_width",
+            "label": "NVL Text Width",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_text_width = ",
+            "type": "int",
+            "default": 885,
+            "description": "Text width in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_text_xalign",
+            "label": "NVL Text Align",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_text_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Text alignment in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_thought_xpos",
+            "label": "NVL Thought X Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_thought_xpos = ",
+            "type": "int",
+            "default": 360,
+            "description": "Thought X position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_thought_width",
+            "label": "NVL Thought Width",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_thought_width = ",
+            "type": "int",
+            "default": 1170,
+            "description": "Thought width in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_thought_xalign",
+            "label": "NVL Thought Align",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_thought_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Thought alignment in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_button_xpos",
+            "label": "NVL Button X Pos",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_button_xpos = ",
+            "type": "int",
+            "default": 675,
+            "description": "Button X position in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.nvl_button_xalign",
+            "label": "NVL Button Align",
+            "category": "nvl",
+            "file": "gui",
+            "pattern": "define gui.nvl_button_xalign = ",
+            "type": "float",
+            "default": 0.0,
+            "description": "Button alignment in NVL",
+            "enabled": true
+        },
+        {
+            "id": "gui.navigation_xpos",
+            "label": "Navigation X Pos",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.navigation_xpos = ",
+            "type": "int",
+            "default": 60,
+            "description": "Navigation button X position",
+            "enabled": true
+        },
+        {
+            "id": "gui.navigation_spacing",
+            "label": "Navigation Spacing",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.navigation_spacing = ",
+            "type": "int",
+            "default": 6,
+            "description": "Space between navigation buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.pref_spacing",
+            "label": "Preference Spacing",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.pref_spacing = ",
+            "type": "int",
+            "default": 15,
+            "description": "Space between preference groups",
+            "enabled": true
+        },
+        {
+            "id": "gui.pref_button_spacing",
+            "label": "Pref Button Spacing",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.pref_button_spacing = ",
+            "type": "int",
+            "default": 0,
+            "description": "Space between preference buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.page_spacing",
+            "label": "Page Spacing",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.page_spacing = ",
+            "type": "int",
+            "default": 0,
+            "description": "Space between page buttons",
+            "enabled": true
+        },
+        {
+            "id": "gui.slot_spacing",
+            "label": "Slot Spacing",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.slot_spacing = ",
+            "type": "int",
+            "default": 15,
+            "description": "Space between save slots",
+            "enabled": true
+        },
+        {
+            "id": "gui.file_slot_cols",
+            "label": "Save Slot Columns",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.file_slot_cols = ",
+            "type": "int",
+            "default": 3,
+            "description": "Number of save slot columns",
+            "enabled": true
+        },
+        {
+            "id": "gui.file_slot_rows",
+            "label": "Save Slot Rows",
+            "category": "spacing",
+            "file": "gui",
+            "pattern": "define gui.file_slot_rows = ",
+            "type": "int",
+            "default": 2,
+            "description": "Number of save slot rows",
+            "enabled": true
+        },
+        {
+            "id": "gui.frame_borders",
+            "label": "Frame Borders",
+            "category": "frames",
+            "file": "gui",
+            "pattern": "define gui.frame_borders = ",
+            "type": "borders",
+            "default": [6, 6, 6, 6],
+            "description": "Generic frame padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.confirm_frame_borders",
+            "label": "Confirm Frame Borders",
+            "category": "frames",
+            "file": "gui",
+            "pattern": "define gui.confirm_frame_borders = ",
+            "type": "borders",
+            "default": [60, 60, 60, 60],
+            "description": "Confirm dialog padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.skip_frame_borders",
+            "label": "Skip Frame Borders",
+            "category": "frames",
+            "file": "gui",
+            "pattern": "define gui.skip_frame_borders = ",
+            "type": "borders",
+            "default": [24, 8, 75, 8],
+            "description": "Skip indicator padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.notify_frame_borders",
+            "label": "Notify Frame Borders",
+            "category": "frames",
+            "file": "gui",
+            "pattern": "define gui.notify_frame_borders = ",
+            "type": "borders",
+            "default": [24, 8, 60, 8],
+            "description": "Notification padding",
+            "enabled": true
+        },
+        {
+            "id": "gui.frame_tile",
+            "label": "Frame Tile",
+            "category": "frames",
+            "file": "gui",
+            "pattern": "define gui.frame_tile = ",
+            "type": "bool",
+            "default": false,
+            "description": "Tile frame backgrounds instead of scaling",
+            "enabled": true
+        },
+        {
+            "id": "config.enter_transition",
+            "label": "Enter Menu Transition",
+            "category": "transitions",
+            "file": "options",
+            "pattern": "define config.enter_transition = ",
+            "type": "transition",
+            "default": "dissolve",
+            "description": "Transition when entering game menu",
+            "enabled": true
+        },
+        {
+            "id": "config.exit_transition",
+            "label": "Exit Menu Transition",
+            "category": "transitions",
+            "file": "options",
+            "pattern": "define config.exit_transition = ",
+            "type": "transition",
+            "default": "dissolve",
+            "description": "Transition when exiting game menu",
+            "enabled": true
+        },
+        {
+            "id": "config.intra_transition",
+            "label": "Menu Screen Transition",
+            "category": "transitions",
+            "file": "options",
+            "pattern": "define config.intra_transition = ",
+            "type": "transition",
+            "default": "dissolve",
+            "description": "Transition between menu screens",
+            "enabled": true
+        },
+        {
+            "id": "config.window_show_transition",
+            "label": "Window Show Transition",
+            "category": "transitions",
+            "file": "options",
+            "pattern": "define config.window_show_transition = ",
+            "type": "transition",
+            "default": "Dissolve(.2)",
+            "description": "Transition when showing dialogue window",
+            "enabled": true
+        },
+        {
+            "id": "config.window_hide_transition",
+            "label": "Window Hide Transition",
+            "category": "transitions",
+            "file": "options",
+            "pattern": "define config.window_hide_transition = ",
+            "type": "transition",
+            "default": "Dissolve(.2)",
+            "description": "Transition when hiding dialogue window",
+            "enabled": true
+        },
+        {
+            "id": "config.has_sound",
+            "label": "Has Sound Effects",
+            "category": "audio",
+            "file": "options",
+            "pattern": "define config.has_sound = ",
+            "type": "bool",
+            "default": true,
+            "description": "Show sound mixer in preferences",
+            "enabled": true
+        },
+        {
+            "id": "config.has_music",
+            "label": "Has Music",
+            "category": "audio",
+            "file": "options",
+            "pattern": "define config.has_music = ",
+            "type": "bool",
+            "default": true,
+            "description": "Show music mixer in preferences",
+            "enabled": true
+        },
+        {
+            "id": "config.has_voice",
+            "label": "Has Voice",
+            "category": "audio",
+            "file": "options",
+            "pattern": "define config.has_voice = ",
+            "type": "bool",
+            "default": true,
+            "description": "Show voice mixer in preferences",
+            "enabled": true
+        },
+        {
+            "id": "gui.show_name",
+            "label": "Show Game Name",
+            "category": "project",
+            "file": "options",
+            "pattern": "define gui.show_name = ",
+            "type": "bool",
+            "default": true,
+            "description": "Display game name on main menu",
+            "enabled": true
+        },
+        {
+            "id": "gui.about",
+            "label": "About Text",
+            "category": "project",
+            "file": "options",
+            "pattern": "define gui.about = ",
+            "type": "multiline_string",
+            "default": "",
+            "description": "Text for About screen",
+            "enabled": true
+        },
+        {
+            "id": "gui.minimum_touch_size",
+            "label": "Min Touch Size",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.minimum_touch_size = ",
+            "type": "int",
+            "default": 44,
+            "description": "Minimum touch target size (Apple HIG: 44px)",
+            "enabled": true,
+            "validation": {
+                "min": 32,
+                "max": 100
+            }
+        },
+        {
+            "id": "gui.comfortable_touch_size",
+            "label": "Comfortable Touch Size",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.comfortable_touch_size = ",
+            "type": "int",
+            "default": 60,
+            "description": "Recommended touch target for games",
+            "enabled": true,
+            "validation": {
+                "min": 44,
+                "max": 120
+            }
+        },
+        {
+            "id": "gui.button_minimum_height",
+            "label": "Button Min Height",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.button_minimum_height = ",
+            "type": "int",
+            "default": 60,
+            "description": "Minimum button height for touch",
+            "enabled": true,
+            "validation": {
+                "min": 32,
+                "max": 150
+            }
+        },
+        {
+            "id": "gui.button_minimum_width",
+            "label": "Button Min Width",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.button_minimum_width = ",
+            "type": "int",
+            "default": 120,
+            "description": "Minimum button width for touch",
+            "enabled": true,
+            "validation": {
+                "min": 60,
+                "max": 300
+            }
+        },
+        {
+            "id": "gui.touch_spacing",
+            "label": "Touch Spacing",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.touch_spacing = ",
+            "type": "int",
+            "default": 12,
+            "description": "Spacing between interactive elements",
+            "enabled": true,
+            "validation": {
+                "min": 4,
+                "max": 40
+            }
+        },
+        {
+            "id": "gui.quick_button_spacing",
+            "label": "Quick Button Spacing",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.quick_button_spacing = ",
+            "type": "int",
+            "default": 15,
+            "description": "Spacing between quick menu buttons",
+            "enabled": true,
+            "validation": {
+                "min": 4,
+                "max": 50
+            }
+        },
+        {
+            "id": "config.gestures",
+            "label": "Enable Gestures",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define config.gestures = ",
+            "type": "bool",
+            "default": true,
+            "description": "Enable touch gesture support",
+            "enabled": true
+        },
+        {
+            "id": "gui.scrollbar_touch_draggable",
+            "label": "Touch Drag Scroll",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.scrollbar_touch_draggable = ",
+            "type": "bool",
+            "default": true,
+            "description": "Enable touch drag scrolling in viewports",
+            "enabled": true
+        },
+        {
+            "id": "gui.scrollbar_mousewheel",
+            "label": "Mousewheel Scroll",
+            "category": "touch",
+            "file": "gui",
+            "pattern": "define gui.scrollbar_mousewheel = ",
+            "type": "bool",
+            "default": true,
+            "description": "Enable mousewheel/touchpad scrolling",
+            "enabled": true
+        }
+    ]
+}

@@ -42,7 +42,7 @@ from tabs import (
     init_demo_tab, setup_demo_tab,
     refresh_demo_tab,
     init_gameconfig_tab, setup_gameconfig_tab,
-    refresh_gameconfig_tab,
+    refresh_gameconfig_tab, show_output_window,
 )
 
 # Import modal modules
@@ -269,6 +269,7 @@ def setup_ui():
         with dpg.menu(label="File"):
             dpg.add_menu_item(label="Reload", callback=lambda: (app.load_data(), refresh_all()))
             dpg.add_menu_item(label="Settings", callback=show_settings_modal)
+            dpg.add_menu_item(label="Output", callback=show_output_window)
             dpg.add_separator()
             dpg.add_menu_item(label="Exit", callback=dpg.stop_dearpygui)
 

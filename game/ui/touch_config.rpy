@@ -1,39 +1,36 @@
-## touch_config.rpy - Touch and mobile settings
+## touch_config.rpy - Touch and mobile settings reference
 ##
-## Configuration for touch-friendly UI and mobile platforms.
-## Ensures all interactive elements meet minimum touch target sizes.
+## NOTE: Base touch configuration has been moved to gui.rpy for editor compatibility.
+## Use the Preset Editor's Game Config tab to edit touch settings.
+##
+## This file contains mobile-specific overrides that run at init time.
 ##
 ## Related files: gui.rpy, styles.rpy
 
 ################################################################################
-## Touch Target Sizes
+## Touch settings defined in gui.rpy (editable via Game Config):
 ################################################################################
-
-## Minimum touch target size (Apple HIG recommends 44px)
-define gui.minimum_touch_size = 44
-
-## Comfortable touch size (recommended for games)
-define gui.comfortable_touch_size = 60
-
-## Button minimum dimensions for touch
-define gui.button_minimum_height = 60
-define gui.button_minimum_width = 120
-
-## Spacing between interactive elements
-define gui.touch_spacing = 12
-
-
-################################################################################
-## Choice Button Spacing
-################################################################################
-
-## Space between choice options
-define gui.choice_spacing = 22
+##
+## Touch Target Sizes:
+##   gui.minimum_touch_size - Minimum touch target (Apple HIG: 44px)
+##   gui.comfortable_touch_size - Comfortable touch target for games
+##   gui.button_minimum_height - Button minimum height for touch
+##   gui.button_minimum_width - Button minimum width for touch
+##   gui.touch_spacing - Spacing between interactive elements
+##   gui.quick_button_spacing - Quick menu button spacing
+##
+## Input Configuration:
+##   config.gestures - Enable gesture support
+##   gui.scrollbar_touch_draggable - Enable touch drag scrolling
+##   gui.scrollbar_mousewheel - Enable mousewheel/touchpad scrolling
 
 
 ################################################################################
-## Platform-Specific Configuration
+## Platform-Specific Overrides
 ################################################################################
+
+## Mobile devices get larger touch targets. These values override the base
+## values from gui.rpy when running on mobile platforms.
 
 init python:
     if renpy.mobile:
@@ -42,37 +39,7 @@ init python:
         gui.button_minimum_width = 140
         gui.touch_spacing = 16
         gui.choice_spacing = 28
+        gui.quick_button_spacing = 25
 
         # Don't hide cursor on mobile (there isn't one)
         config.mouse_hide_time = None
-
-
-################################################################################
-## Gesture Configuration
-################################################################################
-
-## Enable gesture support
-define config.gestures = True
-
-
-################################################################################
-## Quick Menu Touch Adjustments
-################################################################################
-
-## Quick menu button spacing for touch
-define gui.quick_button_spacing = 15
-
-init python:
-    if renpy.mobile:
-        gui.quick_button_spacing = 25
-
-
-################################################################################
-## Scrolling Configuration
-################################################################################
-
-## Enable touch drag scrolling in viewports
-define gui.scrollbar_touch_draggable = True
-
-## Mousewheel support (works with touchpad too)
-define gui.scrollbar_mousewheel = True

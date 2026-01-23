@@ -3,8 +3,18 @@
 ## Tests: quit functionality, dialog boxes, basic navigation
 
 label start:
-    # Jump to theme test - comment this out to run normal game
-    jump theme_test_start
+    scene black
+    menu:
+        "Select an option:"
+
+        "Game Config Demo":
+            jump game_config_test
+
+        "Theme Test":
+            jump theme_test_start
+
+        "Original Test":
+            jump start_original
 
 label start_original:
     scene bg_welcome with dissolve

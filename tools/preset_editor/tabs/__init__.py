@@ -47,6 +47,7 @@ from .gameconfig_tab import (
     init_gameconfig_tab,
     setup_gameconfig_tab,
     refresh_gameconfig_tab,
+    show_output_window,
 )
 
 __all__ = [
@@ -85,4 +86,5 @@ __all__ = [
     'init_gameconfig_tab',
     'setup_gameconfig_tab',
     'refresh_gameconfig_tab',
+    'show_output_window',
 ]

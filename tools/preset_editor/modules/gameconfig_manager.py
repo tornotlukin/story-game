@@ -1,9 +1,9 @@
 """
-gameconfig_manager.py - Game configuration management
+gameconfig_manager.py - Game configuration management (Schema-Driven)
 
 Handles:
-- Loading/saving baseline_config.json
-- Generating theme.rpy code for Ren'Py games
+- Loading/saving baseline_config.json (ID-based format)
+- Generating theme.rpy code using schema definitions
 - Configuration validation
 """
 
@@ -18,11 +18,12 @@ from copy import deepcopy
 class GameConfigManager:
     """Manages game configuration loading, saving, and code generation."""
 
-    def __init__(self):
+    def __init__(self, schema_loader=None):
         self._config: Dict[str, Any] = {}
         self._config_path: Optional[str] = None
         self._change_callbacks: List[Callable] = []
         self._dirty = False
+        self._schema = schema_loader
 
         # Set default path to baseline_config.json next to this module
         module_dir = Path(__file__).parent
@@ -79,7 +80,28 @@ class GameConfigManager:
                 print(f"Change callback error: {e}")
 
     # =========================================================================
-    # Getters - Get entire sections or specific values
+    # ID-Based Value Access (New Format)
+    # =========================================================================
+
+    def get_value_by_id(self, prop_id: str) -> Any:
+        """Get a value by property ID (e.g., 'gui.accent_color')."""
+        values = self._config.get("values", {})
+        return values.get(prop_id)
+
+    def set_value_by_id(self, prop_id: str, value: Any):
+        """Set a value by property ID."""
+        if "values" not in self._config:
+            self._config["values"] = {}
+        self._config["values"][prop_id] = value
+        self._notify_change()
+        self.save()  # Auto-save
+
+    def get_all_values(self) -> Dict[str, Any]:
+        """Get all values as a dict."""
+        return deepcopy(self._config.get("values", {}))
+
+    # =========================================================================
+    # Legacy Section-Based Access (Deprecated but kept for compatibility)
     # =========================================================================
 
     def get_config(self) -> Dict[str, Any]:
@@ -87,38 +109,34 @@ class GameConfigManager:
         return deepcopy(self._config)
 
     def get_section(self, section: str) -> Optional[Dict[str, Any]]:
-        """Get a configuration section."""
+        """Get a configuration section (legacy)."""
         return deepcopy(self._config.get(section))
 
     def get_value(self, section: str, key: str) -> Any:
-        """Get a specific value from a section."""
+        """Get a specific value from a section (legacy)."""
         sect = self._config.get(section, {})
         return sect.get(key)
 
-    # =========================================================================
-    # Setters - Set entire sections or specific values
-    # =========================================================================
-
     def set_section(self, section: str, data: Dict[str, Any]):
-        """Set an entire section."""
+        """Set an entire section (legacy)."""
         self._config[section] = deepcopy(data)
         self._notify_change()
-        self.save()  # Auto-save
+        self.save()
 
     def set_value(self, section: str, key: str, value: Any):
-        """Set a specific value in a section."""
+        """Set a specific value in a section (legacy)."""
         if section not in self._config:
             self._config[section] = {}
         self._config[section][key] = value
         self._notify_change()
-        self.save()  # Auto-save
+        self.save()
 
     # =========================================================================
-    # Code Generation - Generate theme.rpy
+    # Code Generation - Generate theme.rpy using Schema
     # =========================================================================
 
     def generate_theme_rpy(self) -> str:
-        """Generate the theme.rpy file content."""
+        """Generate the theme.rpy file content using schema."""
         lines = []
 
         # Header
@@ -131,240 +149,180 @@ class GameConfigManager:
         lines.append("init offset = 1  # Load after gui.rpy")
         lines.append("")
 
-        # Project section
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Project")
-        lines.append("################################################################################")
-        lines.append("")
-        project = self._config.get("project", {})
-        if project.get("name"):
-            lines.append(f'define config.name = _("{project["name"]}")')
-        if project.get("version"):
-            lines.append(f'define config.version = "{project["version"]}"')
-        if project.get("build_name"):
-            lines.append(f'define build.name = "{project["build_name"]}"')
-        if project.get("save_directory"):
-            lines.append(f'define config.save_directory = "{project["save_directory"]}"')
-
-        # Screen section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Screen Dimensions")
-        lines.append("################################################################################")
-        lines.append("")
-        screen = self._config.get("screen", {})
-        if screen.get("width"):
-            lines.append(f'define config.screen_width = {screen["width"]}')
-        if screen.get("height"):
-            lines.append(f'define config.screen_height = {screen["height"]}')
-        if screen.get("physical_width"):
-            lines.append(f'define config.physical_width = {screen["physical_width"]}')
-        if screen.get("physical_height"):
-            lines.append(f'define config.physical_height = {screen["physical_height"]}')
-
-        # Colors section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Colors")
-        lines.append("################################################################################")
-        lines.append("")
-        colors = self._config.get("colors", {})
-        color_map = [
-            ("accent", "gui.accent_color"),
-            ("hover", "gui.hover_color"),
-            ("idle", "gui.idle_color"),
-            ("idle_small", "gui.idle_small_color"),
-            ("selected", "gui.selected_color"),
-            ("insensitive", "gui.insensitive_color"),
-            ("text", "gui.text_color"),
-            ("interface_text", "gui.interface_text_color"),
-            ("muted", "gui.muted_color"),
-            ("hover_muted", "gui.hover_muted_color"),
-        ]
-        for json_key, rpy_var in color_map:
-            if colors.get(json_key):
-                lines.append(f"define {rpy_var} = '{colors[json_key]}'")
-
-        # Fonts section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Fonts")
-        lines.append("################################################################################")
-        lines.append("")
-        fonts = self._config.get("fonts", {})
-        if fonts.get("text"):
-            lines.append(f'define gui.text_font = "{fonts["text"]}"')
-        if fonts.get("name"):
-            lines.append(f'define gui.name_text_font = "{fonts["name"]}"')
-        if fonts.get("interface"):
-            lines.append(f'define gui.interface_text_font = "{fonts["interface"]}"')
-
-        # Font sizes section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Font Sizes")
-        lines.append("################################################################################")
-        lines.append("")
-        sizes = self._config.get("font_sizes", {})
-        size_map = [
-            ("text", "gui.text_size"),
-            ("name", "gui.name_text_size"),
-            ("interface", "gui.interface_text_size"),
-            ("label", "gui.label_text_size"),
-            ("notify", "gui.notify_text_size"),
-            ("title", "gui.title_text_size"),
-        ]
-        for json_key, rpy_var in size_map:
-            if sizes.get(json_key) is not None:
-                lines.append(f"define {rpy_var} = {sizes[json_key]}")
-
-        # Dialogue section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Dialogue Box Layout")
-        lines.append("################################################################################")
-        lines.append("")
-        dialogue = self._config.get("dialogue", {})
-        if dialogue.get("textbox_height") is not None:
-            lines.append(f'define gui.textbox_height = {dialogue["textbox_height"]}')
-        if dialogue.get("textbox_yalign") is not None:
-            lines.append(f'define gui.textbox_yalign = {dialogue["textbox_yalign"]}')
-        if dialogue.get("text_xpos") is not None:
-            lines.append(f'define gui.dialogue_xpos = {dialogue["text_xpos"]}')
-        if dialogue.get("text_ypos") is not None:
-            lines.append(f'define gui.dialogue_ypos = {dialogue["text_ypos"]}')
-        if dialogue.get("text_width") is not None:
-            lines.append(f'define gui.dialogue_width = {dialogue["text_width"]}')
-        if dialogue.get("text_xalign") is not None:
-            lines.append(f'define gui.dialogue_text_xalign = {dialogue["text_xalign"]}')
-
-        # Namebox section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Name Box Layout")
-        lines.append("################################################################################")
-        lines.append("")
-        namebox = self._config.get("namebox", {})
-        if namebox.get("xpos") is not None:
-            lines.append(f'define gui.name_xpos = {namebox["xpos"]}')
-        if namebox.get("ypos") is not None:
-            lines.append(f'define gui.name_ypos = {namebox["ypos"]}')
-        if namebox.get("xalign") is not None:
-            lines.append(f'define gui.name_xalign = {namebox["xalign"]}')
-        if namebox.get("width") is not None:
-            lines.append(f'define gui.namebox_width = {namebox["width"]}')
+        if self._schema:
+            # Schema-driven generation
+            for category in self._schema.get_categories():
+                cat_lines = self._generate_category_lines(category)
+                if cat_lines:
+                    lines.append("")
+                    lines.append("################################################################################")
+                    lines.append(f"## {category['label']}")
+                    lines.append("################################################################################")
+                    lines.append("")
+                    lines.extend(cat_lines)
         else:
-            lines.append("# gui.namebox_width = None (using default)")
-        if namebox.get("height") is not None:
-            lines.append(f'define gui.namebox_height = {namebox["height"]}')
-        else:
-            lines.append("# gui.namebox_height = None (using default)")
-
-        # Menu backgrounds section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Menu Backgrounds")
-        lines.append("################################################################################")
-        lines.append("")
-        menus = self._config.get("menu_backgrounds", {})
-        if menus.get("main_menu"):
-            lines.append(f'define gui.main_menu_background = "{menus["main_menu"]}"')
-        if menus.get("game_menu"):
-            lines.append(f'define gui.game_menu_background = "{menus["game_menu"]}"')
-
-        # Text speed section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Text Speed")
-        lines.append("################################################################################")
-        lines.append("")
-        speed = self._config.get("text_speed", {})
-        if speed.get("cps") is not None:
-            lines.append(f'default preferences.text_cps = {speed["cps"]}')
-        if speed.get("afm_time") is not None:
-            lines.append(f'default preferences.afm_time = {speed["afm_time"]}')
-
-        # Window behavior section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Window Behavior")
-        lines.append("################################################################################")
-        lines.append("")
-        window = self._config.get("window_behavior", {})
-        quit_confirm = window.get("quit_confirm", True)
-        lines.append(f'define config.quit_action = Quit(confirm={quit_confirm})')
-        if window.get("quit_message"):
-            # Escape special characters for Ren'Py string
-            msg = window["quit_message"]
-            msg = msg.replace('\\', '\\\\')  # Escape backslashes first
-            msg = msg.replace('"', '\\"')    # Escape quotes
-            msg = msg.replace('\n', '\\n')   # Escape actual newlines
-            lines.append(f'define gui.QUIT = _("{msg}")')
-
-        # UI Details section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## UI Details")
-        lines.append("################################################################################")
-        lines.append("")
-        ui = self._config.get("ui_details", {})
-        if ui.get("bar_size") is not None:
-            lines.append(f'define gui.bar_size = {ui["bar_size"]}')
-        if ui.get("scrollbar_size") is not None:
-            lines.append(f'define gui.scrollbar_size = {ui["scrollbar_size"]}')
-        if ui.get("slider_size") is not None:
-            lines.append(f'define gui.slider_size = {ui["slider_size"]}')
-        if ui.get("button_width") is not None:
-            lines.append(f'define gui.button_width = {ui["button_width"]}')
-        else:
-            lines.append("# gui.button_width = None (using default)")
-        if ui.get("button_height") is not None:
-            lines.append(f'define gui.button_height = {ui["button_height"]}')
-        else:
-            lines.append("# gui.button_height = None (using default)")
-        # Button colors (only if set)
-        for key in ["button_text_idle_color", "button_text_hover_color",
-                    "button_text_selected_color", "button_text_insensitive_color"]:
-            if ui.get(key):
-                rpy_var = f"gui.{key}"
-                lines.append(f"define {rpy_var} = '{ui[key]}'")
-
-        # Choice buttons section
-        lines.append("")
-        lines.append("")
-        lines.append("################################################################################")
-        lines.append("## Choice Buttons")
-        lines.append("################################################################################")
-        lines.append("")
-        choice = self._config.get("choice_buttons", {})
-        if choice.get("width") is not None:
-            lines.append(f'define gui.choice_button_width = {choice["width"]}')
-        if choice.get("height") is not None:
-            lines.append(f'define gui.choice_button_height = {choice["height"]}')
-        else:
-            lines.append("# gui.choice_button_height = None (using default)")
-        if choice.get("text_idle_color"):
-            lines.append(f"define gui.choice_button_text_idle_color = '{choice['text_idle_color']}'")
-        if choice.get("text_hover_color"):
-            lines.append(f"define gui.choice_button_text_hover_color = '{choice['text_hover_color']}'")
-        if choice.get("text_insensitive_color"):
-            lines.append(f"define gui.choice_button_text_insensitive_color = '{choice['text_insensitive_color']}'")
-        if choice.get("spacing") is not None:
-            lines.append(f'define gui.choice_spacing = {choice["spacing"]}')
+            # Fallback to legacy generation
+            lines.extend(self._generate_legacy_theme())
 
         lines.append("")
         return "\n".join(lines)
+
+    def _generate_category_lines(self, category: Dict) -> List[str]:
+        """Generate Ren'Py lines for all enabled properties in a category."""
+        lines = []
+        props = self._schema.get_properties_for_category(category["id"], enabled_only=True)
+
+        for prop in props:
+            prop_id = prop["id"]
+            value = self.get_value_by_id(prop_id)
+
+            # Skip if no value set
+            if value is None:
+                continue
+
+            # Generate the Ren'Py line using schema
+            line = self._format_property_line(prop, value)
+            if line:
+                lines.append(line)
+
+        return lines
+
+    def _format_property_line(self, prop: Dict, value: Any) -> Optional[str]:
+        """Format a single property as a Ren'Py line."""
+        pattern = prop.get("pattern", "")
+        prop_type = prop.get("type", "string")
+        prop_id = prop["id"]
+
+        # Handle special pattern types
+        pattern_type = prop.get("pattern_type")
+        if pattern_type == "function_arg":
+            # Special handling for gui.init() - skip, handled separately
+            return None
+
+        # Format value based on type
+        formatted_value = self._format_value(prop_type, value, prop)
+
+        if formatted_value is not None:
+            return f"{pattern}{formatted_value}"
+        return None
+
+    def _format_value(self, prop_type: str, value: Any, prop: Dict) -> Optional[str]:
+        """Format a value for Ren'Py code output."""
+        if value is None:
+            return "None"
+
+        if prop_type == "color":
+            return f"'{value}'"
+        elif prop_type == "color_or_ref":
+            # Could be a color or a reference like gui.idle_color
+            if str(value).startswith("#"):
+                return f"'{value}'"
+            else:
+                return str(value)  # It's a reference
+        elif prop_type == "string":
+            # Check if translatable
+            if prop.get("translatable"):
+                return f'_("{value}")'
+            return f'"{value}"'
+        elif prop_type == "font":
+            return f'"{value}"'
+        elif prop_type == "image_path":
+            return f'"{value}"'
+        elif prop_type == "bool":
+            return "True" if value else "False"
+        elif prop_type == "borders":
+            if isinstance(value, list) and len(value) == 4:
+                return f"Borders({value[0]}, {value[1]}, {value[2]}, {value[3]})"
+            return None
+        elif prop_type in ["int", "float"]:
+            return str(value)
+        elif prop_type == "int_or_none":
+            return str(value) if value is not None else "None"
+        elif prop_type == "transition":
+            return str(value)
+        elif prop_type == "multiline_string":
+            # Escape special characters
+            escaped = str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+            return f'_("{escaped}")'
+        else:
+            return str(value)
+
+    def _generate_legacy_theme(self) -> List[str]:
+        """Generate theme.rpy using legacy section-based format (fallback)."""
+        lines = []
+        values = self._config.get("values", {})
+
+        # Group by prefix for organization
+        gui_lines = []
+        config_lines = []
+        pref_lines = []
+        build_lines = []
+
+        for prop_id, value in values.items():
+            if value is None:
+                continue
+
+            # Determine format based on ID
+            if prop_id.startswith("gui."):
+                line = self._format_legacy_line(prop_id, value)
+                if line:
+                    gui_lines.append(line)
+            elif prop_id.startswith("config."):
+                line = self._format_legacy_line(prop_id, value)
+                if line:
+                    config_lines.append(line)
+            elif prop_id.startswith("preferences."):
+                line = self._format_legacy_line(prop_id, value, use_default=True)
+                if line:
+                    pref_lines.append(line)
+            elif prop_id.startswith("build."):
+                line = self._format_legacy_line(prop_id, value)
+                if line:
+                    build_lines.append(line)
+
+        if config_lines or build_lines:
+            lines.append("## Project")
+            lines.extend(config_lines)
+            lines.extend(build_lines)
+            lines.append("")
+
+        if gui_lines:
+            lines.append("## GUI Settings")
+            lines.extend(gui_lines)
+            lines.append("")
+
+        if pref_lines:
+            lines.append("## Preferences")
+            lines.extend(pref_lines)
+            lines.append("")
+
+        return lines
+
+    def _format_legacy_line(self, prop_id: str, value: Any, use_default: bool = False) -> Optional[str]:
+        """Format a line in legacy mode."""
+        keyword = "default" if use_default else "define"
+
+        # Determine type from value
+        if isinstance(value, bool):
+            return f"{keyword} {prop_id} = {value}"
+        elif isinstance(value, int):
+            return f"{keyword} {prop_id} = {value}"
+        elif isinstance(value, float):
+            return f"{keyword} {prop_id} = {value}"
+        elif isinstance(value, str):
+            if value.startswith("#"):
+                return f"{keyword} {prop_id} = '{value}'"
+            elif prop_id.endswith("_font") or prop_id.endswith("_background"):
+                return f'{keyword} {prop_id} = "{value}"'
+            elif prop_id in ["config.name"]:
+                return f'{keyword} {prop_id} = _("{value}")'
+            else:
+                return f'{keyword} {prop_id} = "{value}"'
+        elif isinstance(value, list):
+            if len(value) == 4:
+                return f"{keyword} {prop_id} = Borders({value[0]}, {value[1]}, {value[2]}, {value[3]})"
+
+        return None
 
     def export_theme_rpy(self, target_folder: str) -> bool:
         """Export theme.rpy to the target game folder."""
@@ -392,7 +350,7 @@ class GameConfigManager:
             return False
 
     # =========================================================================
-    # Section-specific getters for convenience
+    # Legacy Section-specific getters (Deprecated)
     # =========================================================================
 
     def get_project(self) -> Dict[str, Any]:

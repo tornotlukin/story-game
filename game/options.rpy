@@ -12,7 +12,7 @@
 ##
 ## The _() surrounding the string marks it as eligible for translation.
 
-define config.name = _("original_renpy_project")
+define config.name = _("TESNAME_RENAMED")
 
 
 ## Determines if the title given above is shown on the main menu screen. Set
@@ -23,7 +23,7 @@ define gui.show_name = True
 
 ## The version of the game.
 
-define config.version = "1.0"
+define config.version = "0.11"
 
 
 ## Text that is placed on the game's about screen. Place the text between the
@@ -37,7 +37,7 @@ define gui.about = _p("""
 ## distribution. This must be ASCII-only, and must not contain spaces, colons,
 ## or semicolons.
 
-define build.name = "original_renpy_project"
+define build.name = "TestStoryGame"
 
 
 ## Sounds and music ############################################################
@@ -120,7 +120,7 @@ define config.window_hide_transition = Dissolve(.2)
 ## Controls the default text speed. The default, 0, is infinite, while any other
 ## number is the number of characters per second to type out.
 
-default preferences.text_cps = 0
+default preferences.text_cps = 40
 
 
 ## The default auto-forward delay. Larger numbers lead to longer waits, with 0
@@ -143,7 +143,7 @@ default preferences.afm_time = 15
 ## This generally should not be changed, and if it is, should always be a
 ## literal string, not an expression.
 
-define config.save_directory = "original_renpy_project-1769097284"
+define config.save_directory = "TestStoryGame-saves"
 
 
 ## Icon ########################################################################

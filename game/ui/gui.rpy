@@ -1,13 +1,10 @@
 ## gui.rpy - Additional GUI configuration
 ##
-## Supplementary GUI settings. The main GUI is configured in game/gui.rpy.
-## Touch settings are in touch_config.rpy.
+## NOTE: Most GUI settings have been consolidated into game/gui.rpy
+## for editor compatibility. Use the Preset Editor's Game Config tab.
+##
+## This file is kept for any supplementary settings not in the main gui.rpy.
 ##
 ## Related files: colors.rpy, fonts.rpy, styles.rpy, touch_config.rpy
 
-################################################################################
-## Navigation
-################################################################################
-
-## Navigation button spacing
-define gui.navigation_spacing = 6
+## All settings moved to game/gui.rpy - this file is now empty.

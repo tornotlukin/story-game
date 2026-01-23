@@ -1,90 +1,58 @@
 {
   "_meta": {
-    "schema_version": "1.0",
-    "description": "Game configuration for Ren'Py project",
-    "generated": "2026-01-21 15:52:08"
+    "schema_version": "2.0",
+    "description": "Game configuration for Ren'Py project (ID-based format)",
+    "generated": "2026-01-22"
   },
-  "project": {
-    "name": "TEST NAME GAME",
-    "version": "0.1.0",
-    "build_name": "MyStoryGame",
-    "save_directory": "mystorygame-saves"
-  },
-  "screen": {
-    "width": 1920,
-    "height": 1080,
-    "physical_width": 960,
-    "physical_height": 540
-  },
-  "colors": {
-    "accent": "#ff0000ff",
-    "hover": "#66c1e0ff",
-    "idle": "#ff9000ff",
-    "idle_small": "#aaaaaaff",
-    "selected": "#ffffffff",
-    "insensitive": "#8888887f",
-    "text": "#ff0000ff",
-    "interface_text": "#1eff00ff",
-    "muted": "#0007ffff",
-    "hover_muted": "#005b7aff"
-  },
-  "fonts": {
-    "text": "Jua-Regular.ttf",
-    "name": "Jua-Regular.ttf",
-    "interface": "CalSans-Regular.ttf"
-  },
-  "font_sizes": {
-    "text": 48,
-    "name": 30,
-    "interface": 28,
-    "label": 30,
-    "notify": 20,
-    "title": 60
-  },
-  "dialogue": {
-    "textbox_height": 185,
-    "textbox_yalign": 0.5,
-    "text_xpos": 268,
-    "text_ypos": 50,
-    "text_width": 744,
-    "text_xalign": 0.0
-  },
-  "namebox": {
-    "xpos": 240,
-    "ypos": 0,
-    "xalign": 0.0,
-    "width": null,
-    "height": null
-  },
-  "menu_backgrounds": {
-    "main_menu": "gui/main_menu.png",
-    "game_menu": "gui/game_menu.png"
-  },
-  "text_speed": {
-    "cps": 40,
-    "afm_time": 15
-  },
-  "window_behavior": {
-    "quit_confirm": true,
-    "quit_message": "Are you sure you want to quit?\n\nAny unsaved progress will be lost."
-  },
-  "ui_details": {
-    "bar_size": 22,
-    "scrollbar_size": 11,
-    "slider_size": 22,
-    "button_width": null,
-    "button_height": null,
-    "button_text_idle_color": null,
-    "button_text_hover_color": null,
-    "button_text_selected_color": null,
-    "button_text_insensitive_color": null
-  },
-  "choice_buttons": {
-    "width": 667,
-    "height": null,
-    "text_idle_color": "#888888ff",
-    "text_hover_color": "#ffffffff",
-    "text_insensitive_color": "#8888887f",
-    "spacing": 19
+  "values": {
+    "config.name": "TESNAME_RENAMED",
+    "config.version": "0.11",
+    "build.name": "TestStoryGame",
+    "config.save_directory": "TestStoryGame-saves",
+    "gui.init_width": 1920,
+    "gui.init_height": 1080,
+    "gui.accent_color": "#ff0000ff",
+    "gui.hover_color": "#66c1e0ff",
+    "gui.idle_color": "#ff9000ff",
+    "gui.idle_small_color": "#aaaaaaff",
+    "gui.selected_color": "#02c09bff",
+    "gui.insensitive_color": "#8888887f",
+    "gui.text_color": "#ff0000ff",
+    "gui.interface_text_color": "#1eff00ff",
+    "gui.muted_color": "#0007ffff",
+    "gui.hover_muted_color": "#005b7aff",
+    "gui.text_font": "Jua-Regular.ttf",
+    "gui.name_text_font": "CalSans-Regular.ttf",
+    "gui.interface_text_font": "Jua-Regular.ttf",
+    "gui.text_size": 48,
+    "gui.name_text_size": 50,
+    "gui.interface_text_size": 28,
+    "gui.label_text_size": 30,
+    "gui.notify_text_size": 20,
+    "gui.title_text_size": 60,
+    "gui.textbox_height": 185,
+    "gui.textbox_yalign": 0.5,
+    "gui.dialogue_xpos": 268,
+    "gui.dialogue_ypos": 50,
+    "gui.dialogue_width": 744,
+    "gui.dialogue_text_xalign": 0.0,
+    "gui.name_xpos": 240,
+    "gui.name_ypos": 0,
+    "gui.name_xalign": 0.0,
+    "gui.namebox_width": null,
+    "gui.namebox_height": null,
+    "gui.main_menu_background": "gui/main_menu.png",
+    "gui.game_menu_background": "gui/game_menu.png",
+    "preferences.text_cps": 40,
+    "preferences.afm_time": 15,
+    "gui.bar_size": 22,
+    "gui.scrollbar_size": 11,
+    "gui.slider_size": 22,
+    "gui.choice_button_width": 667,
+    "gui.choice_button_height": null,
+    "gui.choice_spacing": 19,
+    "gui.choice_button_text_idle_color": "#888888ff",
+    "gui.choice_button_text_hover_color": "#ffffffff",
+    "gui.choice_button_text_insensitive_color": "#8888887f"
   }
 }

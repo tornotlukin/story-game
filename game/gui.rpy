@@ -25,63 +25,82 @@ define config.check_conflicting_properties = True
 ## The colors of text in the interface.
 
 ## An accent color used throughout the interface to label and highlight text.
-define gui.accent_color = '#0099cc'
+define gui.accent_color = '#ff0000ff'
 
 ## The color used for a text button when it is neither selected nor hovered.
-define gui.idle_color = '#888888'
+define gui.idle_color = '#ff9000ff'
 
 ## The small color is used for small text, which needs to be brighter/darker to
 ## achieve the same effect.
-define gui.idle_small_color = '#aaaaaa'
+define gui.idle_small_color = '#aaaaaaff'
 
 ## The color that is used for buttons and bars that are hovered.
-define gui.hover_color = '#66c1e0'
+define gui.hover_color = '#66c1e0ff'
 
 ## The color used for a text button when it is selected but not focused. A
 ## button is selected if it is the current screen or preference value.
-define gui.selected_color = '#ffffff'
+define gui.selected_color = '#02c09bff'
 
 ## The color used for a text button when it cannot be selected.
 define gui.insensitive_color = '#8888887f'
 
 ## Colors used for the portions of bars that are not filled in. These are not
 ## used directly, but are used when re-generating bar image files.
-define gui.muted_color = '#003d51'
-define gui.hover_muted_color = '#005b7a'
+define gui.muted_color = '#0007ffff'
+define gui.hover_muted_color = '#005b7aff'
 
 ## The colors used for dialogue and menu choice text.
-define gui.text_color = '#ffffff'
-define gui.interface_text_color = '#ffffff'
+define gui.text_color = '#ff0000ff'
+define gui.interface_text_color = '#1eff00ff'
+define gui.dialogue_text_color = '#ffffff'
+define gui.name_text_color = '#cc6699'
+
+## Frame and UI element colors.
+define gui.frame_color = '#1a1a1a'
+define gui.bar_color = '#404040'
+define gui.bar_full_color = '#cc6699'
+define gui.scrollbar_color = '#555555'
+define gui.scrollbar_hover_color = '#777777'
+define gui.slider_color = '#555555'
+define gui.slider_hover_color = '#777777'
 
 
 ## Fonts and Font Sizes ########################################################
 
 ## The font used for in-game text.
-define gui.text_font = "DejaVuSans.ttf"
+define gui.text_font = "Jua-Regular.ttf"
 
 ## The font used for character names.
-define gui.name_text_font = "DejaVuSans.ttf"
+define gui.name_text_font = "CalSans-Regular.ttf"
 
 ## The font used for out-of-game text.
-define gui.interface_text_font = "DejaVuSans.ttf"
+define gui.interface_text_font = "Jua-Regular.ttf"
 
 ## The size of normal dialogue text.
-define gui.text_size = 19
+define gui.text_size = 48
 
 ## The size of character names.
-define gui.name_text_size = 26
+define gui.name_text_size = 50
 
 ## The size of text in the game's user interface.
-define gui.interface_text_size = 19
+define gui.interface_text_size = 28
 
 ## The size of labels in the game's user interface.
-define gui.label_text_size = 21
+define gui.label_text_size = 30
 
 ## The size of text on the notify screen.
-define gui.notify_text_size = 14
+define gui.notify_text_size = 20
 
 ## The size of the game's title.
-define gui.title_text_size = 43
+define gui.title_text_size = 60
+
+## The size of prompt text (for input prompts).
+define gui.prompt_text_size = 28
+
+## Additional specialized fonts.
+define gui.system_font = "CalSans-Regular.ttf"
+define gui.glyph_font = "DejaVuSans.ttf"
+define gui.mono_font = "DejaVuSansMono.ttf"
 
 
 ## Main and Game Menus #########################################################
@@ -97,16 +116,16 @@ define gui.game_menu_background = "gui/game_menu.png"
 ## time.
 
 ## The height of the textbox containing dialogue.
-define gui.textbox_height = 157
+define gui.textbox_height = 185
 
 ## The placement of the textbox vertically on the screen. 0.0 is the top, 0.5 is
 ## center, and 1.0 is the bottom.
-define gui.textbox_yalign = 1.0
+define gui.textbox_yalign = 0.5
 
 
 ## The placement of the speaking character's name, relative to the textbox.
 ## These can be a whole number of pixels from the left or top, or 0.5 to center.
-define gui.name_xpos = 203
+define gui.name_xpos = 240
 define gui.name_ypos = 0
 
 ## The horizontal alignment of the character's name. This can be 0.0 for left-
@@ -130,11 +149,11 @@ define gui.namebox_tile = False
 ## The placement of dialogue relative to the textbox. These can be a whole
 ## number of pixels relative to the left or top side of the textbox, or 0.5 to
 ## center.
-define gui.dialogue_xpos = 227
-define gui.dialogue_ypos = 43
+define gui.dialogue_xpos = 268
+define gui.dialogue_ypos = 50
 
 ## The maximum width of dialogue text, in pixels.
-define gui.dialogue_width = 628
+define gui.dialogue_width = 744
 
 ## The horizontal alignment of the dialogue text. This can be 0.0 for left-
 ## aligned, 0.5 for centered, and 1.0 for right-aligned.
@@ -211,8 +230,8 @@ define gui.choice_button_borders = Borders(85, 5, 85, 5)
 define gui.choice_button_text_font = gui.text_font
 define gui.choice_button_text_size = gui.text_size
 define gui.choice_button_text_xalign = 0.5
-define gui.choice_button_text_idle_color = '#888888'
-define gui.choice_button_text_hover_color = "#ffffff"
+define gui.choice_button_text_idle_color = '#888888ff'
+define gui.choice_button_text_hover_color = '#ffffffff'
 define gui.choice_button_text_insensitive_color = '#8888887f'
 
 
@@ -411,6 +430,36 @@ define gui.nvl_button_xalign = 0.0
 ## www.renpy.org/doc/html/style_properties.html#style-property-language
 
 define gui.language = "unicode"
+
+
+################################################################################
+## Touch and Input Configuration
+################################################################################
+
+## Minimum touch target size (Apple HIG recommends 44px).
+define gui.minimum_touch_size = 44
+
+## Comfortable touch size (recommended for games).
+define gui.comfortable_touch_size = 60
+
+## Button minimum dimensions for touch.
+define gui.button_minimum_height = 60
+define gui.button_minimum_width = 120
+
+## Spacing between interactive elements.
+define gui.touch_spacing = 12
+
+## Quick menu button spacing.
+define gui.quick_button_spacing = 15
+
+## Enable gesture support.
+define config.gestures = True
+
+## Enable touch drag scrolling in viewports.
+define gui.scrollbar_touch_draggable = True
+
+## Mousewheel support (works with touchpad too).
+define gui.scrollbar_mousewheel = True
 
 
 ################################################################################
