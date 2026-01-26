@@ -50,6 +50,12 @@ from .gameconfig_tab import (
     show_output_window,
 )
 
+from .dialogbox_tab import (
+    init_dialogbox_tab,
+    setup_dialogbox_tab,
+    refresh_dialogbox_tab,
+)
+
 __all__ = [
     # Transition
     'init_transition_tab',
@@ -87,4 +93,8 @@ __all__ = [
     'setup_gameconfig_tab',
     'refresh_gameconfig_tab',
     'show_output_window',
+    # Dialog Box
+    'init_dialogbox_tab',
+    'setup_dialogbox_tab',
+    'refresh_dialogbox_tab',
 ]
