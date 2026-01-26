@@ -29,6 +29,12 @@ _schema: Optional[SchemaLoader] = None
 _file_modifier: Optional[GameFileModifier] = None
 _output_messages: List[str] = []
 
+# =============================================================================
+# UI Constants
+# =============================================================================
+
+NUMBER_INPUT_WIDTH = 100  # Standard width for all number inputs
+
 
 def init_gameconfig_tab(app_state, refresh_callback):
     """Initialize module with app state reference."""
@@ -213,7 +219,7 @@ def _build_int_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=tag,
             default_value=int(value) if value is not None else 0,
-            width=100,
+            width=NUMBER_INPUT_WIDTH,
             min_value=min_val,
             max_value=max_val,
             enabled=enabled,
@@ -233,7 +239,7 @@ def _build_float_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_float(
             tag=tag,
             default_value=float(value) if value is not None else 0.0,
-            width=100,
+            width=NUMBER_INPUT_WIDTH,
             min_value=min_val,
             max_value=max_val,
             format="%.2f",
@@ -349,7 +355,7 @@ def _build_int_or_none_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=tag,
             default_value=display_val,
-            width=100,
+            width=NUMBER_INPUT_WIDTH,
             min_value=0,
             enabled=enabled,
             callback=_make_callback_nullable(prop["id"])
@@ -368,7 +374,7 @@ def _build_borders_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=f"{tag}_0",
             default_value=borders[0],
-            width=60,
+            width=NUMBER_INPUT_WIDTH,
             enabled=enabled,
             callback=_make_borders_callback(prop["id"], 0)
         )
@@ -376,7 +382,7 @@ def _build_borders_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=f"{tag}_1",
             default_value=borders[1],
-            width=60,
+            width=NUMBER_INPUT_WIDTH,
             enabled=enabled,
             callback=_make_borders_callback(prop["id"], 1)
         )
@@ -384,7 +390,7 @@ def _build_borders_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=f"{tag}_2",
             default_value=borders[2],
-            width=60,
+            width=NUMBER_INPUT_WIDTH,
             enabled=enabled,
             callback=_make_borders_callback(prop["id"], 2)
         )
@@ -392,7 +398,7 @@ def _build_borders_widget(prop: Dict, tag: str, value: Any, enabled: bool):
         dpg.add_input_int(
             tag=f"{tag}_3",
             default_value=borders[3],
-            width=60,
+            width=NUMBER_INPUT_WIDTH,
             enabled=enabled,
             callback=_make_borders_callback(prop["id"], 3)
         )

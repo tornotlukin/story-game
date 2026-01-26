@@ -22,6 +22,7 @@ This is a Ren'Py 8.5.2 interactive fiction project focused on **technical implem
 - **`docs/renpy_file_org.md`** - **CRITICAL: Read this before creating/modifying .rpy files**
   - Standard Ren'Py project structure
   - What each file does (gui.rpy, options.rpy, screens.rpy, etc.)
+  - **GUI Styling Hierarchy** - How gui.rpy values → screens.rpy styles → screen elements work together
   - Style system and inheritance rules
   - Positioning/layout syntax (avoid common mistakes)
   - Common gotchas and solutions
