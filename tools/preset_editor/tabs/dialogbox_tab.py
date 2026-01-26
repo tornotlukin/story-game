@@ -219,7 +219,7 @@ def setup_dialogbox_tab(parent):
 
             # Right column: Preview
             with dpg.child_window(width=-1, height=400, border=False):
-                dpg.add_text("9-SLICE PREVIEW", color=(100, 200, 255))
+                dpg.add_text("9-SLICE PREVIEW", tag="dialogbox_preview_title", color=(100, 200, 255))
                 dpg.add_separator()
                 dpg.add_spacer(height=5)
 
@@ -486,8 +486,20 @@ def _update_preview():
         _draw_placeholder_with_borders()
 
 
+def _update_preview_title(width: int = 0, height: int = 0):
+    """Update the preview title with image dimensions."""
+    if dpg.does_item_exist("dialogbox_preview_title"):
+        if width > 0 and height > 0:
+            dpg.set_value("dialogbox_preview_title", f"9-SLICE PREVIEW (image: {width}px x {height}px)")
+        else:
+            dpg.set_value("dialogbox_preview_title", "9-SLICE PREVIEW")
+
+
 def _draw_placeholder_with_borders():
     """Draw a placeholder rectangle with 9-slice border indicators."""
+    # Reset title when no image
+    _update_preview_title()
+
     # Placeholder box
     margin = 20
     box_size = PREVIEW_SIZE - 2 * margin
@@ -531,6 +543,9 @@ def _draw_image_with_borders(image_path: str):
         # Store original dimensions for border scaling
         _loaded_image_width = width
         _loaded_image_height = height
+
+        # Update title with dimensions
+        _update_preview_title(width, height)
 
         # Create texture
         _loaded_texture_tag = dpg.add_static_texture(
@@ -611,9 +626,9 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float,
         scaled_right = min(right * scale, width / 3)
         scaled_bottom = min(bottom * scale, height / 3)
 
-    # Line color
-    line_color = [255, 200, 0, 200]
-    text_color = [255, 255, 0, 255]
+    # Line color (red)
+    line_color = [255, 50, 50, 220]
+    text_color = [255, 100, 100, 255]
 
     # Vertical lines (left and right borders)
     if scaled_left > 0:
@@ -628,7 +643,7 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float,
             parent="dialogbox_preview_drawlist",
             pos=[x + 2, y + height + 5],
             text=f"{left}px",
-            size=12,
+            size=16,
             color=text_color
         )
 
@@ -644,7 +659,7 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float,
             parent="dialogbox_preview_drawlist",
             pos=[x + width - scaled_right + 2, y + height + 5],
             text=f"{right}px",
-            size=12,
+            size=16,
             color=text_color
         )
 
@@ -661,7 +676,7 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float,
             parent="dialogbox_preview_drawlist",
             pos=[x + width + 5, y + 2],
             text=f"{top}px",
-            size=12,
+            size=16,
             color=text_color
         )
 
@@ -677,7 +692,7 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float,
             parent="dialogbox_preview_drawlist",
             pos=[x + width + 5, y + height - scaled_bottom - 12],
             text=f"{bottom}px",
-            size=12,
+            size=16,
             color=text_color
         )
 
