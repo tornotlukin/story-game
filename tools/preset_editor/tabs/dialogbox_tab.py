@@ -28,6 +28,8 @@ _refresh_callback = None
 _generator: DialogBoxGenerator = None
 _config: DialogBoxConfig = None
 _loaded_texture_tag = None
+_loaded_image_width = 0
+_loaded_image_height = 0
 
 # =============================================================================
 # UI Constants (matching gameconfig_tab.py)
@@ -216,16 +218,16 @@ def setup_dialogbox_tab(parent):
                     )
 
             # Right column: Preview
-            with dpg.child_window(width=-1, height=400, border=True):
+            with dpg.child_window(width=-1, height=400, border=False):
                 dpg.add_text("9-SLICE PREVIEW", color=(100, 200, 255))
                 dpg.add_separator()
                 dpg.add_spacer(height=5)
 
-                # Preview area with drawlist for overlay
+                # Preview area with drawlist - extra space for measurement labels
                 with dpg.drawlist(
                     tag="dialogbox_preview_drawlist",
-                    width=PREVIEW_SIZE,
-                    height=PREVIEW_SIZE
+                    width=PREVIEW_SIZE + 60,
+                    height=PREVIEW_SIZE + 40
                 ):
                     pass  # Will draw dynamically
 
@@ -318,7 +320,7 @@ def _on_browse_image(sender, app_data, user_data):
     if dpg.does_item_exist("dialogbox_file_dialog"):
         dpg.delete_item("dialogbox_file_dialog")
 
-    dpg.add_file_dialog(
+    with dpg.file_dialog(
         tag="dialogbox_file_dialog",
         directory_selector=False,
         show=True,
@@ -326,7 +328,23 @@ def _on_browse_image(sender, app_data, user_data):
         width=600,
         height=400,
         default_path=str(Path(_app.game_folder) / "gui") if _app and _app.game_folder else ""
-    )
+    ):
+        # Ren'Py compatible image formats
+        dpg.add_file_extension(".png", color=(0, 255, 0, 255))
+        dpg.add_file_extension(".PNG", color=(0, 255, 0, 255))
+        dpg.add_file_extension(".jpg", color=(0, 200, 255, 255))
+        dpg.add_file_extension(".JPG", color=(0, 200, 255, 255))
+        dpg.add_file_extension(".jpeg", color=(0, 200, 255, 255))
+        dpg.add_file_extension(".JPEG", color=(0, 200, 255, 255))
+        dpg.add_file_extension(".webp", color=(255, 200, 0, 255))
+        dpg.add_file_extension(".WEBP", color=(255, 200, 0, 255))
+        dpg.add_file_extension(".gif", color=(255, 100, 255, 255))
+        dpg.add_file_extension(".GIF", color=(255, 100, 255, 255))
+        dpg.add_file_extension(".bmp", color=(200, 200, 200, 255))
+        dpg.add_file_extension(".BMP", color=(200, 200, 200, 255))
+        dpg.add_file_extension(".avif", color=(255, 150, 100, 255))
+        dpg.add_file_extension(".AVIF", color=(255, 150, 100, 255))
+        dpg.add_file_extension(".*", color=(150, 150, 150, 255))  # All files
 
 
 def _on_border_changed(sender, app_data, user_data):
@@ -448,12 +466,12 @@ def _update_preview():
     # Clear previous drawings
     dpg.delete_item("dialogbox_preview_drawlist", children_only=True)
 
-    # Draw background
+    # Draw background (only for the image area, leave room for labels)
     dpg.draw_rectangle(
         parent="dialogbox_preview_drawlist",
         pmin=[0, 0],
         pmax=[PREVIEW_SIZE, PREVIEW_SIZE],
-        fill=[40, 40, 40, 255]
+        fill=[30, 30, 30, 255]
     )
 
     # Try to load and display the image
@@ -490,35 +508,86 @@ def _draw_placeholder_with_borders():
 
 def _draw_image_with_borders(image_path: str):
     """Draw the actual image with 9-slice border overlay."""
-    # For now, draw a placeholder and overlay the grid
-    # Full image loading would require texture management
+    global _loaded_texture_tag, _loaded_image_width, _loaded_image_height
+
     margin = 20
-    box_size = PREVIEW_SIZE - 2 * margin
+    max_size = PREVIEW_SIZE - 2 * margin
 
-    # Draw image placeholder (ideally load actual texture)
-    dpg.draw_rectangle(
-        parent="dialogbox_preview_drawlist",
-        pmin=[margin, margin],
-        pmax=[margin + box_size, margin + box_size],
-        fill=[80, 60, 60, 255],
-        color=[150, 100, 100, 255],
-        thickness=2
-    )
+    # Clean up old texture
+    if _loaded_texture_tag and dpg.does_item_exist(_loaded_texture_tag):
+        dpg.delete_item(_loaded_texture_tag)
+        _loaded_texture_tag = None
 
-    # Draw "Image Loaded" text
-    dpg.draw_text(
-        parent="dialogbox_preview_drawlist",
-        pos=[margin + 10, margin + box_size / 2 - 10],
-        text=Path(image_path).name,
-        size=14,
-        color=[200, 200, 200, 255]
-    )
+    # Create texture registry if needed
+    if not dpg.does_item_exist("dialogbox_texture_registry"):
+        dpg.add_texture_registry(tag="dialogbox_texture_registry")
 
-    # Draw 9-slice grid
-    _draw_9slice_grid(margin, margin, box_size, box_size)
+    # Load image
+    try:
+        width, height, channels, data = dpg.load_image(image_path)
+        if width == 0 or height == 0:
+            raise ValueError("Failed to load image")
+
+        # Store original dimensions for border scaling
+        _loaded_image_width = width
+        _loaded_image_height = height
+
+        # Create texture
+        _loaded_texture_tag = dpg.add_static_texture(
+            width=width,
+            height=height,
+            default_value=data,
+            parent="dialogbox_texture_registry"
+        )
+
+        # Calculate scaled dimensions to fit preview (maintain aspect ratio)
+        aspect = width / height
+        if aspect > 1:  # Wider than tall
+            display_width = max_size
+            display_height = max_size / aspect
+        else:  # Taller than wide
+            display_height = max_size
+            display_width = max_size * aspect
+
+        # Center the image
+        x_offset = margin + (max_size - display_width) / 2
+        y_offset = margin + (max_size - display_height) / 2
+
+        # Draw the image
+        dpg.draw_image(
+            _loaded_texture_tag,
+            parent="dialogbox_preview_drawlist",
+            pmin=[x_offset, y_offset],
+            pmax=[x_offset + display_width, y_offset + display_height]
+        )
+
+        # Draw 9-slice grid scaled to the displayed image size
+        _draw_9slice_grid(x_offset, y_offset, display_width, display_height,
+                         original_width=width, original_height=height)
+
+    except Exception as e:
+        print(f"[DialogBox] Error loading image texture: {e}")
+        # Fall back to placeholder
+        dpg.draw_rectangle(
+            parent="dialogbox_preview_drawlist",
+            pmin=[margin, margin],
+            pmax=[margin + max_size, margin + max_size],
+            fill=[80, 60, 60, 255],
+            color=[150, 100, 100, 255],
+            thickness=2
+        )
+        dpg.draw_text(
+            parent="dialogbox_preview_drawlist",
+            pos=[margin + 10, margin + max_size / 2 - 10],
+            text=f"Error: {Path(image_path).name}",
+            size=14,
+            color=[255, 100, 100, 255]
+        )
+        _draw_9slice_grid(margin, margin, max_size, max_size)
 
 
-def _draw_9slice_grid(x: float, y: float, width: float, height: float):
+def _draw_9slice_grid(x: float, y: float, width: float, height: float,
+                      original_width: int = 0, original_height: int = 0):
     """Draw the 9-slice grid lines with measurements."""
     # Get border values
     left = _config.border_left
@@ -526,12 +595,21 @@ def _draw_9slice_grid(x: float, y: float, width: float, height: float):
     right = _config.border_right
     bottom = _config.border_bottom
 
-    # Scale borders to preview size (assume original is similar size)
-    scale = min(width / 200, height / 200)  # Rough scale
-    scaled_left = min(left * scale, width / 3)
-    scaled_top = min(top * scale, height / 3)
-    scaled_right = min(right * scale, width / 3)
-    scaled_bottom = min(bottom * scale, height / 3)
+    # Scale borders based on actual image dimensions if available
+    if original_width > 0 and original_height > 0:
+        scale_x = width / original_width
+        scale_y = height / original_height
+        scaled_left = min(left * scale_x, width / 3)
+        scaled_top = min(top * scale_y, height / 3)
+        scaled_right = min(right * scale_x, width / 3)
+        scaled_bottom = min(bottom * scale_y, height / 3)
+    else:
+        # Fallback: assume 200x200 reference size
+        scale = min(width / 200, height / 200)
+        scaled_left = min(left * scale, width / 3)
+        scaled_top = min(top * scale, height / 3)
+        scaled_right = min(right * scale, width / 3)
+        scaled_bottom = min(bottom * scale, height / 3)
 
     # Line color
     line_color = [255, 200, 0, 200]
